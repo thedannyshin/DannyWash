@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>DannyWash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section id="summon" class="screen screen--summon" aria-label="Summon Danny">
+        <div class="summon__atmosphere" aria-hidden="true"></div>
+        <button type="button" id="come-btn" class="come-btn" aria-label="Come to Wash">
+          <span class="come-btn__sheen" aria-hidden="true"></span>
+          <span class="come-btn__rim" aria-hidden="true"></span>
+          <span class="come-btn__face">
+            <span class="come-btn__label">Come to Wash</span>
+          </span>
+        </button>
+      </section>
+
+      <section id="map" class="screen screen--map" hidden aria-label="Danny en route">
+        <div class="map-frame">
+          <p id="status" class="status">Danny is coming to wash!</p>
+          <div class="map-canvas" id="map-canvas" aria-hidden="true">
+            <svg class="map-grid" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <pattern id="blocks" width="12" height="12" patternUnits="userSpaceOnUse">
+                  <rect width="12" height="12" fill="transparent" />
+                  <rect x="1" y="1" width="4.5" height="3.2" rx="0.3" fill="rgba(40, 72, 58, 0.14)" />
+                  <rect x="6.5" y="5.2" width="4.2" height="5" rx="0.3" fill="rgba(40, 72, 58, 0.1)" />
+                  <rect x="1.5" y="7" width="3.8" height="3.5" rx="0.3" fill="rgba(40, 72, 58, 0.08)" />
+                </pattern>
+              </defs>
+              <rect width="100" height="100" fill="url(#blocks)" />
+              <g class="roads" stroke="rgba(255,255,255,0.55)" stroke-width="1.6" fill="none" stroke-linecap="round">
+                <path d="M8 18 H92" />
+                <path d="M8 42 H92" />
+                <path d="M8 66 H92" />
+                <path d="M8 88 H70" />
+                <path d="M22 8 V92" />
+                <path d="M48 8 V92" />
+                <path d="M74 8 V78" />
+                <path d="M8 42 L48 66" />
+                <path d="M48 42 L92 18" />
+              </g>
+              <g class="road-dashes" stroke="rgba(232, 196, 90, 0.45)" stroke-width="0.35" stroke-dasharray="1.2 1.6">
+                <path d="M8 18 H92" />
+                <path d="M8 42 H92" />
+                <path d="M8 66 H92" />
+                <path d="M22 8 V92" />
+                <path d="M48 8 V92" />
+                <path d="M74 8 V78" />
+              </g>
+            </svg>
+
+            <div class="you-pin" id="you-pin" style="left: 74%; top: 66%">
+              <span class="you-pin__pulse"></span>
+              <span class="you-pin__dot"></span>
+              <span class="you-pin__label">You</span>
+            </div>
+
+            <div class="danny" id="danny" style="left: 22%; top: 88%">
+              <img
+                src="assets/danny.png"
+                alt="Danny"
+                class="danny__photo"
+                width="96"
+                height="96"
+                draggable="false"
+              />
+              <span class="danny__ring"></span>
+            </div>
+
+            <svg class="trail" id="trail" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path
+                id="route"
+                fill="none"
+                stroke="rgba(20, 110, 90, 0.4)"
+                stroke-width="0.85"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-dasharray="1.4 1.1"
+              />
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section id="door" class="screen screen--door" hidden aria-label="Front door">
+        <div class="door-scene" id="door-scene">
+          <div class="door-behind" id="door-behind">
+            <div class="door-danny-zoom" id="door-danny-zoom">
+              <img
+                class="door-danny"
+                id="door-danny"
+                src="assets/danny.png"
+                alt="Danny"
+                width="428"
+                height="399"
+                draggable="false"
+              />
+            </div>
+          </div>
+          <button type="button" id="door-btn" class="door-panel" aria-label="Open the door">
+            <span class="door-panel__wood" aria-hidden="true"></span>
+            <span class="door-panel__panels" aria-hidden="true"></span>
+            <span class="door-panel__handle" aria-hidden="true"></span>
+          </button>
+        </div>
+        <p id="danny-left" class="danny-left" hidden>Danny left.</p>
+      </section>
+
+      <section id="wash" class="screen screen--wash" hidden aria-label="Danny washing">
+        <div class="wash-content">
+          <img
+            class="wash-gif"
+            src="assets/washing.gif"
+            alt="Danny washing the dishes"
+            width="330"
+            height="388"
+            draggable="false"
+          />
+          <p class="wash-caption">Danny is washing</p>
+          <button type="button" id="tip-btn" class="tip-btn" aria-label="Give 6 cents">
+            <span class="tip-btn__rim" aria-hidden="true"></span>
+            <span class="tip-btn__face">
+              <span class="tip-btn__label">give 6 cents</span>
+            </span>
+            <span class="tip-btn__sheen" aria-hidden="true"></span>
+          </button>
+          <p id="tip-total" class="tip-total" aria-live="polite">$0.00 given</p>
+          <div id="tip-bursts" class="tip-bursts" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section id="bye" class="screen screen--bye" hidden aria-label="Goodbye">
+        <div class="bye-content">
+          <img
+            class="bye-photo"
+            src="assets/danny.png"
+            alt="Danny"
+            width="428"
+            height="399"
+            draggable="false"
+          />
+          <p id="bye-total" class="bye-total">$0.00 tipped</p>
+          <button type="button" id="bye-btn" class="come-btn bye-btn" aria-label="Goodbye">
+            <span class="come-btn__sheen" aria-hidden="true"></span>
+            <span class="come-btn__rim" aria-hidden="true"></span>
+            <span class="come-btn__face">
+              <span class="come-btn__label">Goodbye</span>
+            </span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <audio
+      id="doorbell-audio"
+      src="assets/doorbell.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="coming-audio"
+      src="assets/coming.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="tip-audio"
+      src="assets/tip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="washing-audio"
+      src="assets/washing.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="knock-audio"
+      src="assets/knock.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="hello2-audio"
+      src="assets/hello2.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="goodbye-audio"
+      src="assets/goodbye.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="goodbye-lowtip-audio"
+      src="assets/goodbye-lowtip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="lowtip-audio"
+      src="assets/lowtip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="hightip-audio"
+      src="assets/hightip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <script src="app.js"></script>
+  </body>
+</html>
