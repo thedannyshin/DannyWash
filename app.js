@@ -1072,14 +1072,29 @@
     if (!doorOpened || !canRethinkDoor || sayingGoodbye || angryVisit) return;
     setDoorRethink(false);
     clearWashEnterTimer();
+    clearDoorNudge();
+    clearDoorHello();
     hideDoorWave();
-    doorOpened = false;
+    // Keep doorOpened so the door can't be opened again; showDannyLeft disables it.
+    doorDannyZoom.style.animation = "none";
+
+    try {
+      goodbyeLowtipAudio.muted = false;
+      goodbyeLowtipAudio.currentTime = 0;
+      const playPromise = goodbyeLowtipAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore
+    }
     door.classList.remove("is-open");
     doorBtn.setAttribute("aria-expanded", "false");
-    doorBtn.setAttribute("aria-label", "Open the door");
-    doorDannyZoom.style.animation = "none";
-    void doorDannyZoom.offsetWidth;
-    doorDannyZoom.style.animation = "";
+    playSlamNearClosed();
+
+    window.setTimeout(() => {
+      showDannyLeft({ countLeave: true });
+    }, reduceMotion ? 500 : DOOR_CLOSE_MS + 200);
   }
 
   function showDoor() {
