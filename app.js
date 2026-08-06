@@ -1045,27 +1045,29 @@
     }
   }
 
-  function spawnFlowers(clientX, clientY) {
+  function spawnFlowers() {
     const bounds = flowerBursts.getBoundingClientRect();
-    const originX = clientX - bounds.left;
-    const originY = clientY - bounds.top;
-    const count = reduceMotion ? 1 : 5;
-    const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹"];
+    const count = reduceMotion ? 3 : 14;
+    const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      const drift = (Math.random() * 110 - 55) * (reduceMotion ? 0 : 1);
-      const spin = `${Math.random() * 36 - 18}deg`;
-      const delay = reduceMotion ? 0 : i * 55;
-      el.style.setProperty("--x", `${originX + drift * 0.2}px`);
-      el.style.setProperty("--y", `${originY - i * 10}px`);
+      const x = bounds.width * (0.08 + Math.random() * 0.84);
+      const y = bounds.height * (0.12 + Math.random() * 0.62);
+      const drift = (Math.random() * 160 - 80) * (reduceMotion ? 0 : 1);
+      const lift = 120 + Math.random() * 180;
+      const spin = `${Math.random() * 48 - 24}deg`;
+      const delay = reduceMotion ? 0 : i * 40;
+      el.style.setProperty("--x", `${x}px`);
+      el.style.setProperty("--y", `${y}px`);
       el.style.setProperty("--drift", `${drift}px`);
+      el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 1300 + delay);
+      window.setTimeout(() => el.remove(), 1500 + delay);
     }
   }
 
@@ -1086,14 +1088,9 @@
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
-  function sendFlowers(event) {
+  function sendFlowers() {
     if (died.hidden) return;
-    const point = event && "clientX" in event
-      ? event
-      : flowersBtn.getBoundingClientRect();
-    const x = "clientX" in point ? point.clientX : point.left + point.width / 2;
-    const y = "clientY" in point ? point.clientY : point.top + point.height / 2;
-    spawnFlowers(x, y);
+    spawnFlowers();
   }
 
   function playGifClickSound(event) {
