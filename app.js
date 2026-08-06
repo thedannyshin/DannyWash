@@ -11,6 +11,9 @@
   const doorBtn = document.getElementById("door-btn");
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
+  const died = document.getElementById("died");
+  const flowersBtn = document.getElementById("flowers-btn");
+  const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
   const bye = document.getElementById("bye");
   const byeBtn = document.getElementById("bye-btn");
@@ -73,6 +76,8 @@
   const CRASH_SLOWDOWN_MS = 3900;
   const CRASH_CROSSFADE_MS = 950;
   const CRASH_MS = 4700;
+  const DIED_FACE_FADE_MS = 400;
+  const FLOWERS_RETURN_MS = 2800;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -131,6 +136,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
+  let flowersReturnTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1032,6 +1038,62 @@
     }
   }
 
+  function spawnFlowers(clientX, clientY) {
+    const bounds = flowerBursts.getBoundingClientRect();
+    const originX = clientX - bounds.left;
+    const originY = clientY - bounds.top;
+    const count = reduceMotion ? 1 : 5;
+    const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹"];
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("span");
+      el.className = "tip-flower";
+      el.textContent = flowers[i % flowers.length];
+      const drift = (Math.random() * 110 - 55) * (reduceMotion ? 0 : 1);
+      const spin = `${Math.random() * 36 - 18}deg`;
+      const delay = reduceMotion ? 0 : i * 55;
+      el.style.setProperty("--x", `${originX + drift * 0.2}px`);
+      el.style.setProperty("--y", `${originY - i * 10}px`);
+      el.style.setProperty("--drift", `${drift}px`);
+      el.style.setProperty("--spin", spin);
+      el.style.animationDelay = `${delay}ms`;
+      flowerBursts.appendChild(el);
+      window.setTimeout(() => el.remove(), 1300 + delay);
+    }
+  }
+
+  function clearFlowersReturnTimer() {
+    if (flowersReturnTimer) {
+      window.clearTimeout(flowersReturnTimer);
+      flowersReturnTimer = null;
+    }
+  }
+
+  function showDied() {
+    map.hidden = true;
+    died.hidden = false;
+    died.classList.remove("is-in");
+    void died.offsetWidth;
+    window.setTimeout(() => {
+      if (!died.hidden) died.classList.add("is-in");
+    }, reduceMotion ? 0 : DIED_FACE_FADE_MS);
+  }
+
+  function sendFlowers(event) {
+    if (died.hidden) return;
+    const point = event && "clientX" in event
+      ? event
+      : flowersBtn.getBoundingClientRect();
+    const x = "clientX" in point ? point.clientX : point.left + point.width / 2;
+    const y = "clientY" in point ? point.clientY : point.top + point.height / 2;
+    spawnFlowers(x, y);
+    clearFlowersReturnTimer();
+    flowersReturnTimer = window.setTimeout(() => {
+      flowersReturnTimer = null;
+      resetToStart();
+    }, reduceMotion ? 700 : FLOWERS_RETURN_MS);
+  }
+
   function playGifClickSound(event) {
     if (wash.hidden) return;
 
@@ -1172,7 +1234,7 @@
         if (crashResetTimer) window.clearTimeout(crashResetTimer);
         crashResetTimer = window.setTimeout(() => {
           crashResetTimer = null;
-          resetToStart();
+          showDied();
         }, reduceMotion ? 900 : CRASH_MS + 400);
         requestAnimationFrame(frame);
         return;
@@ -1341,9 +1403,13 @@
     rate.hidden = true;
     door.hidden = true;
     map.hidden = true;
+    died.hidden = true;
+    died.classList.remove("is-in");
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
+    if (flowerBursts) flowerBursts.replaceChildren();
+    clearFlowersReturnTimer();
     tipBtn.classList.remove("is-pressed");
     tipCents = 0;
     ratingStars = 0;
@@ -1737,6 +1803,7 @@
 
   doorBtn.addEventListener("click", openDoor);
   doorDanny.addEventListener("click", closeDoorChangeMind);
+  flowersBtn.addEventListener("click", sendFlowers);
 
   washGif.addEventListener("click", playGifClickSound);
   washGif.addEventListener("keydown", (event) => {

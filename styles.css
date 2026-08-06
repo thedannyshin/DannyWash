@@ -839,6 +839,126 @@ body {
   text-align: center;
 }
 
+/* ——— Died ——— */
+
+.screen--died {
+  background: #000;
+  overflow: hidden;
+  padding: 0;
+}
+
+.screen--died.is-in .died-face-wrap {
+  opacity: 1;
+}
+
+.screen--died.is-in .died-bottom {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.died-face-wrap {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease-out);
+  background: #000;
+}
+
+.died-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%;
+  filter: grayscale(1) contrast(1.08) brightness(0.92);
+  user-select: none;
+  pointer-events: none;
+}
+
+.died-face-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 28%, transparent 48%, rgba(0, 0, 0, 0.72) 78%, rgba(0, 0, 0, 0.92) 100%);
+  pointer-events: none;
+}
+
+.died-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding:
+    1.5rem
+    max(1.25rem, var(--safe-right))
+    max(1.75rem, var(--safe-bottom))
+    max(1.25rem, var(--safe-left));
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.9s var(--ease-out) 0.55s,
+    transform 0.9s var(--ease-out) 0.55s;
+  text-align: center;
+}
+
+.died-message {
+  margin: 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.55rem, 6.5vmin, 2.35rem);
+  letter-spacing: -0.03em;
+  color: #f2f2f2;
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+}
+
+.flowers-btn {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  padding: 0.75rem 1.35rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f7f7f7;
+  font-family: "Figtree", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s var(--ease-soft), background 0.15s var(--ease-soft);
+}
+
+.flowers-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.flowers-btn:active {
+  transform: scale(0.96);
+}
+
+.flowers-btn:focus-visible {
+  outline: 2px solid rgba(232, 196, 90, 0.8);
+  outline-offset: 3px;
+}
+
+.tip-flower {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  font-size: clamp(1.6rem, 7vmin, 2.5rem);
+  line-height: 1;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  animation: tip-cent-fly 1.15s var(--ease-out) forwards;
+  will-change: transform, opacity;
+}
+
 /* ——— Bye ——— */
 
 .screen--bye {
@@ -1434,8 +1554,17 @@ body {
   .screen--wash,
   .screen--bye,
   .screen--rate,
+  .screen--died .died-face-wrap,
+  .screen--died .died-bottom,
   .danny-left {
     animation: none;
+  }
+
+  .screen--died .died-face-wrap,
+  .screen--died .died-bottom {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
   .danny-left.is-fading {
@@ -1498,7 +1627,8 @@ body {
   }
 
   .tip-cent,
-  .tip-heart {
+  .tip-heart,
+  .tip-flower {
     animation: none;
     opacity: 1;
   }
