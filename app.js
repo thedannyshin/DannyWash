@@ -69,7 +69,8 @@
 
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
-  const CRASH_SLOWDOWN_MS = 520;
+  const CRASH_SLOWDOWN_MS = 1750;
+  const CRASH_CROSSFADE_MS = 950;
   const CRASH_MS = 4700;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -130,6 +131,7 @@
   let tripId = 0;
   let crashResetTimer = null;
   let forceCrashNext = false;
+  let comingFadeRaf = null;
   let audioCtx = null;
   const bufferCache = new Map();
   let activeSources = [];
@@ -343,6 +345,7 @@
   }
 
   function playComing() {
+    cancelComingFade();
     try {
       comingAudio.muted = false;
       comingAudio.volume = 1;
@@ -373,13 +376,82 @@
     }
   }
 
+  function cancelComingFade() {
+    if (comingFadeRaf) {
+      cancelAnimationFrame(comingFadeRaf);
+      comingFadeRaf = null;
+    }
+  }
+
   function stopComing() {
+    cancelComingFade();
     try {
       comingAudio.pause();
       comingAudio.currentTime = 0;
+      comingAudio.volume = 1;
     } catch {
       // Ignore
     }
+  }
+
+  function crossfadeComingToCrash() {
+    cancelComingFade();
+    const fadeMs = reduceMotion ? 0 : CRASH_CROSSFADE_MS;
+
+    try {
+      crashAudio.pause();
+      crashAudio.muted = false;
+      crashAudio.volume = fadeMs <= 0 ? 1 : 0;
+      crashAudio.currentTime = 0;
+      const playPromise = crashAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore
+    }
+
+    if (fadeMs <= 0) {
+      stopComing();
+      try {
+        crashAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+      return;
+    }
+
+    const start = performance.now();
+    let comingStartVol = 1;
+    try {
+      comingStartVol = Math.max(0.001, comingAudio.volume || 1);
+    } catch {
+      // Ignore
+    }
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      const eased = t * t * (3 - 2 * t);
+      try {
+        if (!comingAudio.paused) comingAudio.volume = comingStartVol * (1 - eased);
+        crashAudio.volume = eased;
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        comingFadeRaf = requestAnimationFrame(tick);
+      } else {
+        comingFadeRaf = null;
+        try {
+          comingAudio.pause();
+          comingAudio.currentTime = 0;
+          comingAudio.volume = 1;
+        } catch {
+          // Ignore
+        }
+      }
+    };
+    comingFadeRaf = requestAnimationFrame(tick);
   }
 
   function playDingDong() {
@@ -1075,7 +1147,8 @@
 
       if (crashing) {
         const raw = Math.min(1, (now - crashStart) / CRASH_SLOWDOWN_MS);
-        const coast = crashFromT + (1 - (1 - raw) * (1 - raw)) * 0.035;
+        // Ease-out coast so he keeps rolling a bit into the crash audio.
+        const coast = crashFromT + (1 - (1 - raw) * (1 - raw)) * 0.08;
         setDannyPos(pointAlongRoute(metrics, metrics.total * Math.min(coast, 0.98)));
         if (raw < 1) {
           requestAnimationFrame(frame);
@@ -1092,10 +1165,14 @@
         crashing = true;
         crashStart = now;
         crashFromT = t;
-        stopComing();
-        playCrash();
+        crossfadeComingToCrash();
         status.textContent = "Crash!";
         status.classList.remove("is-arrived");
+        if (crashResetTimer) window.clearTimeout(crashResetTimer);
+        crashResetTimer = window.setTimeout(() => {
+          crashResetTimer = null;
+          resetToStart();
+        }, reduceMotion ? 900 : CRASH_MS + 400);
         requestAnimationFrame(frame);
         return;
       }
@@ -1116,11 +1193,6 @@
     danny.classList.remove("is-moving");
     danny.classList.add("is-crashed");
     status.textContent = "Danny crashed.";
-    if (crashResetTimer) window.clearTimeout(crashResetTimer);
-    crashResetTimer = window.setTimeout(() => {
-      crashResetTimer = null;
-      resetToStart();
-    }, reduceMotion ? 900 : CRASH_MS);
   }
 
   function hideDoorWave() {
@@ -1289,9 +1361,16 @@
       window.clearTimeout(crashResetTimer);
       crashResetTimer = null;
     }
+    cancelComingFade();
     try {
       crashAudio.pause();
       crashAudio.currentTime = 0;
+      crashAudio.volume = 1;
+    } catch {
+      // Ignore
+    }
+    try {
+      comingAudio.volume = 1;
     } catch {
       // Ignore
     }
