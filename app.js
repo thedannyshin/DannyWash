@@ -77,7 +77,6 @@
   const CRASH_CROSSFADE_MS = 950;
   const CRASH_MS = 4700;
   const DIED_FACE_FADE_MS = 400;
-  const FLOWERS_RETURN_MS = 2800;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -136,7 +135,6 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
-  let flowersReturnTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -821,14 +819,21 @@
     }, DOORBELL_MS);
   }
 
-  function playDannyLeftSting({ delayMs = LEFT_STING_DELAY_MS } = {}) {
+  function playDannyLeftSting({ delayMs = LEFT_STING_DELAY_MS, onEnded = null } = {}) {
     stopDannyLeftSting();
+    dannyLeftAudio.onended = null;
     dannyLeftStingTimer = window.setTimeout(() => {
       dannyLeftStingTimer = null;
       try {
         dannyLeftAudio.muted = false;
         dannyLeftAudio.volume = 0;
         dannyLeftAudio.currentTime = 0;
+        if (typeof onEnded === "function") {
+          dannyLeftAudio.onended = () => {
+            dannyLeftAudio.onended = null;
+            onEnded();
+          };
+        }
         const playPromise = dannyLeftAudio.play();
         if (playPromise && typeof playPromise.catch === "function") {
           playPromise.catch(() => {});
@@ -871,6 +876,7 @@
       dannyLeftFadeRaf = null;
     }
     try {
+      dannyLeftAudio.onended = null;
       dannyLeftAudio.pause();
       dannyLeftAudio.currentTime = 0;
       dannyLeftAudio.volume = 1;
@@ -1062,13 +1068,6 @@
     }
   }
 
-  function clearFlowersReturnTimer() {
-    if (flowersReturnTimer) {
-      window.clearTimeout(flowersReturnTimer);
-      flowersReturnTimer = null;
-    }
-  }
-
   function showDied() {
     map.hidden = true;
     died.hidden = false;
@@ -1077,7 +1076,12 @@
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
-      playDannyLeftSting({ delayMs: 0 });
+      playDannyLeftSting({
+        delayMs: 0,
+        onEnded: () => {
+          if (!died.hidden) resetToStart();
+        },
+      });
     }, reduceMotion ? 0 : DIED_FACE_FADE_MS);
   }
 
@@ -1089,11 +1093,6 @@
     const x = "clientX" in point ? point.clientX : point.left + point.width / 2;
     const y = "clientY" in point ? point.clientY : point.top + point.height / 2;
     spawnFlowers(x, y);
-    clearFlowersReturnTimer();
-    flowersReturnTimer = window.setTimeout(() => {
-      flowersReturnTimer = null;
-      resetToStart();
-    }, reduceMotion ? 700 : FLOWERS_RETURN_MS);
   }
 
   function playGifClickSound(event) {
@@ -1408,7 +1407,6 @@
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
     if (flowerBursts) flowerBursts.replaceChildren();
-    clearFlowersReturnTimer();
     tipBtn.classList.remove("is-pressed");
     tipCents = 0;
     ratingStars = 0;
