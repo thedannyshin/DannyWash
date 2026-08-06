@@ -1046,23 +1046,23 @@
     }
   }
 
-  function spawnFlowers() {
+  function spawnFlowers(clientX, clientY) {
     const bounds = flowerBursts.getBoundingClientRect();
-    const count = reduceMotion ? 3 : 14;
+    const originX = clientX - bounds.left;
+    const originY = clientY - bounds.top;
+    const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      const x = bounds.width * (0.08 + Math.random() * 0.84);
-      const y = bounds.height * (0.12 + Math.random() * 0.62);
-      const drift = (Math.random() * 160 - 80) * (reduceMotion ? 0 : 1);
-      const lift = 120 + Math.random() * 180;
+      const drift = (Math.random() * 180 - 90) * (reduceMotion ? 0 : 1);
+      const lift = 160 + Math.random() * 220;
       const spin = `${Math.random() * 48 - 24}deg`;
-      const delay = reduceMotion ? 0 : i * 40;
-      el.style.setProperty("--x", `${x}px`);
-      el.style.setProperty("--y", `${y}px`);
+      const delay = reduceMotion ? 0 : i * 45;
+      el.style.setProperty("--x", `${originX + drift * 0.15}px`);
+      el.style.setProperty("--y", `${originY - i * 6}px`);
       el.style.setProperty("--drift", `${drift}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
