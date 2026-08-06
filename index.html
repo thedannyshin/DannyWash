@@ -107,12 +107,24 @@
                 draggable="false"
               />
             </div>
+            <img
+              class="door-wave"
+              id="door-wave"
+              src="assets/wave-hand.png"
+              alt=""
+              width="128"
+              height="128"
+              draggable="false"
+              hidden
+              aria-hidden="true"
+            />
           </div>
           <button type="button" id="door-btn" class="door-panel" aria-label="Open the door">
             <span class="door-panel__wood" aria-hidden="true"></span>
             <span class="door-panel__panels" aria-hidden="true"></span>
             <span class="door-panel__handle" aria-hidden="true"></span>
           </button>
+          <p id="door-hello" class="door-hello" aria-hidden="true">Hello!</p>
         </div>
         <p id="danny-left" class="danny-left" hidden>Danny left.</p>
       </section>
@@ -121,11 +133,15 @@
         <div class="wash-content">
           <img
             class="wash-gif"
+            id="wash-gif"
             src="assets/washing.gif"
             alt="Danny washing the dishes"
             width="330"
             height="388"
             draggable="false"
+            tabindex="0"
+            role="button"
+            aria-label="Play Danny tip line"
           />
           <p class="wash-caption">Danny is washing</p>
           <button type="button" id="tip-btn" class="tip-btn" aria-label="Give 6 cents">
@@ -160,6 +176,38 @@
           </button>
         </div>
       </section>
+
+      <section id="rate" class="screen screen--rate" hidden aria-label="Rate Danny">
+        <div class="rate-content">
+          <div id="rate-form" class="rate-form">
+            <h2 class="rate-title">Rate DannyWash</h2>
+            <div id="rate-stars" class="rate-stars" role="group" aria-label="Star rating">
+              <button type="button" class="rate-star" data-star="1" aria-label="1 star">★</button>
+              <button type="button" class="rate-star" data-star="2" aria-label="2 stars">★</button>
+              <button type="button" class="rate-star" data-star="3" aria-label="3 stars">★</button>
+              <button type="button" class="rate-star" data-star="4" aria-label="4 stars">★</button>
+              <button type="button" class="rate-star" data-star="5" aria-label="5 stars">★</button>
+            </div>
+            <label class="rate-comment-label" for="rate-comment">Comment</label>
+            <textarea
+              id="rate-comment"
+              class="rate-comment"
+              rows="3"
+              maxlength="280"
+              placeholder="How was your wash?"
+            ></textarea>
+            <button type="button" id="rate-submit" class="rate-submit" disabled>Submit</button>
+          </div>
+          <div id="rate-outcome" class="rate-outcome" hidden>
+            <p id="rate-rejected" class="rate-rejected" hidden>Rejected.</p>
+            <p id="rate-thanks" class="rate-thanks" hidden>
+              <span class="rate-thanks__check" aria-hidden="true">✓</span>
+              <span class="rate-thanks__text">Thanks for your comment</span>
+            </p>
+          </div>
+        </div>
+        <div id="rate-burst" class="rate-burst" aria-hidden="true"></div>
+      </section>
     </main>
     <audio
       id="doorbell-audio"
@@ -192,6 +240,12 @@
       playsinline
     ></audio>
     <audio
+      id="hello-knock-audio"
+      src="assets/hello-knock.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
       id="hello2-audio"
       src="assets/hello2.mp3"
       preload="auto"
@@ -218,6 +272,60 @@
     <audio
       id="hightip-audio"
       src="assets/hightip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="hightip2-audio"
+      src="assets/hightip2.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="slam-audio"
+      src="assets/slam.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="wash-line1-audio"
+      src="assets/wash-line1.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="wash-line2-audio"
+      src="assets/wash-line2.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="arrive-audio"
+      src="assets/arrive.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="door-knock-audio"
+      src="assets/door-knock.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="plate-break-audio"
+      src="assets/plate-break.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="danny-left-audio"
+      src="assets/danny-left.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="celebrate-audio"
+      src="assets/celebrate.mp3"
       preload="auto"
       playsinline
     ></audio>
