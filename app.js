@@ -72,10 +72,10 @@
 
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
-  // Hold motion through most of the crash clip (~4.7s) so he doesn't freeze early.
-  const CRASH_SLOWDOWN_MS = 3900;
-  const CRASH_CROSSFADE_MS = 950;
-  const CRASH_MS = 4700;
+  // Brief coast on the map, then cut to black while crash SFX finishes.
+  const CRASH_SLOWDOWN_MS = 1400;
+  const CRASH_CROSSFADE_MS = 700;
+  const CRASH_MS = 1800;
   const DIED_FACE_FADE_MS = 400;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -1234,7 +1234,7 @@
         crashResetTimer = window.setTimeout(() => {
           crashResetTimer = null;
           showDied();
-        }, reduceMotion ? 900 : CRASH_MS + 400);
+        }, reduceMotion ? 500 : CRASH_MS);
         requestAnimationFrame(frame);
         return;
       }
