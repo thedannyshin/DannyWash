@@ -101,6 +101,7 @@
   let washTimer = null;
   let washEnterTimer = null;
   let canRethinkDoor = false;
+  let rethinkKnockTimer = null;
   let doorNudgeTimer = null;
   let doorNudge2Timer = null;
   let helloKnockTimer = null;
@@ -590,31 +591,6 @@
     playOnce(el);
   }
 
-  function playAngrySlamVoices() {
-    const playOnce = (audioEl) => {
-      try {
-        audioEl.muted = false;
-        audioEl.currentTime = 0;
-        const playPromise = audioEl.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {});
-        }
-      } catch {
-        // Ignore
-      }
-    };
-
-    goodbyeLowtipAudio.onended = null;
-    lowtipAudio.onended = null;
-    lowtipPlayed = true;
-    lowtipStartedAt = performance.now();
-    lowtipAudio.onended = () => {
-      lowtipAudio.onended = null;
-      playOnce(goodbyeLowtipAudio);
-    };
-    playOnce(lowtipAudio);
-  }
-
   function playHighTip() {
     playDelayed("hightip", hightipAudio);
   }
@@ -633,9 +609,17 @@
       doorNudge2Timer = null;
     }
     clearHelloKnockTimer();
+    clearRethinkKnockTimer();
     if (leftTimer) {
       window.clearTimeout(leftTimer);
       leftTimer = null;
+    }
+  }
+
+  function clearRethinkKnockTimer() {
+    if (rethinkKnockTimer) {
+      window.clearTimeout(rethinkKnockTimer);
+      rethinkKnockTimer = null;
     }
   }
 
@@ -1099,21 +1083,30 @@
     clearWashEnterTimer();
     clearDoorNudge();
     clearDoorHello();
+    stopKnock();
     hideDoorWave();
-    // Keep doorOpened so the door can't be opened again; showDannyLeft disables it.
-    doorDannyZoom.style.animation = "none";
 
-    playAngrySlamVoices();
+    // Stay "opened" so the door can't be opened again this visit.
     door.classList.remove("is-open");
+    doorBtn.disabled = true;
     doorBtn.setAttribute("aria-expanded", "false");
-    playSlamNearClosed();
+    doorBtn.setAttribute("aria-label", "Door closed");
+    doorDannyZoom.style.animation = "none";
+    void doorDannyZoom.offsetWidth;
+    doorDannyZoom.style.animation = "";
 
-    const leaveWait = reduceMotion
-      ? 500
-      : Math.max(DOOR_CLOSE_MS + 200, LOWTIP_MS + 900);
-    window.setTimeout(() => {
-      showDannyLeft({ countLeave: true });
-    }, leaveWait);
+    // After the door finishes closing: knock, then lowtip line.
+    clearRethinkKnockTimer();
+    rethinkKnockTimer = window.setTimeout(() => {
+      rethinkKnockTimer = null;
+      if (sayingGoodbye || door.hidden) return;
+      playDoorKnock();
+      rethinkKnockTimer = window.setTimeout(() => {
+        rethinkKnockTimer = null;
+        if (sayingGoodbye || door.hidden) return;
+        playLowTip();
+      }, DOOR_KNOCK_MS);
+    }, reduceMotion ? 80 : DOOR_CLOSE_MS);
   }
 
   function showDoor() {
@@ -1506,14 +1499,23 @@
     if (hello2Done) {
       const halfOpenMs = reduceMotion ? 100 : Math.round(DOOR_OPEN_MS / 2);
       window.setTimeout(() => {
-        playAngrySlamVoices();
+        try {
+          goodbyeLowtipAudio.muted = false;
+          goodbyeLowtipAudio.currentTime = 0;
+          const playPromise = goodbyeLowtipAudio.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
+        } catch {
+          // Ignore
+        }
         door.classList.remove("is-open");
         doorBtn.setAttribute("aria-expanded", "false");
         playSlamNearClosed();
       }, halfOpenMs);
       window.setTimeout(() => {
         showDannyLeft({ countLeave: true });
-      }, reduceMotion ? 700 : halfOpenMs + Math.max(DOOR_CLOSE_MS + 200, LOWTIP_MS + 900));
+      }, reduceMotion ? 700 : halfOpenMs + DOOR_CLOSE_MS + 200);
       return;
     }
 
