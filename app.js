@@ -1231,8 +1231,6 @@
         crashStart = now;
         crashFromT = t;
         crossfadeComingToCrash();
-        status.textContent = "Crash!";
-        status.classList.remove("is-arrived");
         if (crashResetTimer) window.clearTimeout(crashResetTimer);
         crashResetTimer = window.setTimeout(() => {
           crashResetTimer = null;
@@ -1257,7 +1255,6 @@
   function finishCrash() {
     danny.classList.remove("is-moving");
     danny.classList.add("is-crashed");
-    status.textContent = "Danny crashed.";
   }
 
   function hideDoorWave() {
