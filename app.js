@@ -75,7 +75,7 @@
   const DOORBELL_MS = 3500;
   const ARRIVE_LINE_MS = 1500;
   const DOOR_KNOCK_MS = 4300;
-  const DOOR_KNOCK_AUDIO_MS = 1100;
+  const DOOR_KNOCK_CLIP_MS = 1150;
   const ANGRY_LEAVE_THRESHOLD = 3;
   const LEAVE_AFTER_FIRST_MIN_MS = 500;
   const LEAVE_AFTER_FIRST_MAX_MS = 12000;
@@ -1106,7 +1106,7 @@
         rethinkKnockTimer = null;
         if (sayingGoodbye || door.hidden) return;
         playLowTip();
-      }, DOOR_KNOCK_AUDIO_MS);
+      }, DOOR_KNOCK_MS);
     }, reduceMotion ? 80 : DOOR_CLOSE_MS);
   }
 
