@@ -1,0 +1,20 @@
+---
+description: Auto commit and push after code changes
+alwaysApply: true
+---
+
+# Auto commit & push
+
+After finishing code changes in this repo:
+
+1. Commit with a concise message that focuses on why
+2. Push to `origin` on the current branch
+
+Do this by default — do not wait for the user to say "push" or "commit".
+
+Skip only when:
+- The user explicitly says not to commit or push
+- There is nothing to commit
+- Secrets or credentials would be included
+
+Follow the existing git safety protocol (no force push to main/master, no config changes, no skipping hooks, HEREDOC commit messages).
