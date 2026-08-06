@@ -821,7 +821,7 @@
     }, DOORBELL_MS);
   }
 
-  function playDannyLeftSting() {
+  function playDannyLeftSting({ delayMs = LEFT_STING_DELAY_MS } = {}) {
     stopDannyLeftSting();
     dannyLeftStingTimer = window.setTimeout(() => {
       dannyLeftStingTimer = null;
@@ -858,7 +858,7 @@
         }
       };
       dannyLeftFadeRaf = requestAnimationFrame(tick);
-    }, LEFT_STING_DELAY_MS);
+    }, Math.max(0, delayMs));
   }
 
   function stopDannyLeftSting() {
@@ -1075,7 +1075,9 @@
     died.classList.remove("is-in");
     void died.offsetWidth;
     window.setTimeout(() => {
-      if (!died.hidden) died.classList.add("is-in");
+      if (died.hidden) return;
+      died.classList.add("is-in");
+      playDannyLeftSting({ delayMs: 0 });
     }, reduceMotion ? 0 : DIED_FACE_FADE_MS);
   }
 
