@@ -76,6 +76,7 @@
   const CRASH_SLOWDOWN_MS = 1400;
   const CRASH_CROSSFADE_MS = 700;
   const CRASH_MS = 1800;
+  const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -1082,7 +1083,7 @@
           if (!died.hidden) resetToStart();
         },
       });
-    }, reduceMotion ? 0 : DIED_FACE_FADE_MS);
+    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
   function sendFlowers(event) {
