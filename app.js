@@ -6,6 +6,7 @@
   const doorBehind = document.getElementById("door-behind");
   const doorDanny = document.getElementById("door-danny");
   const doorDannyZoom = document.getElementById("door-danny-zoom");
+  const doorRethinkVideo = document.getElementById("door-rethink-video");
   const doorWave = document.getElementById("door-wave");
   const doorBtn = document.getElementById("door-btn");
   const doorHello = document.getElementById("door-hello");
@@ -76,6 +77,7 @@
   const ARRIVE_LINE_MS = 1500;
   const DOOR_KNOCK_MS = 4300;
   const DOOR_KNOCK_CLIP_MS = 1150;
+  const RETHINK_VIDEO_MS = 1950;
   const ANGRY_LEAVE_THRESHOLD = 3;
   const LEAVE_AFTER_FIRST_MIN_MS = 500;
   const LEAVE_AFTER_FIRST_MAX_MS = 12000;
@@ -1078,6 +1080,65 @@
     }
   }
 
+  function hideRethinkVideo() {
+    if (!doorRethinkVideo) return;
+    doorRethinkVideo.onended = null;
+    try {
+      doorRethinkVideo.pause();
+      doorRethinkVideo.currentTime = 0;
+    } catch {
+      // Ignore
+    }
+    doorRethinkVideo.hidden = true;
+    if (doorDannyZoom) doorDannyZoom.hidden = false;
+  }
+
+  function playRethinkOpenVideo() {
+    if (sayingGoodbye || door.hidden) return;
+    if (doorDannyZoom) doorDannyZoom.hidden = true;
+    if (doorRethinkVideo) {
+      doorRethinkVideo.hidden = false;
+      doorRethinkVideo.onended = null;
+      try {
+        doorRethinkVideo.currentTime = 0;
+        const playPromise = doorRethinkVideo.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    doorBtn.style.transition = "";
+    door.classList.add("is-open");
+    doorBtn.setAttribute("aria-expanded", "true");
+    doorBtn.disabled = true;
+
+    let finished = false;
+    const finish = () => {
+      if (finished || sayingGoodbye || door.hidden) return;
+      finished = true;
+      if (doorRethinkVideo) doorRethinkVideo.onended = null;
+      if (rethinkKnockTimer) {
+        window.clearTimeout(rethinkKnockTimer);
+        rethinkKnockTimer = null;
+      }
+      door.classList.remove("is-open");
+      doorBtn.setAttribute("aria-expanded", "false");
+      playSlamNearClosed();
+      window.setTimeout(() => {
+        hideRethinkVideo();
+        showDannyLeft({ countLeave: true });
+      }, reduceMotion ? 400 : Math.round(DOOR_CLOSE_MS * 0.55));
+    };
+
+    if (doorRethinkVideo) {
+      doorRethinkVideo.onended = finish;
+    }
+    rethinkKnockTimer = window.setTimeout(finish, reduceMotion ? 600 : RETHINK_VIDEO_MS + 150);
+  }
+
   function closeDoorChangeMind() {
     if (!doorOpened || !canRethinkDoor || sayingGoodbye || angryVisit) return;
     setDoorRethink(false);
@@ -1086,6 +1147,7 @@
     clearDoorHello();
     stopKnock();
     hideDoorWave();
+    hideRethinkVideo();
 
     // Stay "opened" so the door can't be opened again this visit.
     door.classList.remove("is-open");
@@ -1096,7 +1158,7 @@
     void doorDannyZoom.offsetWidth;
     doorDannyZoom.style.animation = "";
 
-    // After the door finishes closing: knock, then lowtip line.
+    // Close → knock → lowtip → wait 2–5s → knock → open with video.
     clearRethinkKnockTimer();
     rethinkKnockTimer = window.setTimeout(() => {
       rethinkKnockTimer = null;
@@ -1106,6 +1168,16 @@
         rethinkKnockTimer = null;
         if (sayingGoodbye || door.hidden) return;
         playLowTip();
+        rethinkKnockTimer = window.setTimeout(() => {
+          rethinkKnockTimer = null;
+          if (sayingGoodbye || door.hidden) return;
+          playDoorKnock();
+          rethinkKnockTimer = window.setTimeout(() => {
+            rethinkKnockTimer = null;
+            if (sayingGoodbye || door.hidden) return;
+            playRethinkOpenVideo();
+          }, DOOR_KNOCK_CLIP_MS);
+        }, LOWTIP_MS + randomMs(HELLO_GAP_MIN_MS, HELLO_GAP_MAX_MS));
       }, DOOR_KNOCK_CLIP_MS);
     }, reduceMotion ? 80 : DOOR_CLOSE_MS);
   }
@@ -1116,6 +1188,7 @@
     dannyGone = false;
     hello2Done = false;
     hideDoorWave();
+    hideRethinkVideo();
     doorDannyZoom.style.animation = "none";
     // Force reflow so zoom can replay next open.
     void doorDannyZoom.offsetWidth;
@@ -1226,6 +1299,7 @@
     hideDoorWave();
     clearWashEnterTimer();
     setDoorRethink(false);
+    hideRethinkVideo();
     doorDannyZoom.style.animation = "none";
     danny.classList.remove("is-moving", "is-arrived");
     setDannyPos(WAYPOINTS[0]);
