@@ -590,6 +590,31 @@
     playOnce(el);
   }
 
+  function playAngrySlamVoices() {
+    const playOnce = (audioEl) => {
+      try {
+        audioEl.muted = false;
+        audioEl.currentTime = 0;
+        const playPromise = audioEl.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+      } catch {
+        // Ignore
+      }
+    };
+
+    goodbyeLowtipAudio.onended = null;
+    lowtipAudio.onended = null;
+    lowtipPlayed = true;
+    lowtipStartedAt = performance.now();
+    lowtipAudio.onended = () => {
+      lowtipAudio.onended = null;
+      playOnce(goodbyeLowtipAudio);
+    };
+    playOnce(lowtipAudio);
+  }
+
   function playHighTip() {
     playDelayed("hightip", hightipAudio);
   }
@@ -1078,28 +1103,17 @@
     // Keep doorOpened so the door can't be opened again; showDannyLeft disables it.
     doorDannyZoom.style.animation = "none";
 
-    const slamAndLeave = () => {
-      try {
-        goodbyeLowtipAudio.muted = false;
-        goodbyeLowtipAudio.currentTime = 0;
-        const playPromise = goodbyeLowtipAudio.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {});
-        }
-      } catch {
-        // Ignore
-      }
-      door.classList.remove("is-open");
-      doorBtn.setAttribute("aria-expanded", "false");
-      playSlamNearClosed();
+    playAngrySlamVoices();
+    door.classList.remove("is-open");
+    doorBtn.setAttribute("aria-expanded", "false");
+    playSlamNearClosed();
 
-      window.setTimeout(() => {
-        showDannyLeft({ countLeave: true });
-      }, reduceMotion ? 500 : DOOR_CLOSE_MS + 200);
-    };
-
-    // lowtip.mp3, then goodbye-lowtip.mp3 as the door slams.
-    whenLowtipDone(slamAndLeave);
+    const leaveWait = reduceMotion
+      ? 500
+      : Math.max(DOOR_CLOSE_MS + 200, LOWTIP_MS + 900);
+    window.setTimeout(() => {
+      showDannyLeft({ countLeave: true });
+    }, leaveWait);
   }
 
   function showDoor() {
@@ -1492,25 +1506,14 @@
     if (hello2Done) {
       const halfOpenMs = reduceMotion ? 100 : Math.round(DOOR_OPEN_MS / 2);
       window.setTimeout(() => {
-        whenLowtipDone(() => {
-          try {
-            goodbyeLowtipAudio.muted = false;
-            goodbyeLowtipAudio.currentTime = 0;
-            const playPromise = goodbyeLowtipAudio.play();
-            if (playPromise && typeof playPromise.catch === "function") {
-              playPromise.catch(() => {});
-            }
-          } catch {
-            // Ignore
-          }
-          door.classList.remove("is-open");
-          doorBtn.setAttribute("aria-expanded", "false");
-          playSlamNearClosed();
-          window.setTimeout(() => {
-            showDannyLeft({ countLeave: true });
-          }, reduceMotion ? 500 : DOOR_CLOSE_MS + 200);
-        });
+        playAngrySlamVoices();
+        door.classList.remove("is-open");
+        doorBtn.setAttribute("aria-expanded", "false");
+        playSlamNearClosed();
       }, halfOpenMs);
+      window.setTimeout(() => {
+        showDannyLeft({ countLeave: true });
+      }, reduceMotion ? 700 : halfOpenMs + Math.max(DOOR_CLOSE_MS + 200, LOWTIP_MS + 900));
       return;
     }
 
