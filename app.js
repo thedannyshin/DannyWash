@@ -69,7 +69,8 @@
 
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
-  const CRASH_SLOWDOWN_MS = 1750;
+  // Hold motion through most of the crash clip (~4.7s) so he doesn't freeze early.
+  const CRASH_SLOWDOWN_MS = 3900;
   const CRASH_CROSSFADE_MS = 950;
   const CRASH_MS = 4700;
   const DOOR_OPEN_MS = 1150;
@@ -1147,9 +1148,9 @@
 
       if (crashing) {
         const raw = Math.min(1, (now - crashStart) / CRASH_SLOWDOWN_MS);
-        // Ease-out coast so he keeps rolling a bit into the crash audio.
-        const coast = crashFromT + (1 - (1 - raw) * (1 - raw)) * 0.08;
-        setDannyPos(pointAlongRoute(metrics, metrics.total * Math.min(coast, 0.98)));
+        // Keep rolling for most of the crash SFX, then ease to a stop.
+        const coast = crashFromT + (1 - Math.pow(1 - raw, 2.4)) * 0.14;
+        setDannyPos(pointAlongRoute(metrics, metrics.total * Math.min(coast, 0.99)));
         if (raw < 1) {
           requestAnimationFrame(frame);
         } else {
