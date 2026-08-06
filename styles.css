@@ -299,6 +299,15 @@ body {
     0 0 48px rgba(234, 246, 241, 0.85),
     0 1px 0 rgba(255, 255, 255, 0.7);
   pointer-events: none;
+  transition: opacity 0.45s var(--ease-out);
+}
+
+.status.is-hiding {
+  opacity: 0;
+}
+
+.status[hidden] {
+  display: none;
 }
 
 .status.is-arrived {

@@ -71,6 +71,7 @@
   const FACE = { x: 0.5, y: 0.4 };
 
   const DURATION_MS = 6800;
+  const STATUS_COMING_MS = 2000;
   const CRASH_CHANCE = 0.18;
   // Brief coast on the map, then cut to black while crash SFX finishes.
   const CRASH_SLOWDOWN_MS = 900;
@@ -136,6 +137,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
+  let statusComingTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1457,8 +1459,10 @@
     doorDannyZoom.style.animation = "none";
     danny.classList.remove("is-moving", "is-arrived", "is-crashed");
     setDannyPos(WAYPOINTS[0]);
+    clearStatusComingTimer();
+    status.hidden = false;
     status.textContent = "Danny is coming to wash!";
-    status.classList.remove("is-arrived");
+    status.classList.remove("is-arrived", "is-hiding");
     route.removeAttribute("d");
 
     started = false;
@@ -1674,10 +1678,35 @@
     window.setTimeout(showRating, wait);
   }
 
+  function clearStatusComingTimer() {
+    if (statusComingTimer) {
+      window.clearTimeout(statusComingTimer);
+      statusComingTimer = null;
+    }
+  }
+
+  function showComingStatus() {
+    clearStatusComingTimer();
+    status.hidden = false;
+    status.textContent = "Danny is coming to wash!";
+    status.classList.remove("is-arrived", "is-hiding");
+    statusComingTimer = window.setTimeout(() => {
+      statusComingTimer = null;
+      if (map.hidden) return;
+      status.classList.add("is-hiding");
+      window.setTimeout(() => {
+        if (status.classList.contains("is-hiding")) status.hidden = true;
+      }, reduceMotion ? 0 : 450);
+    }, reduceMotion ? 800 : STATUS_COMING_MS);
+  }
+
   function finishArrival() {
+    clearStatusComingTimer();
     danny.classList.remove("is-moving");
     danny.classList.add("is-arrived");
+    status.hidden = false;
     status.textContent = "He's here.";
+    status.classList.remove("is-hiding");
     status.classList.add("is-arrived");
     stopComing();
     window.setTimeout(showDoor, reduceMotion ? 400 : 1100);
@@ -1686,6 +1715,7 @@
   function showMap() {
     summon.hidden = true;
     map.hidden = false;
+    showComingStatus();
     buildRoutePath(WAYPOINTS);
     const metrics = buildRouteMetrics(WAYPOINTS);
     setDannyPos(WAYPOINTS[0]);
