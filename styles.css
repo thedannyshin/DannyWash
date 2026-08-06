@@ -520,6 +520,12 @@ body {
   box-shadow: none;
   pointer-events: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.screen--door.is-open.is-rethink .door-danny {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .screen--door.is-open .door-danny-zoom {
@@ -889,31 +895,31 @@ body {
 .screen--rate.is-celebrate .rate-star.is-dancing:nth-child(1) {
   left: 6%;
   top: 8%;
-  animation: rate-celebrate-star-1 0.78s ease-in-out infinite alternate;
+  animation: rate-celebrate-star-1 0.28s ease-in-out infinite alternate;
 }
 
 .screen--rate.is-celebrate .rate-star.is-dancing:nth-child(2) {
   right: 5%;
   top: 14%;
-  animation: rate-celebrate-star-2 0.95s ease-in-out infinite alternate;
+  animation: rate-celebrate-star-2 0.34s ease-in-out infinite alternate;
 }
 
 .screen--rate.is-celebrate .rate-star.is-dancing:nth-child(3) {
   left: 42%;
   top: 34%;
-  animation: rate-celebrate-star-3 1.08s ease-in-out infinite alternate;
+  animation: rate-celebrate-star-3 0.3s ease-in-out infinite alternate;
 }
 
 .screen--rate.is-celebrate .rate-star.is-dancing:nth-child(4) {
   left: 10%;
   bottom: 18%;
-  animation: rate-celebrate-star-4 0.86s ease-in-out infinite alternate;
+  animation: rate-celebrate-star-4 0.26s ease-in-out infinite alternate;
 }
 
 .screen--rate.is-celebrate .rate-star.is-dancing:nth-child(5) {
   right: 8%;
   bottom: 22%;
-  animation: rate-celebrate-star-5 1.02s ease-in-out infinite alternate;
+  animation: rate-celebrate-star-5 0.32s ease-in-out infinite alternate;
 }
 
 .screen--rate.is-celebrate .rate-thanks {

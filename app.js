@@ -99,6 +99,8 @@
   let sayingGoodbye = false;
   let audioUnlocked = false;
   let washTimer = null;
+  let washEnterTimer = null;
+  let canRethinkDoor = false;
   let doorNudgeTimer = null;
   let doorNudge2Timer = null;
   let helloKnockTimer = null;
@@ -1051,6 +1053,35 @@
     doorWave.hidden = true;
   }
 
+  function clearWashEnterTimer() {
+    if (washEnterTimer) {
+      window.clearTimeout(washEnterTimer);
+      washEnterTimer = null;
+    }
+  }
+
+  function setDoorRethink(on) {
+    canRethinkDoor = on;
+    door.classList.toggle("is-rethink", on);
+    if (doorDanny) {
+      doorDanny.title = on ? "Close the door" : "";
+    }
+  }
+
+  function closeDoorChangeMind() {
+    if (!doorOpened || !canRethinkDoor || sayingGoodbye || angryVisit) return;
+    setDoorRethink(false);
+    clearWashEnterTimer();
+    hideDoorWave();
+    doorOpened = false;
+    door.classList.remove("is-open");
+    doorBtn.setAttribute("aria-expanded", "false");
+    doorBtn.setAttribute("aria-label", "Open the door");
+    doorDannyZoom.style.animation = "none";
+    void doorDannyZoom.offsetWidth;
+    doorDannyZoom.style.animation = "";
+  }
+
   function showDoor() {
     map.hidden = true;
     door.hidden = false;
@@ -1067,6 +1098,8 @@
   }
 
   function showWash() {
+    clearWashEnterTimer();
+    setDoorRethink(false);
     hideDoorWave();
     door.hidden = true;
     wash.hidden = false;
@@ -1163,6 +1196,8 @@
     dannyLeft.style.animation = "";
     dannyLeft.hidden = true;
     hideDoorWave();
+    clearWashEnterTimer();
+    setDoorRethink(false);
     doorDannyZoom.style.animation = "none";
     danny.classList.remove("is-moving", "is-arrived");
     setDannyPos(WAYPOINTS[0]);
@@ -1458,8 +1493,14 @@
     }
 
     showDoorWave();
+    setDoorRethink(true);
     const wait = reduceMotion ? 600 : DOOR_OPEN_MS + HEADSHOT_HOLD_MS;
-    window.setTimeout(showWash, wait);
+    clearWashEnterTimer();
+    washEnterTimer = window.setTimeout(() => {
+      washEnterTimer = null;
+      setDoorRethink(false);
+      showWash();
+    }, wait);
   }
 
   comeBtn.addEventListener("pointerdown", () => {
@@ -1487,6 +1528,7 @@
   });
 
   doorBtn.addEventListener("click", openDoor);
+  doorDanny.addEventListener("click", closeDoorChangeMind);
 
   washGif.addEventListener("click", playGifClickSound);
   washGif.addEventListener("keydown", (event) => {
