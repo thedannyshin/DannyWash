@@ -1089,9 +1089,14 @@
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
-  function sendFlowers() {
+  function sendFlowers(event) {
     if (died.hidden) return;
-    spawnFlowers();
+    const point = event && "clientX" in event
+      ? event
+      : flowersBtn.getBoundingClientRect();
+    const x = "clientX" in point ? point.clientX : point.left + point.width / 2;
+    const y = "clientY" in point ? point.clientY : point.top + point.height / 2;
+    spawnFlowers(x, y);
   }
 
   function playGifClickSound(event) {
