@@ -523,20 +523,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.door-rethink-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: #0c0a08;
-  pointer-events: none;
-}
-
-.door-rethink-video[hidden] {
-  display: none;
-}
-
 .screen--door.is-open.is-rethink .door-danny {
   pointer-events: auto;
   cursor: pointer;
