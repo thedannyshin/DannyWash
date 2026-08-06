@@ -402,8 +402,31 @@ body {
   animation: arrive-pop 0.55s var(--ease-out) both;
 }
 
+.danny.is-crashed .danny__photo {
+  animation: danny-crash-shake 0.45s ease-out both;
+  filter: grayscale(0.35) contrast(1.05);
+}
+
 .danny.is-arrived .danny__ring {
   animation: ring-burst 0.7s var(--ease-out) both;
+}
+
+@keyframes danny-crash-shake {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-4px, 2px) rotate(-6deg);
+  }
+  40% {
+    transform: translate(5px, -2px) rotate(5deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(-3deg);
+  }
+  100% {
+    transform: translate(0, 3px) rotate(-8deg);
+  }
 }
 
 @keyframes danny-bob {
@@ -1372,7 +1395,8 @@ body {
   .summon__atmosphere::before,
   .come-btn,
   .you-pin__pulse,
-  .danny.is-moving .danny__photo {
+  .danny.is-moving .danny__photo,
+  .danny.is-crashed .danny__photo {
     animation: none;
   }
 

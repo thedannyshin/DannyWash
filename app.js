@@ -44,6 +44,7 @@
   const arriveAudio = document.getElementById("arrive-audio");
   const doorKnockAudio = document.getElementById("door-knock-audio");
   const openDoorAudio = document.getElementById("open-door-audio");
+  const crashAudio = document.getElementById("crash-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
@@ -66,6 +67,9 @@
   const FACE = { x: 0.5, y: 0.4 };
 
   const DURATION_MS = 6800;
+  const CRASH_CHANCE = 0.18;
+  const CRASH_SLOWDOWN_MS = 520;
+  const CRASH_MS = 4700;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -122,6 +126,8 @@
   let washLineDuckCount = 0;
   let gifHightipDuckCount = 0;
   let activeTipSfx = [];
+  let tripId = 0;
+  let crashResetTimer = null;
   let audioCtx = null;
   const bufferCache = new Map();
   let activeSources = [];
@@ -165,6 +171,7 @@
       ["arrive", "assets/arrive.mp3"],
       ["doorknock", "assets/door-knock.mp3"],
       ["opendoor", "assets/open-door.mp3"],
+      ["crash", "assets/crash.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
     ].forEach(([key, url]) => {
@@ -532,6 +539,10 @@
 
   function playOpenDoorLine() {
     playDelayed("opendoor", openDoorAudio);
+  }
+
+  function playCrash() {
+    playDelayed("crash", crashAudio);
   }
 
   function playLowTip() {
@@ -1038,6 +1049,8 @@
   }
 
   function animateDanny(metrics) {
+    const myTrip = ++tripId;
+    danny.classList.remove("is-crashed");
     danny.classList.add("is-moving");
     const end = WAYPOINTS[WAYPOINTS.length - 1];
 
@@ -1047,11 +1060,43 @@
       return;
     }
 
+    const willCrash = Math.random() < CRASH_CHANCE;
+    const crashAt = willCrash ? 0.25 + Math.random() * 0.45 : null;
     const startTime = performance.now();
+    let crashing = false;
+    let crashStart = 0;
+    let crashFromT = 0;
 
     function frame(now) {
+      if (myTrip !== tripId) return;
+
+      if (crashing) {
+        const raw = Math.min(1, (now - crashStart) / CRASH_SLOWDOWN_MS);
+        const coast = crashFromT + (1 - (1 - raw) * (1 - raw)) * 0.035;
+        setDannyPos(pointAlongRoute(metrics, metrics.total * Math.min(coast, 0.98)));
+        if (raw < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          finishCrash();
+        }
+        return;
+      }
+
       const raw = Math.min(1, (now - startTime) / DURATION_MS);
       const t = easeInOutCubic(raw);
+
+      if (crashAt !== null && raw >= crashAt) {
+        crashing = true;
+        crashStart = now;
+        crashFromT = t;
+        stopComing();
+        playCrash();
+        status.textContent = "Crash!";
+        status.classList.remove("is-arrived");
+        requestAnimationFrame(frame);
+        return;
+      }
+
       setDannyPos(pointAlongRoute(metrics, metrics.total * t));
 
       if (raw < 1) {
@@ -1062,6 +1107,17 @@
     }
 
     requestAnimationFrame(frame);
+  }
+
+  function finishCrash() {
+    danny.classList.remove("is-moving");
+    danny.classList.add("is-crashed");
+    status.textContent = "Danny crashed.";
+    if (crashResetTimer) window.clearTimeout(crashResetTimer);
+    crashResetTimer = window.setTimeout(() => {
+      crashResetTimer = null;
+      resetToStart();
+    }, reduceMotion ? 900 : CRASH_MS);
   }
 
   function hideDoorWave() {
@@ -1225,6 +1281,17 @@
     stopDannyLeftSting();
     stopCelebrate();
     clearDoorNudge();
+    tripId += 1;
+    if (crashResetTimer) {
+      window.clearTimeout(crashResetTimer);
+      crashResetTimer = null;
+    }
+    try {
+      crashAudio.pause();
+      crashAudio.currentTime = 0;
+    } catch {
+      // Ignore
+    }
     try {
       doorbellAudio.pause();
       doorbellAudio.currentTime = 0;
@@ -1244,7 +1311,7 @@
     clearWashEnterTimer();
     setDoorRethink(false);
     doorDannyZoom.style.animation = "none";
-    danny.classList.remove("is-moving", "is-arrived");
+    danny.classList.remove("is-moving", "is-arrived", "is-crashed");
     setDannyPos(WAYPOINTS[0]);
     status.textContent = "Danny is coming to wash!";
     status.classList.remove("is-arrived");
