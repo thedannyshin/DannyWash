@@ -1106,7 +1106,7 @@
         rethinkKnockTimer = null;
         if (sayingGoodbye || door.hidden) return;
         playLowTip();
-      }, DOOR_KNOCK_MS);
+      }, DOOR_KNOCK_CLIP_MS);
     }, reduceMotion ? 80 : DOOR_CLOSE_MS);
   }
 
