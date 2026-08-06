@@ -1,5 +1,6 @@
 (() => {
   const comeBtn = document.getElementById("come-btn");
+  const tryCrashBtn = document.getElementById("try-crash-btn");
   const summon = document.getElementById("summon");
   const map = document.getElementById("map");
   const door = document.getElementById("door");
@@ -128,6 +129,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
+  let forceCrashNext = false;
   let audioCtx = null;
   const bufferCache = new Map();
   let activeSources = [];
@@ -1060,8 +1062,9 @@
       return;
     }
 
-    const willCrash = Math.random() < CRASH_CHANCE;
-    const crashAt = willCrash ? 0.25 + Math.random() * 0.45 : null;
+    const willCrash = forceCrashNext || Math.random() < CRASH_CHANCE;
+    const crashAt = willCrash ? 0.32 + Math.random() * 0.2 : null;
+    forceCrashNext = false;
     const startTime = performance.now();
     let crashing = false;
     let crashStart = 0;
@@ -1324,6 +1327,7 @@
     angryVisit = false;
     sayingGoodbye = false;
     comeBtn.disabled = false;
+    if (tryCrashBtn) tryCrashBtn.disabled = false;
     comeBtn.classList.remove("is-pressed");
     byeBtn.classList.remove("is-pressed");
     byeBtn.disabled = false;
@@ -1615,6 +1619,20 @@
     }, wait);
   }
 
+  function startVisit({ forceCrash = false } = {}) {
+    if (started) return;
+    started = true;
+    forceCrashNext = forceCrash;
+    comeBtn.disabled = true;
+    if (tryCrashBtn) tryCrashBtn.disabled = true;
+
+    // Start the car/coming track first so mobile doesn't drop it
+    // behind muted unlock plays for the other SFX.
+    playComing();
+    unlockAudio();
+    showMap();
+  }
+
   comeBtn.addEventListener("pointerdown", () => {
     comeBtn.classList.add("is-pressed");
   });
@@ -1628,16 +1646,14 @@
   });
 
   comeBtn.addEventListener("click", () => {
-    if (started) return;
-    started = true;
-    comeBtn.disabled = true;
-
-    // Start the car/coming track first so mobile doesn't drop it
-    // behind muted unlock plays for the other SFX.
-    playComing();
-    unlockAudio();
-    showMap();
+    startVisit();
   });
+
+  if (tryCrashBtn) {
+    tryCrashBtn.addEventListener("click", () => {
+      startVisit({ forceCrash: true });
+    });
+  }
 
   doorBtn.addEventListener("click", openDoor);
   doorDanny.addEventListener("click", closeDoorChangeMind);

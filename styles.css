@@ -63,6 +63,8 @@ body {
 .screen--summon {
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 1.25rem;
   isolation: isolate;
   padding:
     max(1rem, var(--safe-top))
@@ -209,6 +211,31 @@ body {
     0 1px 0 rgba(255, 255, 255, 0.25),
     0 2px 4px rgba(8, 40, 35, 0.35),
     0 8px 18px rgba(8, 40, 35, 0.25);
+}
+
+.try-crash-btn {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(232, 247, 242, 0.35);
+  border-radius: 999px;
+  padding: 0.65rem 1.15rem;
+  background: rgba(8, 32, 28, 0.45);
+  color: rgba(232, 247, 242, 0.92);
+  font-family: "Figtree", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.try-crash-btn:focus-visible {
+  outline: 2px solid rgba(232, 196, 90, 0.75);
+  outline-offset: 3px;
+}
+
+.try-crash-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 @keyframes btn-breathe {
