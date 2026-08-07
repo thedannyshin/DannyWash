@@ -1,0 +1,42 @@
+<svg viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3a2418" />
+      <stop offset="40%" stop-color="#1a100c" />
+      <stop offset="100%" stop-color="#080504" />
+    </linearGradient>
+    <linearGradient id="coffinEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5c3c28" />
+      <stop offset="50%" stop-color="#2a1812" />
+      <stop offset="100%" stop-color="#100806" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer bevel  tweak these points for side angles -->
+  <path
+    fill="url(#coffinEdge)"
+    d="M22 0 L278 0 L300 115 L292 520 L8 520 L0 115 Z"
+  />
+
+  <!-- Inner lid face -->
+  <path
+    fill="url(#coffinWood)"
+    d="M30 10 L270 10 L290 120 L282 510 L18 510 L10 120 Z"
+  />
+
+  <!-- Grain -->
+  <g fill="none" stroke="#5f412a" stroke-opacity="0.32" stroke-width="1.6" stroke-linecap="round">
+    <path d="M40 90 C100 120, 200 115, 265 85" />
+    <path d="M28 170 C100 205, 200 200, 275 165" />
+    <path d="M22 250 C100 285, 200 280, 280 245" />
+    <path d="M28 335 C100 365, 200 360, 275 330" />
+    <path d="M35 415 C100 440, 200 435, 268 410" />
+    <path d="M150 20 C155 140, 160 280, 150 490" stroke-opacity="0.5" />
+  </g>
+
+  <!-- T-cross (centered at 150, 260) -->
+  <g transform="translate(150 260)" fill="#8c643f">
+    <rect x="-14" y="-78" width="28" height="156" rx="3" />
+    <rect x="-58" y="-42" width="116" height="26" rx="3" />
+  </g>
+</svg>
