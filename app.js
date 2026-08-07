@@ -79,7 +79,7 @@
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
-  const DIED_COFFIN_MS = 9500;
+  const DIED_COFFIN_MS = 9528;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
