@@ -886,7 +886,7 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center center;
-  transform: translateX(105%);
+  transform: translateX(105%) translateY(-6%) scale(1.18);
   opacity: 1;
   pointer-events: none;
   user-select: none;
@@ -900,10 +900,10 @@ body {
 
 @keyframes died-coffin-cover {
   from {
-    transform: translateX(105%);
+    transform: translateX(105%) translateY(-6%) scale(1.18);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(0) translateY(-6%) scale(1.18);
   }
 }
 
@@ -1686,7 +1686,7 @@ body {
   .screen--died .died-coffin {
     animation: none;
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) translateY(-6%) scale(1.18);
   }
 
   .screen--died .died-crash-line {
