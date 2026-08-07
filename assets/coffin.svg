@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="300" height="520" viewBox="0 0 300 520">
-  <!-- Outer bevel — edit these points for side angles -->
-  <path fill="#2A1812" d="M22,0 L278,0 L300,115 L292,520 L8,520 L0,115 Z"/>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 300 520">
+  <!-- Generator: Adobe Illustrator 30.7.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 114)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #8c643f;
+      }
 
-  <!-- Inner lid face -->
-  <path fill="#1A100C" d="M30,10 L270,10 L290,120 L282,510 L18,510 L10,120 Z"/>
+      .st1 {
+        fill: #281713;
+      }
 
-  <!-- Grain -->
-  <g fill="none" stroke="#5F412A" stroke-width="1.6" stroke-linecap="round" opacity="0.32">
-    <path d="M40,90 C100,120 200,115 265,85"/>
-    <path d="M28,170 C100,205 200,200 275,165"/>
-    <path d="M22,250 C100,285 200,280 280,245"/>
-    <path d="M28,335 C100,365 200,360 275,330"/>
-    <path d="M35,415 C100,440 200,435 268,410"/>
-  </g>
-  <path fill="none" stroke="#5F412A" stroke-width="1.6" stroke-linecap="round" opacity="0.5" d="M150,20 C155,140 160,280 150,490"/>
+      .st2 {
+        fill: #231411;
+      }
 
-  <!-- T-cross -->
-  <rect fill="#8C643F" x="136" y="182" width="28" height="156" rx="3" ry="3"/>
-  <rect fill="#8C643F" x="92" y="218" width="116" height="26" rx="3" ry="3"/>
+      .st3 {
+        fill: #21130f;
+      }
+
+      .st4 {
+        fill: #1a100c;
+      }
+
+      .st5 {
+        fill: #2a1812;
+      }
+    </style>
+  </defs>
+  <path class="st5" d="M22,0h256l22,115-28,405H28L0,115,22,0Z"/>
+  <path class="st4" d="M30,10h240l20,110-28,390H38L10,120,30,10Z"/>
+  <polygon class="st3" points="150 10 30 10 10 120 38 510 150 510 150 10"/>
+  <rect class="st0" x="136" y="182" width="28" height="156" rx="3" ry="3"/>
+  <rect class="st0" x="92" y="218" width="116" height="26" rx="3" ry="3"/>
+  <polygon class="st1" points="10 120 10.1 124.6 150 148 150 10 30 10 10 120"/>
+  <polygon class="st2" points="290 120 289.9 124.6 150 148 150 10 270 10 290 120"/>
 </svg>
