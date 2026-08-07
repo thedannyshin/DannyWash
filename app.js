@@ -1051,19 +1051,26 @@
     const originY = clientY - bounds.top;
     // Travel from the button nearly to the top of the viewport.
     const maxLift = Math.max(180, originY - 24);
-    const count = reduceMotion ? 2 : 10;
+    const count = reduceMotion ? 2 : 12;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
+    const pad = Math.min(28, bounds.width * 0.04);
+    const leftEdge = pad;
+    const rightEdge = Math.max(pad + 1, bounds.width - pad);
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      const drift = (Math.random() * 360 - 180) * (reduceMotion ? 0 : 1);
+      // Fan across the full screen width from the button.
+      const t = count === 1 ? 0.5 : i / (count - 1);
+      const jitter = reduceMotion ? 0 : (Math.random() - 0.5) * 36;
+      const targetX = leftEdge + (rightEdge - leftEdge) * t + jitter;
+      const drift = targetX - originX;
       const lift = maxLift * (0.78 + Math.random() * 0.22);
       const spin = `${Math.random() * 34 - 17}deg`;
-      const delay = reduceMotion ? 0 : i * 70;
-      el.style.setProperty("--x", `${originX + drift * 0.08}px`);
-      el.style.setProperty("--y", `${originY - i * 4}px`);
+      const delay = reduceMotion ? 0 : i * 55;
+      el.style.setProperty("--x", `${originX}px`);
+      el.style.setProperty("--y", `${originY - i * 3}px`);
       el.style.setProperty("--drift", `${drift}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
