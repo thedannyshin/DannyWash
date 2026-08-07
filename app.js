@@ -79,8 +79,8 @@
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 1400;
-  const DIED_WIPE_DELAY_MS = 1800;
-  const DIED_WIPE_MS = 7000;
+  const DIED_WIPE_DELAY_MS = 400;
+  const DIED_WIPE_MS = 14000;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
