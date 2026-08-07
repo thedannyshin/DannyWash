@@ -898,9 +898,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: center center;
-  transform: scale(var(--coffin-scale, 1.3)) translate(var(--coffin-x, 0%), var(--coffin-y, 29.5%));
-  transform-origin: center center;
+  object-position: center 18%;
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
   user-select: none;
   pointer-events: none;
