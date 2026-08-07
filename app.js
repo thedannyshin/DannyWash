@@ -12,9 +12,9 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
-  const diedCoffin = document.getElementById("died-coffin");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
+  const diedCoffin = document.getElementById("died-coffin");
   const wash = document.getElementById("wash");
   const bye = document.getElementById("bye");
   const byeBtn = document.getElementById("bye-btn");
@@ -79,8 +79,7 @@
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
-  const DIED_COFFIN_DELAY_MS = 500;
-  const DIED_COFFIN_MS = 8200;
+  const DIED_COFFIN_MS = 9500;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -1105,13 +1104,12 @@
   function showDied() {
     map.hidden = true;
     died.hidden = false;
-    died.classList.remove("is-in", "is-coffin");
-    died.style.setProperty("--coffin-ms", `${reduceMotion ? 0 : DIED_COFFIN_MS}ms`);
+    died.classList.remove("is-in");
+    died.style.setProperty("--coffin-ms", `${DIED_COFFIN_MS}ms`);
     if (diedCoffin) {
-      // Restart slide from off-screen right.
-      diedCoffin.style.transition = "none";
+      diedCoffin.style.animation = "none";
       void diedCoffin.offsetWidth;
-      diedCoffin.style.transition = "";
+      diedCoffin.style.animation = "";
     }
     void died.offsetWidth;
     window.setTimeout(() => {
@@ -1123,10 +1121,6 @@
           if (!died.hidden) resetToStart();
         },
       });
-      window.setTimeout(() => {
-        if (died.hidden) return;
-        died.classList.add("is-coffin");
-      }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
@@ -1445,7 +1439,7 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in", "is-coffin");
+    died.classList.remove("is-in");
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();

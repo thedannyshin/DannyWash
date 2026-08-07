@@ -832,10 +832,6 @@ body {
   opacity: 1;
 }
 
-.screen--died.is-coffin .died-coffin {
-  transform: translate(-50%, -50%) scale(1.12);
-}
-
 .screen--died.is-in .died-bottom {
   opacity: 1;
   transform: translateY(0);
@@ -865,9 +861,9 @@ body {
   position: absolute;
   inset: 0;
   opacity: 0;
-  overflow: hidden;
   transition: opacity 1.4s var(--ease-out);
   background: #000;
+  overflow: hidden;
 }
 
 .died-face {
@@ -886,26 +882,37 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  z-index: 1;
+  z-index: 2;
+  /* Tall enough to blanket the photo; width follows the vector aspect. */
+  height: 125vh;
   width: auto;
-  height: max(145vh, 145%);
   max-width: none;
-  object-fit: contain;
-  object-position: center;
-  transform: translate(115%, -50%) scale(1.12);
-  transform-origin: center center;
-  transition: transform var(--coffin-ms, 8.4s) cubic-bezier(0.33, 0.08, 0.25, 1);
+  transform: translate(90vw, -50%);
+  opacity: 0;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(-18px 0 28px rgba(0, 0, 0, 0.55));
-  will-change: transform;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.75));
+  will-change: transform, opacity;
+}
+
+.screen--died.is-in .died-coffin {
+  opacity: 1;
+  animation: died-coffin-cover var(--coffin-ms, 9.5s) cubic-bezier(0.22, 0.2, 0.2, 1) forwards;
+}
+
+@keyframes died-coffin-cover {
+  from {
+    transform: translate(90vw, -50%);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
 }
 
 .died-face-wrap::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 28%, transparent 48%, rgba(0, 0, 0, 0.72) 78%, rgba(0, 0, 0, 0.92) 100%);
   pointer-events: none;
@@ -1679,8 +1686,9 @@ body {
   }
 
   .screen--died .died-coffin {
-    transition: none;
-    transform: translate(-50%, -50%) scale(1.12);
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
 
   .screen--died .died-crash-line {
