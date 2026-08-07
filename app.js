@@ -12,6 +12,7 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
+  const diedFace = document.getElementById("died-face");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -77,8 +78,8 @@
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
-  const DIED_FACE_HOLD_MS = 700;
   const DIED_FACE_FADE_MS = 400;
+  const DANNY_LEFT_MS = 9500;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -137,7 +138,6 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
-  let diedSequenceTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1101,37 +1101,26 @@
     }
   }
 
-  function clearDiedSequence() {
-    if (diedSequenceTimer) {
-      window.clearTimeout(diedSequenceTimer);
-      diedSequenceTimer = null;
-    }
-    died.classList.remove("is-in", "is-wiping", "is-memorial");
-  }
-
   function showDied() {
     map.hidden = true;
-    clearDiedSequence();
     died.hidden = false;
+    died.classList.remove("is-in");
+    if (diedFace) diedFace.classList.remove("is-cropping");
     void died.offsetWidth;
-
-    // 1) Hold "Danny has crashed" on black, then reveal face + memorial UI + music.
-    diedSequenceTimer = window.setTimeout(() => {
+    window.setTimeout(() => {
       if (died.hidden) return;
-      died.classList.add("is-in", "is-memorial");
+      died.classList.add("is-in");
+      if (diedFace && !reduceMotion) {
+        diedFace.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
+        void diedFace.offsetWidth;
+        diedFace.classList.add("is-cropping");
+      }
       playDannyLeftSting({
         delayMs: 0,
         onEnded: () => {
           if (!died.hidden) resetToStart();
         },
       });
-
-      // 2) While music plays, wipe Danny's photo to black with the trapezoid.
-      diedSequenceTimer = window.setTimeout(() => {
-        diedSequenceTimer = null;
-        if (died.hidden) return;
-        died.classList.add("is-wiping");
-      }, reduceMotion ? 0 : DIED_FACE_HOLD_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
@@ -1450,7 +1439,8 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    clearDiedSequence();
+    died.classList.remove("is-in");
+    if (diedFace) diedFace.classList.remove("is-cropping");
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
