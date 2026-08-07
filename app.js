@@ -1050,12 +1050,12 @@
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
     // Shorter rise + harder sideways throw so the fan reads wide, not just tall.
-    const maxLift = Math.max(160, originY * 0.72);
+    const maxLift = Math.max(140, originY * 0.58);
     const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = 4;
-    // Center clear for the face; side bands reach the screen edges.
-    const faceGap = Math.min(bounds.width * 0.4, Math.max(160, bounds.width * 0.32));
+    const pad = 2;
+    // Narrow center clear for the face; side bands own most of the screen.
+    const faceGap = Math.min(bounds.width * 0.26, Math.max(110, bounds.width * 0.22));
     const leftMin = pad;
     const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
     const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
@@ -1068,13 +1068,13 @@
       const goLeft = i % 2 === 0;
       const minX = goLeft ? leftMin : rightMin;
       const maxX = goLeft ? leftMax : rightMax;
-      // Prefer the outer edge so the V opens wide.
-      const edgeBias = Math.pow(Math.random(), 0.35);
+      // Strong bias to the outer edges for a very wide V.
+      const edgeBias = Math.pow(Math.random(), 0.22);
       const targetX = goLeft
         ? maxX - edgeBias * Math.max(1, maxX - minX)
         : minX + edgeBias * Math.max(1, maxX - minX);
       const spread = targetX - originX;
-      const lift = maxLift * (0.55 + Math.random() * 0.45);
+      const lift = maxLift * (0.45 + Math.random() * 0.55);
       const spin = `${Math.random() * 50 - 25}deg`;
       const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
       const delay = reduceMotion ? 0 : Math.random() * 40;

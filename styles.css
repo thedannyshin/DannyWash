@@ -966,19 +966,19 @@ body {
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
   /* Launch wide first, then rise — a V, not a rocket. */
-  16% {
+  14% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.78)),
-        calc(-50% - (var(--lift) * 0.28))
+        calc(-50% + (var(--drift) * 0.92)),
+        calc(-50% - (var(--lift) * 0.18))
       )
       scale(1.06) rotate(var(--spin));
   }
-  50% {
+  48% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.95)),
-        calc(-50% - (var(--lift) * 0.7))
+        calc(-50% + (var(--drift) * 0.98)),
+        calc(-50% - (var(--lift) * 0.62))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }
