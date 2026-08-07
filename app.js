@@ -1450,7 +1450,9 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in");
+    died.classList.remove("is-in", "is-wiping");
+    died.style.removeProperty("--died-wipe-ms");
+    clearDiedWipeTimer();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
