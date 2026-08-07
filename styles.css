@@ -884,6 +884,7 @@ body {
   pointer-events: none;
   transform: translateX(100%);
   will-change: transform;
+  background: #000;
 }
 
 .died-coffin.is-closing {
