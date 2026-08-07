@@ -13,7 +13,7 @@
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
   const diedFace = document.getElementById("died-face");
-  const diedCoffinLid = document.getElementById("died-coffin-lid");
+  const diedCoffin = document.getElementById("died-coffin");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -1106,21 +1106,20 @@
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in");
-    if (diedCoffinLid) {
-      diedCoffinLid.classList.remove("is-closing");
-      diedCoffinLid.style.removeProperty("--crop-ms");
+    if (diedCoffin) {
+      diedCoffin.classList.remove("is-closing");
+      diedCoffin.style.removeProperty("--crop-ms");
     }
     void died.offsetWidth;
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
-      if (diedCoffinLid && !reduceMotion) {
-        diedCoffinLid.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
-        void diedCoffinLid.offsetWidth;
-        diedCoffinLid.classList.add("is-closing");
-      } else if (diedCoffinLid) {
-        diedCoffinLid.classList.add("is-closing");
-        diedCoffinLid.style.transform = "translateX(-4%) skewX(-7deg)";
+      if (diedCoffin && !reduceMotion) {
+        diedCoffin.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
+        void diedCoffin.offsetWidth;
+        diedCoffin.classList.add("is-closing");
+      } else if (diedCoffin) {
+        diedCoffin.classList.add("is-closing");
       }
       playDannyLeftSting({
         delayMs: 0,
@@ -1447,10 +1446,9 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in");
-    if (diedCoffinLid) {
-      diedCoffinLid.classList.remove("is-closing");
-      diedCoffinLid.style.removeProperty("--crop-ms");
-      diedCoffinLid.style.removeProperty("transform");
+    if (diedCoffin) {
+      diedCoffin.classList.remove("is-closing");
+      diedCoffin.style.removeProperty("--crop-ms");
     }
     summon.hidden = false;
     tipBursts.replaceChildren();

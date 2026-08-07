@@ -142,12 +142,57 @@
             height="399"
             draggable="false"
           />
-          <div class="died-coffin-lid" id="died-coffin-lid">
-            <span class="died-coffin-lid__wood"></span>
-            <span class="died-coffin-lid__grain"></span>
-            <span class="died-coffin-lid__panels"></span>
-            <span class="died-coffin-lid__cross"></span>
-            <span class="died-coffin-lid__lip"></span>
+          <div class="died-coffin" id="died-coffin">
+            <svg class="died-coffin__svg" viewBox="0 0 220 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#3a2418" />
+                  <stop offset="35%" stop-color="#1c100c" />
+                  <stop offset="70%" stop-color="#2a1810" />
+                  <stop offset="100%" stop-color="#0c0705" />
+                </linearGradient>
+                <linearGradient id="coffinEdge" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#5a3a28" />
+                  <stop offset="50%" stop-color="#2a1812" />
+                  <stop offset="100%" stop-color="#120a08" />
+                </linearGradient>
+                <radialGradient id="coffinShine" cx="50%" cy="28%" r="45%">
+                  <stop offset="0%" stop-color="rgba(255,220,180,0.16)" />
+                  <stop offset="55%" stop-color="rgba(255,220,180,0)" />
+                </radialGradient>
+              </defs>
+              <!-- Outer bevel -->
+              <path
+                fill="url(#coffinEdge)"
+                d="M78 18 L142 18 L198 108 L172 382 L48 382 L22 108 Z"
+              />
+              <!-- Inner lid face -->
+              <path
+                fill="url(#coffinWood)"
+                d="M84 28 L136 28 L186 110 L162 370 L58 370 L34 110 Z"
+              />
+              <path fill="url(#coffinShine)" d="M84 28 L136 28 L186 110 L162 370 L58 370 L34 110 Z" />
+              <!-- Wood grain -->
+              <g fill="none" stroke="rgba(90,60,40,0.35)" stroke-width="1.2" stroke-linecap="round">
+                <path d="M70 70 C95 90, 125 85, 155 68" />
+                <path d="M62 120 C90 145, 130 140, 165 115" />
+                <path d="M58 175 C95 200, 135 195, 168 168" />
+                <path d="M60 235 C100 255, 135 250, 162 228" />
+                <path d="M66 295 C100 310, 130 308, 155 290" />
+                <path d="M74 340 C100 350, 125 348, 148 335" />
+                <path d="M108 55 C112 90, 118 140, 112 200" opacity="0.55" />
+                <path d="M95 210 C100 260, 105 310, 100 355" opacity="0.4" />
+              </g>
+              <!-- Cross -->
+              <g fill="#0a0604" opacity="0.85">
+                <rect x="102" y="72" width="16" height="78" rx="2" />
+                <rect x="78" y="96" width="64" height="14" rx="2" />
+              </g>
+              <g fill="rgba(120,85,55,0.35)">
+                <rect x="104" y="74" width="12" height="74" rx="1.5" />
+                <rect x="80" y="98" width="60" height="10" rx="1.5" />
+              </g>
+            </svg>
           </div>
         </div>
         <div class="died-bottom">
