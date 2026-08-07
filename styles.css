@@ -1018,44 +1018,35 @@ body {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  font-size: clamp(1.6rem, 7vmin, 2.5rem);
+  font-size: clamp(1.55rem, 6.5vmin, 2.35rem);
   line-height: 1;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
   transform: translate(-50%, -50%) scale(0.6);
   opacity: 0;
-  animation: tip-flower-fly var(--flight, 2s) linear forwards;
+  animation: tip-flower-fly var(--flight, 1.15s) cubic-bezier(0.22, 0.65, 0.2, 1) forwards;
   will-change: transform, opacity;
 }
 
 @keyframes tip-flower-fly {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
+    transform: translate(-50%, -50%) scale(0.75) rotate(calc(var(--spin) * -0.2));
   }
-  /* Mix: --side/--up vary per flower for wide + tight arcs. */
   18% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * var(--side, 0.5))),
-        calc(-50% - (var(--lift) * var(--up, 0.32)))
+        calc(-50% + (var(--drift) * 0.35)),
+        calc(-50% - (var(--lift) * 0.38))
       )
-      scale(1.06) rotate(var(--spin));
+      scale(1.05) rotate(var(--spin));
   }
-  42% {
+  55% {
     opacity: 0.75;
     transform: translate(
         calc(-50% + (var(--drift) * 0.78)),
-        calc(-50% - (var(--lift) * 0.62))
+        calc(-50% - (var(--lift) * 0.78))
       )
-      scale(1) rotate(calc(var(--spin) * 1.05));
-  }
-  68% {
-    opacity: 0;
-    transform: translate(
-        calc(-50% + (var(--drift) * 0.92)),
-        calc(-50% - (var(--lift) * 0.88))
-      )
-      scale(0.94) rotate(calc(var(--spin) * 1.2));
+      scale(0.98) rotate(calc(var(--spin) * 1.15));
   }
   100% {
     opacity: 0;
@@ -1063,7 +1054,7 @@ body {
         calc(-50% + var(--drift)),
         calc(-50% - var(--lift))
       )
-      scale(0.9) rotate(calc(var(--spin) * 1.35));
+      scale(0.88) rotate(calc(var(--spin) * 1.4));
   }
 }
 
