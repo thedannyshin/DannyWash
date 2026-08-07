@@ -77,8 +77,8 @@
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
-  const DIED_FACE_HOLD_MS = 900;
-  const DIED_WIPE_MS = 3600;
+  const DIED_FACE_HOLD_MS = 700;
+  const DIED_WIPE_MS = 8200;
   const DIED_FACE_FADE_MS = 400;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -1116,29 +1116,23 @@
     died.hidden = false;
     void died.offsetWidth;
 
-    // 1) Hold "Danny has crashed" on black, then reveal the face.
+    // 1) Hold "Danny has crashed" on black, then reveal face + memorial UI + music.
     diedSequenceTimer = window.setTimeout(() => {
       if (died.hidden) return;
-      died.classList.add("is-in");
+      died.classList.add("is-in", "is-memorial");
+      playDannyLeftSting({
+        delayMs: 0,
+        onEnded: () => {
+          if (!died.hidden) resetToStart();
+        },
+      });
 
-      // 2) After the face is visible, wipe it to black with the trapezoid.
+      // 2) While music plays, wipe Danny's photo to black with the trapezoid.
       diedSequenceTimer = window.setTimeout(() => {
+        diedSequenceTimer = null;
         if (died.hidden) return;
         died.classList.add("is-wiping");
-
-        // 3) Once covered, show memorial UI + sting.
-        diedSequenceTimer = window.setTimeout(() => {
-          diedSequenceTimer = null;
-          if (died.hidden) return;
-          died.classList.add("is-memorial");
-          playDannyLeftSting({
-            delayMs: 0,
-            onEnded: () => {
-              if (!died.hidden) resetToStart();
-            },
-          });
-        }, reduceMotion ? 200 : DIED_WIPE_MS);
-      }, reduceMotion ? 200 : DIED_FACE_HOLD_MS);
+      }, reduceMotion ? 0 : DIED_FACE_HOLD_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
