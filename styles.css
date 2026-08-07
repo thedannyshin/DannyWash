@@ -907,6 +907,20 @@ body {
   }
 }
 
+.died-blackout {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--blackout-ms, 3.2s) linear;
+}
+
+.screen--died.is-blackout .died-blackout {
+  opacity: 1;
+}
+
 .died-face-wrap::after {
   content: "";
   position: absolute;
@@ -1687,6 +1701,10 @@ body {
     animation: none;
     opacity: 1;
     transform: translateX(0) translateY(-6%) scale(1.18);
+  }
+
+  .died-blackout {
+    transition: none;
   }
 
   .screen--died .died-crash-line {

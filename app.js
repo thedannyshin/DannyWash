@@ -15,6 +15,7 @@
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const diedCoffin = document.getElementById("died-coffin");
+  const diedBlackout = document.getElementById("died-blackout");
   const wash = document.getElementById("wash");
   const bye = document.getElementById("bye");
   const byeBtn = document.getElementById("bye-btn");
@@ -79,7 +80,9 @@
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
-  const DIED_COFFIN_MS = 9528;
+  const DIED_COFFIN_MS = 3200;
+  const DIED_COFFIN_HOLD_MS = 2400;
+  const DIED_BLACKOUT_MS = 3200;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -1104,8 +1107,9 @@
   function showDied() {
     map.hidden = true;
     died.hidden = false;
-    died.classList.remove("is-in");
+    died.classList.remove("is-in", "is-blackout");
     died.style.setProperty("--coffin-ms", `${DIED_COFFIN_MS}ms`);
+    died.style.setProperty("--blackout-ms", `${DIED_BLACKOUT_MS}ms`);
     if (diedCoffin) {
       diedCoffin.style.animation = "none";
       void diedCoffin.offsetWidth;
@@ -1121,6 +1125,10 @@
           if (!died.hidden) resetToStart();
         },
       });
+      window.setTimeout(() => {
+        if (died.hidden) return;
+        died.classList.add("is-blackout");
+      }, reduceMotion ? 0 : DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
@@ -1439,7 +1447,7 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in");
+    died.classList.remove("is-in", "is-blackout");
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
