@@ -875,8 +875,8 @@ body {
   filter: grayscale(1) contrast(1.08) brightness(0.92);
   user-select: none;
   pointer-events: none;
-  /* \ diagonal: top of cut left of bottom */
-  clip-path: polygon(-6% -10%, 82% -18%, 138% 118%, -6% 110%);
+  /* \ diagonal, milder at the start */
+  clip-path: polygon(-6% -10%, 104% -14%, 118% 114%, -6% 110%);
 }
 
 .died-face.is-cropping {
@@ -885,10 +885,10 @@ body {
 
 @keyframes died-face-crop {
   from {
-    clip-path: polygon(-6% -10%, 82% -18%, 138% 118%, -6% 110%);
+    clip-path: polygon(-6% -10%, 104% -14%, 118% 114%, -6% 110%);
   }
   to {
-    clip-path: polygon(-6% -10%, -48% -18%, 8% 118%, -6% 110%);
+    clip-path: polygon(-6% -10%, -28% -14%, -14% 114%, -6% 110%);
   }
 }
 
