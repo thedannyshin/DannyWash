@@ -31,8 +31,9 @@
   <path class="st5" d="M22,0h256l22,115-28,405H28L0,115,22,0Z"/>
   <path class="st4" d="M30,10h240l20,110-28,390H38L10,120,30,10Z"/>
   <polygon class="st3" points="150 10 30 10 10 120 38 510 150 510 150 10"/>
-  <rect class="st0" x="136" y="182" width="28" height="156" rx="3" ry="3"/>
-  <rect class="st0" x="92" y="218" width="116" height="26" rx="3" ry="3"/>
   <polygon class="st1" points="10 120 10.1 124.6 150 148 150 10 30 10 10 120"/>
   <polygon class="st2" points="290 120 289.9 124.6 150 148 150 10 270 10 290 120"/>
+  <!-- Cross: junction at viewBox center (150, 260) so cover centers it on screen -->
+  <rect class="st0" x="136" y="211" width="28" height="156" rx="3" ry="3"/>
+  <rect class="st0" x="92" y="247" width="116" height="26" rx="3" ry="3"/>
 </svg>
