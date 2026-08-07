@@ -965,20 +965,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
-  /* Launch wide first, then rise — a V, not a rocket. */
-  14% {
+  /* Reach the side edge quickly, then climb the edge toward the top. */
+  22% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.92)),
-        calc(-50% - (var(--lift) * 0.18))
+        calc(-50% + var(--drift)),
+        calc(-50% - (var(--lift) * 0.28))
       )
-      scale(1.06) rotate(var(--spin));
+      scale(1.05) rotate(var(--spin));
   }
-  48% {
+  70% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.98)),
-        calc(-50% - (var(--lift) * 0.62))
+        calc(-50% + var(--drift)),
+        calc(-50% - (var(--lift) * 0.92))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }
@@ -988,7 +988,7 @@ body {
         calc(-50% + var(--drift)),
         calc(-50% - var(--lift))
       )
-      scale(0.9) rotate(calc(var(--spin) * 1.35));
+      scale(0.92) rotate(calc(var(--spin) * 1.25));
   }
 }
 

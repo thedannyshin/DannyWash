@@ -1049,34 +1049,28 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
-    // Shorter rise + harder sideways throw so the fan reads wide, not just tall.
-    const maxLift = Math.max(140, originY * 0.58);
+    // Almost to the top of the viewport.
+    const maxLift = Math.max(200, originY - 20);
     const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = 2;
-    // Narrow center clear for the face; side bands own most of the screen.
-    const faceGap = Math.min(bounds.width * 0.26, Math.max(110, bounds.width * 0.22));
-    const leftMin = pad;
-    const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
-    const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
-    const rightMax = Math.max(rightMin + 1, bounds.width - pad);
+    // Pin endings to the left/right screen edges (tiny inset so they stay on-screen).
+    const edgePad = 18;
+    const leftEdge = edgePad;
+    const rightEdge = bounds.width - edgePad;
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
       const goLeft = i % 2 === 0;
-      const minX = goLeft ? leftMin : rightMin;
-      const maxX = goLeft ? leftMax : rightMax;
-      // Strong bias to the outer edges for a very wide V.
-      const edgeBias = Math.pow(Math.random(), 0.22);
+      // Stop at the edge — slight jitter inward only.
       const targetX = goLeft
-        ? maxX - edgeBias * Math.max(1, maxX - minX)
-        : minX + edgeBias * Math.max(1, maxX - minX);
+        ? leftEdge + Math.random() * 28
+        : rightEdge - Math.random() * 28;
       const spread = targetX - originX;
-      const lift = maxLift * (0.45 + Math.random() * 0.55);
+      const lift = maxLift * (0.88 + Math.random() * 0.12);
       const spin = `${Math.random() * 50 - 25}deg`;
-      const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
+      const flight = reduceMotion ? 1 : 1.8 + Math.random() * 0.8;
       const delay = reduceMotion ? 0 : Math.random() * 40;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
