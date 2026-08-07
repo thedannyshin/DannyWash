@@ -1,28 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" fill="none">
-  <!-- Classic coffin lid: narrow head, wide shoulders, tapered foot -->
-  <path
-    d="M100 10 L158 78 L148 390 L52 390 L42 78 Z"
-    fill="#3a2418"
-  />
-  <!-- Lit left half -->
-  <path
-    d="M100 10 L100 390 L52 390 L42 78 Z"
-    fill="#5a3a28"
-  />
-  <!-- Shaded right half -->
-  <path
-    d="M100 10 L158 78 L148 390 L100 390 Z"
-    fill="#2c1a12"
-  />
-  <!-- Subtle edge highlight -->
-  <path
-    d="M100 10 L158 78 L148 390 L52 390 L42 78 Z"
-    fill="none"
-    stroke="#1a0f0a"
-    stroke-width="3"
-    stroke-linejoin="round"
-  />
-  <!-- Cross -->
-  <rect x="88" y="168" width="24" height="110" rx="2" fill="#c4a574" />
-  <rect x="58" y="198" width="84" height="24" rx="2" fill="#c4a574" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 520">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #8c643f;
+      }
+
+      .cls-2 {
+        fill: #281713;
+      }
+
+      .cls-3 {
+        fill: #231411;
+      }
+
+      .cls-4 {
+        fill: #21130f;
+      }
+
+      .cls-5 {
+        fill: #1a100c;
+      }
+
+      .cls-6 {
+        fill: #2a1812;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <path class="cls-6" d="M22,0h256l22,115-28,405H28L0,115,22,0Z"/>
+    <path class="cls-5" d="M30,10h240l20,110-28,390H38L10,120,30,10Z"/>
+    <polygon class="cls-4" points="150 10 30 10 10 120 38 510 150 510 150 10"/>
+    <polygon class="cls-2" points="10 120 10.1 124.6 150 148 150 10 30 10 10 120"/>
+    <polygon class="cls-3" points="290 120 289.9 124.6 150 148 150 10 270 10 290 120"/>
+    <rect class="cls-1" x="136" y="211" width="28" height="156" rx="3" ry="3"/>
+    <rect class="cls-1" x="92" y="247" width="116" height="26" rx="3" ry="3"/>
+  </g>
 </svg>
