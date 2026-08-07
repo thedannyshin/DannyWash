@@ -1939,4 +1939,102 @@
   window.addEventListener("orientationchange", () => {
     window.setTimeout(layoutDoorFace, 100);
   });
+
+  const coffinTuneParams = new URLSearchParams(window.location.search);
+  const coffinTuneMode = coffinTuneParams.get("tune") === "coffin";
+  const coffinTunePanel = document.getElementById("coffin-tune");
+  const coffinTuneFab = document.getElementById("coffin-tune-fab");
+
+  if (coffinTuneMode && coffinTunePanel) {
+    const scaleEl = document.getElementById("coffin-tune-scale");
+    const xEl = document.getElementById("coffin-tune-x");
+    const yEl = document.getElementById("coffin-tune-y");
+    const scaleOut = document.getElementById("coffin-tune-scale-out");
+    const xOut = document.getElementById("coffin-tune-x-out");
+    const yOut = document.getElementById("coffin-tune-y-out");
+    const specsEl = document.getElementById("coffin-tune-specs");
+    const copyBtn = document.getElementById("coffin-tune-copy");
+    const hideBtn = document.getElementById("coffin-tune-hide");
+    const resetBtn = document.getElementById("coffin-tune-reset");
+    const defaults = { scale: 1.19, x: 0, y: -29.5 };
+    const root = document.documentElement;
+
+    function formatCoffinSpecs(scale, x, y) {
+      return [
+        `scale: ${scale.toFixed(2)}`,
+        `x: ${x.toFixed(1)}%`,
+        `y: ${y.toFixed(1)}%`,
+        "",
+        `--coffin-scale: ${scale.toFixed(2)};`,
+        `--coffin-x: ${x.toFixed(1)}%;`,
+        `--coffin-y: ${y.toFixed(1)}%;`,
+        "",
+        `transform: scale(${scale.toFixed(2)}) translate(${x.toFixed(1)}%, ${y.toFixed(1)}%);`,
+        `transform-origin: center center;`,
+        `object-fit: contain;`,
+      ].join("\n");
+    }
+
+    function applyCoffinTune() {
+      const scale = Number(scaleEl.value);
+      const x = Number(xEl.value);
+      const y = Number(yEl.value);
+      root.style.setProperty("--coffin-scale", String(scale));
+      root.style.setProperty("--coffin-x", `${x}%`);
+      root.style.setProperty("--coffin-y", `${y}%`);
+      scaleOut.textContent = scale.toFixed(2);
+      xOut.textContent = `${x.toFixed(1)}%`;
+      yOut.textContent = `${y.toFixed(1)}%`;
+      specsEl.textContent = formatCoffinSpecs(scale, x, y);
+    }
+
+    for (const screen of [summon, map, door, wash, bye, rate]) {
+      if (screen) screen.hidden = true;
+    }
+    died.hidden = false;
+    died.classList.add("is-in", "is-coffin-tuning");
+    if (diedCoffin) {
+      diedCoffin.classList.add("is-closing");
+      diedCoffin.style.setProperty("--crop-ms", "0ms");
+    }
+    coffinTunePanel.hidden = false;
+    if (coffinTuneFab) coffinTuneFab.hidden = true;
+
+    for (const el of [scaleEl, xEl, yEl]) {
+      el.addEventListener("input", applyCoffinTune);
+    }
+
+    resetBtn.addEventListener("click", () => {
+      scaleEl.value = String(defaults.scale);
+      xEl.value = String(defaults.x);
+      yEl.value = String(defaults.y);
+      applyCoffinTune();
+    });
+
+    hideBtn.addEventListener("click", () => {
+      coffinTunePanel.hidden = true;
+      if (coffinTuneFab) coffinTuneFab.hidden = false;
+    });
+
+    if (coffinTuneFab) {
+      coffinTuneFab.addEventListener("click", () => {
+        coffinTunePanel.hidden = false;
+        coffinTuneFab.hidden = true;
+      });
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(specsEl.textContent);
+        copyBtn.textContent = "Copied";
+        window.setTimeout(() => {
+          copyBtn.textContent = "Copy specs";
+        }, 1200);
+      } catch {
+        copyBtn.textContent = "Select & copy";
+      }
+    });
+
+    applyCoffinTune();
+  }
 })();
