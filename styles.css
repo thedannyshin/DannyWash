@@ -833,7 +833,7 @@ body {
 }
 
 .screen--died.is-coffin .died-coffin {
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(1.12);
 }
 
 .screen--died.is-in .died-bottom {
@@ -887,11 +887,13 @@ body {
   top: 50%;
   left: 50%;
   z-index: 1;
-  width: max(115vw, 115%);
-  height: auto;
+  width: auto;
+  height: max(145vh, 145%);
   max-width: none;
-  object-fit: fill;
-  transform: translate(110%, -50%);
+  object-fit: contain;
+  object-position: center;
+  transform: translate(115%, -50%) scale(1.12);
+  transform-origin: center center;
   transition: transform var(--coffin-ms, 8.4s) cubic-bezier(0.33, 0.08, 0.25, 1);
   pointer-events: none;
   user-select: none;
@@ -1678,7 +1680,7 @@ body {
 
   .screen--died .died-coffin {
     transition: none;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1.12);
   }
 
   .screen--died .died-crash-line {
