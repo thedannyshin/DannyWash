@@ -12,6 +12,7 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
+  const diedWipe = document.getElementById("died-wipe");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -1109,13 +1110,22 @@
     }
   }
 
+  function resetDiedWipe() {
+    clearDiedWipeTimer();
+    died.classList.remove("is-wiping");
+    died.style.removeProperty("--died-wipe-ms");
+    if (diedWipe) {
+      diedWipe.style.setProperty("--died-wipe-angle", "0deg");
+      void diedWipe.offsetWidth;
+    }
+  }
+
   function showDied() {
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-wiping");
-    died.style.removeProperty("--died-wipe-ms");
+    resetDiedWipe();
     void died.offsetWidth;
-    clearDiedWipeTimer();
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
@@ -1125,7 +1135,7 @@
           if (!died.hidden) resetToStart();
         },
       });
-      // After the face has faded in, start a slow black wipe from bottom-right.
+      // After the face has faded in, clock-wipe black from the right edge down over the photo.
       diedWipeTimer = window.setTimeout(() => {
         diedWipeTimer = null;
         if (died.hidden) return;
@@ -1450,9 +1460,8 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in", "is-wiping");
-    died.style.removeProperty("--died-wipe-ms");
-    clearDiedWipeTimer();
+    died.classList.remove("is-in");
+    resetDiedWipe();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
