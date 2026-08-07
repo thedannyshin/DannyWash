@@ -1050,16 +1050,25 @@
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
     const maxLift = Math.max(200, originY + 30);
-    const halfWidth = Math.max(1, bounds.width * 0.5 - 16);
     const count = reduceMotion ? 2 : 8;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
+    const pad = Math.min(18, bounds.width * 0.03);
+    // Keep a clear center channel so flowers don't cover Danny's face.
+    const faceGap = Math.min(bounds.width * 0.42, Math.max(140, bounds.width * 0.34));
+    const leftMin = pad;
+    const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
+    const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
+    const rightMax = Math.max(rightMin + 1, bounds.width - pad);
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
-      // Independent arc from the button — same beat as hearts, wider throw.
-      const spread = (Math.random() * 2 - 1) * halfWidth;
+      const goLeft = i % 2 === 0;
+      const minX = goLeft ? leftMin : rightMin;
+      const maxX = goLeft ? leftMax : rightMax;
+      const targetX = minX + Math.random() * Math.max(1, maxX - minX);
+      const spread = targetX - originX;
       const lift = maxLift * (0.65 + Math.random() * 0.45);
       const spin = `${Math.random() * 50 - 25}deg`;
       const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
