@@ -1086,7 +1086,7 @@
 
       const spin = `${Math.random() * 42 - 21}deg`;
       const flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
-      const delay = reduceMotion ? 0 : Math.random() * 55;
+      const delay = reduceMotion ? 0 : Math.random() * 80;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${spread}px`);
@@ -1095,7 +1095,7 @@
       el.style.setProperty("--flight", `${flight}s`);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), flight * 1000 + delay + 60);
+      window.setTimeout(() => el.remove(), flight * 1000 + delay + 80);
     }
   }
 
