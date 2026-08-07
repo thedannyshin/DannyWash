@@ -1049,34 +1049,31 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
-    // Travel from the button nearly to the top of the viewport.
-    const maxLift = Math.max(180, originY - 24);
+    // Travel from the button nearly to / past the top of the viewport.
+    const maxLift = Math.max(180, originY + 40);
     const count = reduceMotion ? 2 : 12;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = Math.min(28, bounds.width * 0.04);
-    const leftEdge = pad;
-    const rightEdge = Math.max(pad + 1, bounds.width - pad);
+    const pad = Math.min(20, bounds.width * 0.03);
+    const span = Math.max(1, bounds.width - pad * 2);
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      // Fan across the full screen width from the button.
-      const t = count === 1 ? 0.5 : i / (count - 1);
-      const jitter = reduceMotion ? 0 : (Math.random() - 0.5) * 36;
-      const targetX = leftEdge + (rightEdge - leftEdge) * t + jitter;
+      // Random end X across the full width (not fixed slots).
+      const targetX = pad + Math.random() * span;
       const drift = targetX - originX;
-      const lift = maxLift * (0.78 + Math.random() * 0.22);
-      const spin = `${Math.random() * 34 - 17}deg`;
-      const delay = reduceMotion ? 0 : i * 55;
+      const lift = maxLift * (0.7 + Math.random() * 0.45);
+      const spin = `${Math.random() * 40 - 20}deg`;
+      const delay = reduceMotion ? 0 : Math.random() * 180;
       el.style.setProperty("--x", `${originX}px`);
-      el.style.setProperty("--y", `${originY - i * 3}px`);
+      el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${drift}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 2900 + delay);
+      window.setTimeout(() => el.remove(), 2700 + delay);
     }
   }
 
