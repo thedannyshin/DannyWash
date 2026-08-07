@@ -1058,18 +1058,18 @@
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      const drift = (Math.random() * 200 - 100) * (reduceMotion ? 0 : 1);
-      const lift = maxLift * (0.72 + Math.random() * 0.28);
-      const spin = `${Math.random() * 48 - 24}deg`;
-      const delay = reduceMotion ? 0 : i * 45;
-      el.style.setProperty("--x", `${originX + drift * 0.15}px`);
-      el.style.setProperty("--y", `${originY - i * 6}px`);
+      const drift = (Math.random() * 140 - 70) * (reduceMotion ? 0 : 1);
+      const lift = maxLift * (0.78 + Math.random() * 0.22);
+      const spin = `${Math.random() * 28 - 14}deg`;
+      const delay = reduceMotion ? 0 : i * 70;
+      el.style.setProperty("--x", `${originX + drift * 0.12}px`);
+      el.style.setProperty("--y", `${originY - i * 4}px`);
       el.style.setProperty("--drift", `${drift}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 1700 + delay);
+      window.setTimeout(() => el.remove(), 3400 + delay);
     }
   }
 
