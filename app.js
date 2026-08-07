@@ -1052,9 +1052,9 @@
     const maxLift = Math.max(200, originY + 30);
     const count = reduceMotion ? 2 : 8;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = Math.min(18, bounds.width * 0.03);
+    const pad = Math.min(6, bounds.width * 0.01);
     // Keep a clear center channel so flowers don't cover Danny's face.
-    const faceGap = Math.min(bounds.width * 0.62, Math.max(220, bounds.width * 0.52));
+    const faceGap = Math.min(bounds.width * 0.58, Math.max(200, bounds.width * 0.48));
     const leftMin = pad;
     const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
     const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
@@ -1067,7 +1067,11 @@
       const goLeft = i % 2 === 0;
       const minX = goLeft ? leftMin : rightMin;
       const maxX = goLeft ? leftMax : rightMax;
-      const targetX = minX + Math.random() * Math.max(1, maxX - minX);
+      // Bias toward the outer edges for a wider fan.
+      const edgeBias = Math.pow(Math.random(), 0.45);
+      const targetX = goLeft
+        ? maxX - edgeBias * Math.max(1, maxX - minX)
+        : minX + edgeBias * Math.max(1, maxX - minX);
       const spread = targetX - originX;
       const lift = maxLift * (0.65 + Math.random() * 0.45);
       const spin = `${Math.random() * 50 - 25}deg`;
