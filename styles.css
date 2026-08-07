@@ -863,6 +863,7 @@ body {
   opacity: 0;
   transition: opacity 1.4s var(--ease-out);
   background: #000;
+  overflow: hidden;
 }
 
 .died-face {
@@ -883,30 +884,24 @@ body {
   z-index: 1;
   display: grid;
   place-items: center;
-  padding:
-    max(0.5rem, env(safe-area-inset-top, 0px))
-    0.5rem
-    max(0.5rem, env(safe-area-inset-bottom, 0px));
-  box-sizing: border-box;
   pointer-events: none;
   transform: translateX(105%);
   will-change: transform;
-  overflow: visible;
 }
 
 .died-coffin.is-closing {
   animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
 }
 
-/* Fit in a height-led box so the cross stays visible while sliding in */
 .died-coffin__svg {
   display: block;
-  width: min(92%, calc(72dvh * 300 / 520));
-  height: auto;
-  max-height: 72dvh;
-  aspect-ratio: 300 / 520;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   object-position: center center;
+  /* Bigger than the viewport so angled coffin edges still blanket the photo */
+  transform: scale(1.38);
+  transform-origin: center center;
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
   user-select: none;
   pointer-events: none;
