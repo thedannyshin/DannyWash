@@ -879,34 +879,59 @@ body {
 
 .died-coffin {
   position: absolute;
-  inset: 0;
+  inset: -6% -4%;
   z-index: 1;
+  display: grid;
+  place-items: center;
   pointer-events: none;
-  transform: translateX(100%);
+  transform: translateX(110%);
   will-change: transform;
-  background: #000;
 }
 
 .died-coffin.is-closing {
   animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
 }
 
+.died-coffin.is-closing .died-coffin__blackout {
+  animation: died-coffin-blackout var(--crop-ms, 9.5s) linear forwards;
+}
+
 .died-coffin__svg {
   display: block;
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
 }
 
-/* Close faster (~7s), hold fully covered for the last ~2.5s */
+.died-coffin__blackout {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Close by ~5.2s, hold, then fade to black before music ends */
 @keyframes died-coffin-close {
   0% {
-    transform: translateX(100%);
+    transform: translateX(110%);
   }
-  72% {
+  55% {
     transform: translateX(0);
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@keyframes died-coffin-blackout {
+  0%,
+  68% {
+    opacity: 0;
+  }
+  88%,
+  100% {
+    opacity: 1;
   }
 }
 
