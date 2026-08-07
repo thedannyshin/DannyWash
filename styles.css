@@ -897,7 +897,11 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: center;
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
+  user-select: none;
+  pointer-events: none;
 }
 
 .died-blackout {
