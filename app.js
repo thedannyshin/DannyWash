@@ -1085,7 +1085,7 @@
       }
 
       const spin = `${Math.random() * 42 - 21}deg`;
-      const flight = reduceMotion ? 0.7 : 0.85 + Math.random() * 0.45;
+      const flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
       const delay = reduceMotion ? 0 : Math.random() * 55;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
