@@ -1033,7 +1033,7 @@ body {
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
   /* Mix: --side/--up vary per flower for wide + tight arcs. */
-  16% {
+  18% {
     opacity: 1;
     transform: translate(
         calc(-50% + (var(--drift) * var(--side, 0.5))),
@@ -1041,13 +1041,21 @@ body {
       )
       scale(1.06) rotate(var(--spin));
   }
-  50% {
-    opacity: 1;
+  42% {
+    opacity: 0.75;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.88)),
-        calc(-50% - (var(--lift) * 0.74))
+        calc(-50% + (var(--drift) * 0.78)),
+        calc(-50% - (var(--lift) * 0.62))
       )
-      scale(1) rotate(calc(var(--spin) * 1.1));
+      scale(1) rotate(calc(var(--spin) * 1.05));
+  }
+  68% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + (var(--drift) * 0.92)),
+        calc(-50% - (var(--lift) * 0.88))
+      )
+      scale(0.94) rotate(calc(var(--spin) * 1.2));
   }
   100% {
     opacity: 0;
