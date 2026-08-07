@@ -898,12 +898,12 @@ body {
   animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
 }
 
-/* Height-led size so the cross stays on-screen (not blown up by width) */
+/* Fit in a height-led box so the cross stays visible while sliding in */
 .died-coffin__svg {
   display: block;
-  width: auto;
-  height: min(72dvh, 100%);
-  max-width: 100%;
+  width: min(92%, calc(72dvh * 300 / 520));
+  height: auto;
+  max-height: 72dvh;
   aspect-ratio: 300 / 520;
   object-fit: contain;
   object-position: center center;
