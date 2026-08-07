@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" fill="none">
+  <!-- Classic coffin lid: narrow head, wide shoulders, tapered foot -->
+  <path
+    d="M100 10 L158 78 L148 390 L52 390 L42 78 Z"
+    fill="#3a2418"
+  />
+  <!-- Lit left half -->
+  <path
+    d="M100 10 L100 390 L52 390 L42 78 Z"
+    fill="#5a3a28"
+  />
+  <!-- Shaded right half -->
+  <path
+    d="M100 10 L158 78 L148 390 L100 390 Z"
+    fill="#2c1a12"
+  />
+  <!-- Subtle edge highlight -->
+  <path
+    d="M100 10 L158 78 L148 390 L52 390 L42 78 Z"
+    fill="none"
+    stroke="#1a0f0a"
+    stroke-width="3"
+    stroke-linejoin="round"
+  />
+  <!-- Cross -->
+  <rect x="88" y="168" width="24" height="110" rx="2" fill="#c4a574" />
+  <rect x="58" y="198" width="84" height="24" rx="2" fill="#c4a574" />
+</svg>

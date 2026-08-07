@@ -883,10 +883,11 @@ body {
   top: 50%;
   left: 50%;
   z-index: 2;
-  /* Tall enough to blanket the photo; width follows the vector aspect. */
+  /* Tall enough to blanket the photo; SVG stays sharp at any scale. */
   height: 125vh;
   width: auto;
   max-width: none;
+  image-rendering: auto;
   transform: translate(90vw, -50%);
   opacity: 0;
   pointer-events: none;
