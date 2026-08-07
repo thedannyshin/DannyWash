@@ -880,34 +880,30 @@ body {
 
 .died-coffin {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   z-index: 2;
-  /* Tall enough to blanket the photo; SVG stays sharp at any scale. */
-  height: 125vh;
-  width: auto;
-  max-width: none;
-  image-rendering: auto;
-  transform: translate(90vw, -50%);
-  opacity: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: translateX(105%);
+  opacity: 1;
   pointer-events: none;
   user-select: none;
-  /* Light shadow only — heavy blur made the vector look soft. */
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(-12px 0 28px rgba(0, 0, 0, 0.55));
   will-change: transform;
 }
 
 .screen--died.is-in .died-coffin {
-  opacity: 1;
-  animation: died-coffin-cover var(--coffin-ms, 9.5s) cubic-bezier(0.22, 0.2, 0.2, 1) forwards;
+  animation: died-coffin-cover var(--coffin-ms, 9.5s) linear forwards;
 }
 
 @keyframes died-coffin-cover {
   from {
-    transform: translate(90vw, -50%);
+    transform: translateX(105%);
   }
   to {
-    transform: translate(-50%, -50%);
+    transform: translateX(0);
   }
 }
 
@@ -1690,7 +1686,7 @@ body {
   .screen--died .died-coffin {
     animation: none;
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translateX(0);
   }
 
   .screen--died .died-crash-line {
