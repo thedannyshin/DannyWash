@@ -882,12 +882,11 @@ body {
   inset: 0;
   z-index: 1;
   display: grid;
-  justify-items: center;
-  align-content: start;
+  place-items: center;
   padding:
-    max(0.45rem, env(safe-area-inset-top, 0px))
-    0.4rem
-    0;
+    max(0.5rem, env(safe-area-inset-top, 0px))
+    0.5rem
+    max(0.5rem, env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
   pointer-events: none;
   transform: translateX(105%);
@@ -899,13 +898,15 @@ body {
   animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
 }
 
+/* Height-led size so the cross stays on-screen (not blown up by width) */
 .died-coffin__svg {
   display: block;
-  width: 100%;
-  height: auto;
+  width: auto;
+  height: min(72dvh, 100%);
+  max-width: 100%;
   aspect-ratio: 300 / 520;
   object-fit: contain;
-  object-position: center top;
+  object-position: center center;
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
   user-select: none;
   pointer-events: none;
