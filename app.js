@@ -1049,12 +1049,13 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
-    const maxLift = Math.max(200, originY + 30);
-    const count = reduceMotion ? 2 : 8;
+    // Shorter rise + harder sideways throw so the fan reads wide, not just tall.
+    const maxLift = Math.max(160, originY * 0.72);
+    const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = -bounds.width * 0.06;
-    // Keep a clear center channel so flowers don't cover Danny's face.
-    const faceGap = Math.min(bounds.width * 0.5, Math.max(180, bounds.width * 0.44));
+    const pad = 4;
+    // Center clear for the face; side bands reach the screen edges.
+    const faceGap = Math.min(bounds.width * 0.4, Math.max(160, bounds.width * 0.32));
     const leftMin = pad;
     const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
     const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
@@ -1067,14 +1068,13 @@
       const goLeft = i % 2 === 0;
       const minX = goLeft ? leftMin : rightMin;
       const maxX = goLeft ? leftMax : rightMax;
-      // Stick to the outer third of each side for a much wider throw.
-      const band = Math.max(1, maxX - minX);
-      const outer = 0.55 + Math.random() * 0.45;
+      // Prefer the outer edge so the V opens wide.
+      const edgeBias = Math.pow(Math.random(), 0.35);
       const targetX = goLeft
-        ? maxX - outer * band
-        : minX + outer * band;
+        ? maxX - edgeBias * Math.max(1, maxX - minX)
+        : minX + edgeBias * Math.max(1, maxX - minX);
       const spread = targetX - originX;
-      const lift = maxLift * (0.65 + Math.random() * 0.45);
+      const lift = maxLift * (0.55 + Math.random() * 0.45);
       const spin = `${Math.random() * 50 - 25}deg`;
       const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
       const delay = reduceMotion ? 0 : Math.random() * 40;

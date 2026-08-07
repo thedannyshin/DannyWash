@@ -965,20 +965,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
-  /* Launch hard sideways + up, then coast. */
+  /* Launch wide first, then rise — a V, not a rocket. */
   16% {
     opacity: 1;
     transform: translate(
         calc(-50% + (var(--drift) * 0.78)),
-        calc(-50% - (var(--lift) * 0.4))
+        calc(-50% - (var(--lift) * 0.28))
       )
       scale(1.06) rotate(var(--spin));
   }
   50% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.96)),
-        calc(-50% - (var(--lift) * 0.78))
+        calc(-50% + (var(--drift) * 0.95)),
+        calc(-50% - (var(--lift) * 0.7))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }
