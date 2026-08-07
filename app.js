@@ -1192,7 +1192,6 @@
 
   function animateDanny(metrics) {
     const myTrip = ++tripId;
-    danny.classList.remove("is-crashed");
     danny.classList.add("is-moving");
     const end = WAYPOINTS[WAYPOINTS.length - 1];
 
@@ -1257,7 +1256,6 @@
 
   function finishCrash() {
     danny.classList.remove("is-moving");
-    danny.classList.add("is-crashed");
   }
 
   function hideDoorWave() {
@@ -1461,7 +1459,7 @@
     clearWashEnterTimer();
     setDoorRethink(false);
     doorDannyZoom.style.animation = "none";
-    danny.classList.remove("is-moving", "is-arrived", "is-crashed");
+    danny.classList.remove("is-moving", "is-arrived");
     setDannyPos(WAYPOINTS[0]);
     status.textContent = "Danny is coming to wash!";
     status.classList.remove("is-arrived");
