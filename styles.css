@@ -844,7 +844,7 @@ body {
 }
 
 .screen--died.is-wiping .died-wipe {
-  animation: died-clock-wipe var(--died-wipe-ms, 7s) cubic-bezier(0.22, 0.15, 0.28, 1) forwards;
+  animation: died-clock-wipe var(--died-wipe-ms, 14s) cubic-bezier(0.22, 0.15, 0.28, 1) forwards;
 }
 
 .died-wipe {
