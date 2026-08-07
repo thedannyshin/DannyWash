@@ -879,7 +879,7 @@ body {
 
 .died-coffin {
   position: absolute;
-  inset: 0;
+  inset: -12%;
   z-index: 4;
   pointer-events: none;
   transform: translateX(100%);
@@ -898,6 +898,8 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+  transform: scale(1.35);
+  transform-origin: center center;
 }
 
 .died-coffin__blackout {
