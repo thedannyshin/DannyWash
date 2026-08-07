@@ -899,6 +899,8 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: 50% 50%;
+  transform: scale(1.45) translateY(-8%);
+  transform-origin: center center;
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
   user-select: none;
   pointer-events: none;
