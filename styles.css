@@ -832,6 +832,10 @@ body {
   opacity: 1;
 }
 
+.screen--died.is-coffin .died-coffin {
+  transform: translate(-50%, -50%);
+}
+
 .screen--died.is-in .died-bottom {
   opacity: 1;
   transform: translateY(0);
@@ -861,9 +865,9 @@ body {
   position: absolute;
   inset: 0;
   opacity: 0;
+  overflow: hidden;
   transition: opacity 1.4s var(--ease-out);
   background: #000;
-  overflow: hidden;
 }
 
 .died-face {
@@ -880,68 +884,19 @@ body {
 
 .died-coffin {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  transform: translateX(105%);
-  will-change: transform;
-}
-
-.died-coffin.is-closing {
-  animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
-}
-
-.died-coffin__svg {
-  position: absolute;
-  left: 50%;
   top: 50%;
-  display: block;
-  /* Cover the viewport (plus margin for angled sides), keep aspect, stay centered */
-  width: max(170vw, calc(170vh * 300 / 520));
+  left: 50%;
+  z-index: 1;
+  width: max(115vw, 115%);
   height: auto;
-  aspect-ratio: 300 / 520;
   max-width: none;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
+  object-fit: fill;
+  transform: translate(110%, -50%);
+  transition: transform var(--coffin-ms, 8.4s) cubic-bezier(0.33, 0.08, 0.25, 1);
+  pointer-events: none;
   user-select: none;
-  pointer-events: none;
-}
-
-.died-blackout {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.died-blackout.is-fading {
-  animation: died-blackout var(--crop-ms, 9.5s) linear forwards;
-}
-
-/* Close by ~5.2s, hold, then full-screen fade to black before music ends */
-@keyframes died-coffin-close {
-  0% {
-    transform: translateX(105%);
-  }
-  55% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes died-blackout {
-  0%,
-  68% {
-    opacity: 0;
-  }
-  88%,
-  100% {
-    opacity: 1;
-  }
+  filter: drop-shadow(-18px 0 28px rgba(0, 0, 0, 0.55));
+  will-change: transform;
 }
 
 .died-face-wrap::after {
@@ -1721,14 +1676,9 @@ body {
     transition: none;
   }
 
-  .died-coffin.is-closing {
-    animation: none;
-    transform: translateX(0);
-  }
-
-  .died-blackout.is-fading {
-    animation: none;
-    opacity: 1;
+  .screen--died .died-coffin {
+    transition: none;
+    transform: translate(-50%, -50%);
   }
 
   .screen--died .died-crash-line {
