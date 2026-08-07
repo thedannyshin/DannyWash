@@ -1032,20 +1032,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
-  /* Rise with a moderate outward fan. */
+  /* Mix: --side/--up vary per flower for wide + tight arcs. */
   16% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.45)),
-        calc(-50% - (var(--lift) * 0.32))
+        calc(-50% + (var(--drift) * var(--side, 0.5))),
+        calc(-50% - (var(--lift) * var(--up, 0.32)))
       )
       scale(1.06) rotate(var(--spin));
   }
   50% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.82)),
-        calc(-50% - (var(--lift) * 0.72))
+        calc(-50% + (var(--drift) * 0.88)),
+        calc(-50% - (var(--lift) * 0.74))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }

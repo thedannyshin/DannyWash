@@ -1051,36 +1051,41 @@
     const originY = clientY - bounds.top;
     // Almost to the top of the screen.
     const maxLift = Math.max(220, originY - 12);
-    const count = reduceMotion ? 2 : 10;
+    const count = reduceMotion ? 2 : 12;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    // Clear the face, but keep the fan tighter than full-width.
-    const faceGap = Math.min(bounds.width * 0.36, Math.max(140, bounds.width * 0.3));
-    const maxOut = bounds.width * 0.38;
-    const leftMin = originX - maxOut;
-    const leftMax = originX - faceGap / 2;
-    const rightMin = originX + faceGap / 2;
-    const rightMax = originX + maxOut;
+    const faceGap = Math.min(bounds.width * 0.34, Math.max(130, bounds.width * 0.28));
+    // Mix a tighter fan with a wider edge throw.
+    const narrowOut = bounds.width * 0.34;
+    const wideOut = bounds.width * 0.56;
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
       const goLeft = i % 2 === 0;
-      const minX = goLeft ? leftMin : rightMin;
-      const maxX = goLeft ? leftMax : rightMax;
-      const t = Math.random();
-      const targetX = minX + t * Math.max(1, maxX - minX);
+      const useWide = i % 4 >= 2;
+      const maxOut = useWide ? wideOut : narrowOut;
+      const inner = faceGap / 2;
+      const minX = goLeft ? originX - maxOut : originX + inner;
+      const maxX = goLeft ? originX - inner : originX + maxOut;
+      const t = useWide ? Math.pow(Math.random(), 0.4) : Math.random();
+      const targetX = goLeft
+        ? maxX - t * Math.max(1, maxX - minX)
+        : minX + t * Math.max(1, maxX - minX);
       const spread = targetX - originX;
-      const lift = maxLift * (0.82 + Math.random() * 0.22);
+      const lift = maxLift * (0.8 + Math.random() * 0.24);
       const spin = `${Math.random() * 50 - 25}deg`;
-      const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
-      const delay = reduceMotion ? 0 : Math.random() * 40;
+      const flight = reduceMotion ? 1 : 1.55 + Math.random() * 0.95;
+      const delay = reduceMotion ? 0 : Math.random() * 45;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${spread}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
       el.style.setProperty("--flight", `${flight}s`);
+      // Wide arcs open sideways a bit earlier; narrow ones rise more first.
+      el.style.setProperty("--side", useWide ? "0.72" : "0.42");
+      el.style.setProperty("--up", useWide ? "0.22" : "0.36");
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
       window.setTimeout(() => el.remove(), flight * 1000 + delay + 80);
