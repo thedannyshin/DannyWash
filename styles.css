@@ -852,9 +852,9 @@ body {
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  /* Clock wipe: black starts at the right edge and sweeps downward/clockwise. */
+  /* Pivot at bottom-right; leading edge starts on the right and sweeps down across the photo. */
   background: conic-gradient(
-    from 90deg at 50% 42%,
+    from calc(0deg - var(--died-wipe-angle)) at 100% 100%,
     #000 0deg,
     #000 var(--died-wipe-angle),
     transparent var(--died-wipe-angle)
