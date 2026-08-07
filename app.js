@@ -14,6 +14,7 @@
   const died = document.getElementById("died");
   const diedFace = document.getElementById("died-face");
   const diedCoffin = document.getElementById("died-coffin");
+  const diedBlackout = document.getElementById("died-blackout");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -1110,16 +1111,25 @@
       diedCoffin.classList.remove("is-closing");
       diedCoffin.style.removeProperty("--crop-ms");
     }
+    if (diedBlackout) {
+      diedBlackout.classList.remove("is-fading");
+      diedBlackout.style.removeProperty("--crop-ms");
+    }
     void died.offsetWidth;
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
       if (diedCoffin && !reduceMotion) {
         diedCoffin.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
+        if (diedBlackout) {
+          diedBlackout.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
+        }
         void diedCoffin.offsetWidth;
         diedCoffin.classList.add("is-closing");
+        if (diedBlackout) diedBlackout.classList.add("is-fading");
       } else if (diedCoffin) {
         diedCoffin.classList.add("is-closing");
+        if (diedBlackout) diedBlackout.classList.add("is-fading");
       }
       playDannyLeftSting({
         delayMs: 0,
@@ -1449,6 +1459,10 @@
     if (diedCoffin) {
       diedCoffin.classList.remove("is-closing");
       diedCoffin.style.removeProperty("--crop-ms");
+    }
+    if (diedBlackout) {
+      diedBlackout.classList.remove("is-fading");
+      diedBlackout.style.removeProperty("--crop-ms");
     }
     summon.hidden = false;
     tipBursts.replaceChildren();

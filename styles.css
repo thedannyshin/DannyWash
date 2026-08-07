@@ -893,10 +893,6 @@ body {
   animation: died-coffin-close var(--crop-ms, 9.5s) linear forwards;
 }
 
-.died-coffin.is-closing .died-coffin__blackout {
-  animation: died-coffin-blackout var(--crop-ms, 9.5s) linear forwards;
-}
-
 .died-coffin__svg {
   display: block;
   width: 100%;
@@ -904,15 +900,20 @@ body {
   filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
 }
 
-.died-coffin__blackout {
+.died-blackout {
   position: absolute;
   inset: 0;
+  z-index: 20;
   background: #000;
   opacity: 0;
   pointer-events: none;
 }
 
-/* Close by ~5.2s, hold, then fade to black before music ends */
+.died-blackout.is-fading {
+  animation: died-blackout var(--crop-ms, 9.5s) linear forwards;
+}
+
+/* Close by ~5.2s, hold, then full-screen fade to black before music ends */
 @keyframes died-coffin-close {
   0% {
     transform: translateX(105%);
@@ -925,7 +926,7 @@ body {
   }
 }
 
-@keyframes died-coffin-blackout {
+@keyframes died-blackout {
   0%,
   68% {
     opacity: 0;
@@ -1715,7 +1716,12 @@ body {
 
   .died-coffin.is-closing {
     animation: none;
-    transform: translateX(0) rotate(-7deg);
+    transform: translateX(0);
+  }
+
+  .died-blackout.is-fading {
+    animation: none;
+    opacity: 1;
   }
 
   .screen--died .died-crash-line {
