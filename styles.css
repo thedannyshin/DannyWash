@@ -965,20 +965,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
-  /* Launch hard off the button, then coast. */
-  18% {
+  /* Launch hard sideways + up, then coast. */
+  16% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.62)),
-        calc(-50% - (var(--lift) * 0.48))
+        calc(-50% + (var(--drift) * 0.78)),
+        calc(-50% - (var(--lift) * 0.4))
       )
       scale(1.06) rotate(var(--spin));
   }
-  55% {
+  50% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.9)),
-        calc(-50% - (var(--lift) * 0.82))
+        calc(-50% + (var(--drift) * 0.96)),
+        calc(-50% - (var(--lift) * 0.78))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }
