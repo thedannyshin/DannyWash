@@ -13,6 +13,7 @@
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
   const diedFace = document.getElementById("died-face");
+  const diedCoffinLid = document.getElementById("died-coffin-lid");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -1105,15 +1106,21 @@
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in");
-    if (diedFace) diedFace.classList.remove("is-cropping");
+    if (diedCoffinLid) {
+      diedCoffinLid.classList.remove("is-closing");
+      diedCoffinLid.style.removeProperty("--crop-ms");
+    }
     void died.offsetWidth;
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
-      if (diedFace && !reduceMotion) {
-        diedFace.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
-        void diedFace.offsetWidth;
-        diedFace.classList.add("is-cropping");
+      if (diedCoffinLid && !reduceMotion) {
+        diedCoffinLid.style.setProperty("--crop-ms", `${DANNY_LEFT_MS}ms`);
+        void diedCoffinLid.offsetWidth;
+        diedCoffinLid.classList.add("is-closing");
+      } else if (diedCoffinLid) {
+        diedCoffinLid.classList.add("is-closing");
+        diedCoffinLid.style.transform = "translateX(-4%) skewX(-7deg)";
       }
       playDannyLeftSting({
         delayMs: 0,
@@ -1440,7 +1447,11 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in");
-    if (diedFace) diedFace.classList.remove("is-cropping");
+    if (diedCoffinLid) {
+      diedCoffinLid.classList.remove("is-closing");
+      diedCoffinLid.style.removeProperty("--crop-ms");
+      diedCoffinLid.style.removeProperty("transform");
+    }
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
