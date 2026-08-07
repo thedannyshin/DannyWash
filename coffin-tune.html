@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Coffin tuner — DannyWash</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --panel: rgba(12, 10, 9, 0.92);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f2ebe3;
+        --muted: rgba(242, 235, 227, 0.62);
+        --accent: #c4a07a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: "Bricolage Grotesque", sans-serif;
+        background: #000;
+        color: var(--text);
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        overflow: hidden;
+      }
+
+      .face {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 38%;
+        filter: grayscale(1) contrast(1.08) brightness(0.92);
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .coffin-wrap {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        overflow: visible;
+      }
+
+      .coffin {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center center;
+        transform-origin: center center;
+        filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
+        user-select: none;
+        pointer-events: none;
+        will-change: transform;
+      }
+
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.15) 0%,
+          transparent 28%,
+          transparent 48%,
+          rgba(0, 0, 0, 0.72) 78%,
+          rgba(0, 0, 0, 0.92) 100%
+        );
+      }
+
+      .crosshair {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 18px;
+        height: 18px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        opacity: 0.55;
+      }
+
+      .crosshair::before,
+      .crosshair::after {
+        content: "";
+        position: absolute;
+        background: #ff4d4d;
+      }
+
+      .crosshair::before {
+        left: 50%;
+        top: 0;
+        width: 1px;
+        height: 100%;
+        transform: translateX(-50%);
+      }
+
+      .crosshair::after {
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        transform: translateY(-50%);
+      }
+
+      .panel {
+        position: fixed;
+        left: max(0.75rem, env(safe-area-inset-left));
+        right: max(0.75rem, env(safe-area-inset-right));
+        bottom: max(0.75rem, env(safe-area-inset-bottom));
+        z-index: 10;
+        max-width: 420px;
+        margin-inline: auto;
+        padding: 0.9rem 1rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      }
+
+      .panel h1 {
+        margin: 0 0 0.15rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .panel p {
+        margin: 0 0 0.85rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 64px 1fr 58px;
+        gap: 0.55rem;
+        align-items: center;
+        margin-bottom: 0.55rem;
+      }
+
+      .row label {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      .row input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .row output {
+        font-variant-numeric: tabular-nums;
+        font-size: 0.72rem;
+        text-align: right;
+        color: var(--text);
+      }
+
+      .specs {
+        margin: 0.65rem 0 0.7rem;
+        padding: 0.65rem 0.7rem;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.68rem;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #e8dccf;
+      }
+
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.55rem 0.9rem;
+        cursor: pointer;
+      }
+
+      button.primary {
+        background: var(--accent);
+        border-color: transparent;
+        color: #1a100c;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      .back {
+        position: fixed;
+        top: max(0.75rem, env(safe-area-inset-top));
+        left: max(0.75rem, env(safe-area-inset-left));
+        z-index: 10;
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="index.html">← DannyWash</a>
+
+    <div class="stage" aria-label="Coffin preview">
+      <img class="face" src="assets/danny.png" alt="" width="428" height="399" draggable="false" />
+      <div class="coffin-wrap">
+        <img
+          class="coffin"
+          id="coffin"
+          src="assets/coffin.svg"
+          alt=""
+          width="300"
+          height="520"
+          draggable="false"
+        />
+      </div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="crosshair" aria-hidden="true" title="Screen center"></div>
+    </div>
+
+    <aside class="panel">
+      <h1>Coffin tuner</h1>
+      <p>
+        Drag to adjust. Red crosshair is screen center. Negative Y moves up. Copy the specs when it
+        looks right.
+      </p>
+
+      <div class="row">
+        <label for="scale">Scale</label>
+        <input id="scale" type="range" min="0.4" max="2.5" step="0.01" value="1" />
+        <output id="scaleOut" for="scale">1.00</output>
+      </div>
+      <div class="row">
+        <label for="x">X</label>
+        <input id="x" type="range" min="-40" max="40" step="0.5" value="0" />
+        <output id="xOut" for="x">0%</output>
+      </div>
+      <div class="row">
+        <label for="y">Y</label>
+        <input id="y" type="range" min="-40" max="40" step="0.5" value="0" />
+        <output id="yOut" for="y">0%</output>
+      </div>
+
+      <pre class="specs" id="specs"></pre>
+
+      <div class="actions">
+        <button type="button" class="primary" id="copy">Copy specs</button>
+        <button type="button" id="reset">Reset</button>
+      </div>
+    </aside>
+
+    <script>
+      const coffin = document.getElementById("coffin");
+      const scaleEl = document.getElementById("scale");
+      const xEl = document.getElementById("x");
+      const yEl = document.getElementById("y");
+      const scaleOut = document.getElementById("scaleOut");
+      const xOut = document.getElementById("xOut");
+      const yOut = document.getElementById("yOut");
+      const specsEl = document.getElementById("specs");
+      const copyBtn = document.getElementById("copy");
+      const resetBtn = document.getElementById("reset");
+
+      const defaults = { scale: 1, x: 0, y: 0 };
+
+      function formatSpecs(scale, x, y) {
+        return [
+          `scale: ${scale.toFixed(2)}`,
+          `x: ${x.toFixed(1)}%`,
+          `y: ${y.toFixed(1)}%`,
+          "",
+          `transform: scale(${scale.toFixed(2)}) translate(${x.toFixed(1)}%, ${y.toFixed(1)}%);`,
+          `transform-origin: center center;`,
+          `object-fit: contain;`,
+        ].join("\n");
+      }
+
+      function apply() {
+        const scale = Number(scaleEl.value);
+        const x = Number(xEl.value);
+        const y = Number(yEl.value);
+
+        coffin.style.transform = `scale(${scale}) translate(${x}%, ${y}%)`;
+        scaleOut.textContent = scale.toFixed(2);
+        xOut.textContent = `${x.toFixed(1)}%`;
+        yOut.textContent = `${y.toFixed(1)}%`;
+        specsEl.textContent = formatSpecs(scale, x, y);
+      }
+
+      for (const el of [scaleEl, xEl, yEl]) {
+        el.addEventListener("input", apply);
+      }
+
+      resetBtn.addEventListener("click", () => {
+        scaleEl.value = String(defaults.scale);
+        xEl.value = String(defaults.x);
+        yEl.value = String(defaults.y);
+        apply();
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const text = specsEl.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = "Copied";
+          window.setTimeout(() => {
+            copyBtn.textContent = "Copy specs";
+          }, 1200);
+        } catch {
+          copyBtn.textContent = "Select & copy";
+        }
+      });
+
+      apply();
+    </script>
+  </body>
+</html>
