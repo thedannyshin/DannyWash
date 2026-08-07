@@ -49,7 +49,7 @@
   const washLine2Audio = document.getElementById("wash-line2-audio");
   const arriveAudio = document.getElementById("arrive-audio");
   const doorKnockAudio = document.getElementById("door-knock-audio");
-  const openDoorAudio = document.getElementById("open-door-audio");
+  const doorRethinkAudio = document.getElementById("door-rethink-audio");
   const crashAudio = document.getElementById("crash-audio");
   const dannyCrashedAudio = document.getElementById("danny-crashed-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
@@ -189,7 +189,7 @@
       ["washline2", "assets/wash-line2.mp3"],
       ["arrive", "assets/arrive.mp3"],
       ["doorknock", "assets/door-knock.mp3"],
-      ["opendoor", "assets/open-door.mp3"],
+      ["doorrethink", "assets/door-rethink.mp3"],
       ["crash", "assets/crash.mp3"],
       ["dannycrashed", "assets/danny-crashed.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
@@ -631,7 +631,7 @@
   }
 
   function playOpenDoorLine() {
-    playDelayed("opendoor", openDoorAudio);
+    playDelayed("doorrethink", doorRethinkAudio);
   }
 
   function playCrash() {
