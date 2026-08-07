@@ -1049,28 +1049,34 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
-    // Almost to the top of the viewport.
-    const maxLift = Math.max(200, originY - 20);
+    // Almost to the top of the screen.
+    const maxLift = Math.max(220, originY - 12);
     const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    // Pin endings to the left/right screen edges (tiny inset so they stay on-screen).
-    const edgePad = 18;
-    const leftEdge = edgePad;
-    const rightEdge = bounds.width - edgePad;
+    // Keep a clear center for the face; allow targets past the screen edges.
+    const faceGap = Math.min(bounds.width * 0.28, Math.max(120, bounds.width * 0.24));
+    const overshoot = bounds.width * 0.28;
+    const leftMin = -overshoot;
+    const leftMax = originX - faceGap / 2;
+    const rightMin = originX + faceGap / 2;
+    const rightMax = bounds.width + overshoot;
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
       const goLeft = i % 2 === 0;
-      // Stop at the edge — slight jitter inward only.
+      const minX = goLeft ? leftMin : rightMin;
+      const maxX = goLeft ? leftMax : rightMax;
+      // Bias outward past the edges for a wide V.
+      const edgeBias = Math.pow(Math.random(), 0.28);
       const targetX = goLeft
-        ? leftEdge + Math.random() * 28
-        : rightEdge - Math.random() * 28;
+        ? maxX - edgeBias * Math.max(1, maxX - minX)
+        : minX + edgeBias * Math.max(1, maxX - minX);
       const spread = targetX - originX;
-      const lift = maxLift * (0.88 + Math.random() * 0.12);
+      const lift = maxLift * (0.82 + Math.random() * 0.22);
       const spin = `${Math.random() * 50 - 25}deg`;
-      const flight = reduceMotion ? 1 : 1.8 + Math.random() * 0.8;
+      const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
       const delay = reduceMotion ? 0 : Math.random() * 40;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
