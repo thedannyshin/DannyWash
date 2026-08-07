@@ -143,7 +143,7 @@
             draggable="false"
           />
           <div class="died-coffin" id="died-coffin">
-            <svg class="died-coffin__svg" viewBox="0 0 300 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg class="died-coffin__svg" viewBox="0 0 300 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
                 <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0%" stop-color="#3a2418" />
@@ -156,23 +156,23 @@
                   <stop offset="100%" stop-color="#100806" />
                 </linearGradient>
               </defs>
-              <!-- Classic coffin: sides angled \ and / -->
+              <!-- Oversized coffin: wood fills the whole viewBox; \ / sides still read on screen -->
               <path
                 fill="url(#coffinEdge)"
-                d="M108 12 L192 12 L278 145 L230 508 L70 508 L22 145 Z"
+                d="M78 -110 L222 -110 L430 125 L350 640 L-50 640 L-130 125 Z"
               />
               <path
                 fill="url(#coffinWood)"
-                d="M116 26 L184 26 L262 148 L220 492 L80 492 L38 148 Z"
+                d="M88 -90 L212 -90 L410 130 L335 620 L-35 620 L-110 130 Z"
               />
               <!-- Grain -->
               <g fill="none" stroke="#5f412a" stroke-opacity="0.32" stroke-width="1.6" stroke-linecap="round">
-                <path d="M80 95 C120 125, 180 120, 225 90" />
-                <path d="M65 170 C115 205, 185 200, 240 165" />
-                <path d="M58 250 C115 285, 185 280, 245 245" />
-                <path d="M70 335 C120 365, 180 360, 235 330" />
-                <path d="M85 415 C125 440, 175 435, 220 410" />
-                <path d="M150 40 C155 140, 160 280, 150 470" stroke-opacity="0.5" />
+                <path d="M20 70 C100 105, 200 100, 280 65" />
+                <path d="M-10 150 C90 190, 210 185, 310 145" />
+                <path d="M5 250 C100 290, 200 285, 295 245" />
+                <path d="M20 350 C105 385, 195 380, 280 345" />
+                <path d="M40 450 C110 480, 190 475, 260 445" />
+                <path d="M150 -20 C155 140, 160 300, 150 520" stroke-opacity="0.5" />
               </g>
               <!-- T-cross dead center -->
               <g transform="translate(150 260)" fill="#8c643f">
