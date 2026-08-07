@@ -77,7 +77,9 @@
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
-  const DIED_FACE_FADE_MS = 400;
+  const DIED_FACE_FADE_MS = 1400;
+  const DIED_WIPE_DELAY_MS = 1800;
+  const DIED_WIPE_MS = 7000;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -136,6 +138,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
+  let diedWipeTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1099,11 +1102,20 @@
     }
   }
 
+  function clearDiedWipeTimer() {
+    if (diedWipeTimer) {
+      window.clearTimeout(diedWipeTimer);
+      diedWipeTimer = null;
+    }
+  }
+
   function showDied() {
     map.hidden = true;
     died.hidden = false;
-    died.classList.remove("is-in");
+    died.classList.remove("is-in", "is-wiping");
+    died.style.removeProperty("--died-wipe-ms");
     void died.offsetWidth;
+    clearDiedWipeTimer();
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
@@ -1113,6 +1125,13 @@
           if (!died.hidden) resetToStart();
         },
       });
+      // After the face has faded in, start a slow black wipe from bottom-right.
+      diedWipeTimer = window.setTimeout(() => {
+        diedWipeTimer = null;
+        if (died.hidden) return;
+        died.style.setProperty("--died-wipe-ms", `${reduceMotion ? 0 : DIED_WIPE_MS}ms`);
+        died.classList.add("is-wiping");
+      }, reduceMotion ? 0 : DIED_FACE_FADE_MS + DIED_WIPE_DELAY_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
@@ -1431,7 +1450,9 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in");
+    died.classList.remove("is-in", "is-wiping");
+    died.style.removeProperty("--died-wipe-ms");
+    clearDiedWipeTimer();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
