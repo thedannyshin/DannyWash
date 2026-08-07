@@ -142,6 +142,46 @@
             height="399"
             draggable="false"
           />
+          <div class="died-coffin" id="died-coffin">
+            <svg class="died-coffin__svg" viewBox="0 0 300 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#3a2418" />
+                  <stop offset="40%" stop-color="#1a100c" />
+                  <stop offset="100%" stop-color="#080504" />
+                </linearGradient>
+                <linearGradient id="coffinEdge" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#5c3c28" />
+                  <stop offset="50%" stop-color="#2a1812" />
+                  <stop offset="100%" stop-color="#100806" />
+                </linearGradient>
+              </defs>
+              <!-- Near full-bleed lid, sides only slightly angled -->
+              <path
+                fill="url(#coffinEdge)"
+                d="M22 0 L278 0 L300 115 L292 520 L8 520 L0 115 Z"
+              />
+              <path
+                fill="url(#coffinWood)"
+                d="M30 10 L270 10 L290 120 L282 510 L18 510 L10 120 Z"
+              />
+              <!-- Grain -->
+              <g fill="none" stroke="#5f412a" stroke-opacity="0.32" stroke-width="1.6" stroke-linecap="round">
+                <path d="M40 90 C100 120, 200 115, 265 85" />
+                <path d="M28 170 C100 205, 200 200, 275 165" />
+                <path d="M22 250 C100 285, 200 280, 280 245" />
+                <path d="M28 335 C100 365, 200 360, 275 330" />
+                <path d="M35 415 C100 440, 200 435, 268 410" />
+                <path d="M150 20 C155 140, 160 280, 150 490" stroke-opacity="0.5" />
+              </g>
+              <!-- T-cross dead center -->
+              <g transform="translate(150 260)" fill="#8c643f">
+                <rect x="-14" y="-78" width="28" height="156" rx="3" />
+                <rect x="-58" y="-42" width="116" height="26" rx="3" />
+              </g>
+            </svg>
+            <div class="died-coffin__blackout" aria-hidden="true"></div>
+          </div>
         </div>
         <div class="died-bottom">
           <p class="died-message">Danny has died.</p>
@@ -152,46 +192,6 @@
             </span>
             <span class="flowers-btn__sheen" aria-hidden="true"></span>
           </button>
-        </div>
-        <div class="died-coffin" id="died-coffin">
-          <svg class="died-coffin__svg" viewBox="0 0 300 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="coffinWood" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#3a2418" />
-                <stop offset="40%" stop-color="#1a100c" />
-                <stop offset="100%" stop-color="#080504" />
-              </linearGradient>
-              <linearGradient id="coffinEdge" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#5c3c28" />
-                <stop offset="50%" stop-color="#2a1812" />
-                <stop offset="100%" stop-color="#100806" />
-              </linearGradient>
-            </defs>
-            <!-- Oversized coffin: wood fills the whole viewBox; \ / sides still read on screen -->
-            <path
-              fill="url(#coffinEdge)"
-              d="M78 -110 L222 -110 L430 125 L350 640 L-50 640 L-130 125 Z"
-            />
-            <path
-              fill="url(#coffinWood)"
-              d="M88 -90 L212 -90 L410 130 L335 620 L-35 620 L-110 130 Z"
-            />
-            <!-- Grain -->
-            <g fill="none" stroke="#5f412a" stroke-opacity="0.32" stroke-width="1.6" stroke-linecap="round">
-              <path d="M20 70 C100 105, 200 100, 280 65" />
-              <path d="M-10 150 C90 190, 210 185, 310 145" />
-              <path d="M5 250 C100 290, 200 285, 295 245" />
-              <path d="M20 350 C105 385, 195 380, 280 345" />
-              <path d="M40 450 C110 480, 190 475, 260 445" />
-              <path d="M150 -20 C155 140, 160 300, 150 520" stroke-opacity="0.5" />
-            </g>
-            <!-- T-cross dead center -->
-            <g transform="translate(150 260)" fill="#8c643f">
-              <rect x="-14" y="-78" width="28" height="156" rx="3" />
-              <rect x="-58" y="-42" width="116" height="26" rx="3" />
-            </g>
-          </svg>
-          <div class="died-coffin__blackout" aria-hidden="true"></div>
         </div>
         <div id="flower-bursts" class="tip-bursts" aria-hidden="true"></div>
       </section>
