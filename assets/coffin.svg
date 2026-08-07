@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 300 520">
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" width="300" height="520" viewBox="0 0 300 520">
   <!-- Generator: Adobe Illustrator 30.7.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 114)  -->
   <defs>
     <style>
@@ -33,7 +33,7 @@
   <polygon class="st3" points="150 10 30 10 10 120 38 510 150 510 150 10"/>
   <polygon class="st1" points="10 120 10.1 124.6 150 148 150 10 30 10 10 120"/>
   <polygon class="st2" points="290 120 289.9 124.6 150 148 150 10 270 10 290 120"/>
-  <!-- Cross: junction at viewBox center (150, 260) so cover centers it on screen -->
+  <!-- Cross: junction at viewBox center -->
   <rect class="st0" x="136" y="211" width="28" height="156" rx="3" ry="3"/>
   <rect class="st0" x="92" y="247" width="116" height="26" rx="3" ry="3"/>
 </svg>
