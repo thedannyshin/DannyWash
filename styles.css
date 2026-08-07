@@ -956,7 +956,8 @@ body {
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
   transform: translate(-50%, -50%) scale(0.6);
   opacity: 0;
-  animation: tip-flower-fly 3.1s ease-in-out forwards;
+  /* Fast near the button, eases out toward the top. */
+  animation: tip-flower-fly 2.6s cubic-bezier(0.05, 0.7, 0.15, 1) forwards;
   will-change: transform, opacity;
 }
 
@@ -967,14 +968,27 @@ body {
   }
   12% {
     opacity: 1;
-    transform: translate(calc(-50% + var(--drift) * 0.12), calc(-50% - 18px)) scale(1.05) rotate(var(--spin));
+    transform: translate(
+        calc(-50% + (var(--drift) * 0.28)),
+        calc(-50% - (var(--lift) * 0.22))
+      )
+      scale(1.06) rotate(var(--spin));
   }
-  70% {
+  45% {
     opacity: 1;
+    transform: translate(
+        calc(-50% + (var(--drift) * 0.7)),
+        calc(-50% - (var(--lift) * 0.62))
+      )
+      scale(1) rotate(var(--spin));
   }
   100% {
     opacity: 0;
-    transform: translate(calc(-50% + var(--drift)), calc(-50% - var(--lift))) scale(0.95) rotate(var(--spin));
+    transform: translate(
+        calc(-50% + var(--drift)),
+        calc(-50% - var(--lift))
+      )
+      scale(0.94) rotate(var(--spin));
   }
 }
 
