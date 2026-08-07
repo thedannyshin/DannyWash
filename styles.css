@@ -1032,20 +1032,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.7) rotate(calc(var(--spin) * -0.3));
   }
-  /* Launch wide first, then rise — a V, not a rocket. */
-  14% {
+  /* Rise with a moderate outward fan. */
+  16% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.92)),
-        calc(-50% - (var(--lift) * 0.18))
+        calc(-50% + (var(--drift) * 0.45)),
+        calc(-50% - (var(--lift) * 0.32))
       )
       scale(1.06) rotate(var(--spin));
   }
-  48% {
+  50% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.98)),
-        calc(-50% - (var(--lift) * 0.62))
+        calc(-50% + (var(--drift) * 0.82)),
+        calc(-50% - (var(--lift) * 0.72))
       )
       scale(1) rotate(calc(var(--spin) * 1.1));
   }

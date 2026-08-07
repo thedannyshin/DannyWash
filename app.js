@@ -1053,13 +1053,13 @@
     const maxLift = Math.max(220, originY - 12);
     const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    // Keep a clear center for the face; allow targets past the screen edges.
-    const faceGap = Math.min(bounds.width * 0.28, Math.max(120, bounds.width * 0.24));
-    const overshoot = bounds.width * 0.28;
-    const leftMin = -overshoot;
+    // Clear the face, but keep the fan tighter than full-width.
+    const faceGap = Math.min(bounds.width * 0.36, Math.max(140, bounds.width * 0.3));
+    const maxOut = bounds.width * 0.38;
+    const leftMin = originX - maxOut;
     const leftMax = originX - faceGap / 2;
     const rightMin = originX + faceGap / 2;
-    const rightMax = bounds.width + overshoot;
+    const rightMax = originX + maxOut;
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
@@ -1068,11 +1068,8 @@
       const goLeft = i % 2 === 0;
       const minX = goLeft ? leftMin : rightMin;
       const maxX = goLeft ? leftMax : rightMax;
-      // Bias outward past the edges for a wide V.
-      const edgeBias = Math.pow(Math.random(), 0.28);
-      const targetX = goLeft
-        ? maxX - edgeBias * Math.max(1, maxX - minX)
-        : minX + edgeBias * Math.max(1, maxX - minX);
+      const t = Math.random();
+      const targetX = minX + t * Math.max(1, maxX - minX);
       const spread = targetX - originX;
       const lift = maxLift * (0.82 + Math.random() * 0.22);
       const spin = `${Math.random() * 50 - 25}deg`;
