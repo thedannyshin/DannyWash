@@ -1049,31 +1049,30 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
-    // Travel from the button nearly to / past the top of the viewport.
-    const maxLift = Math.max(180, originY + 40);
-    const count = reduceMotion ? 2 : 12;
+    const maxLift = Math.max(200, originY + 30);
+    const halfWidth = Math.max(1, bounds.width * 0.5 - 16);
+    const count = reduceMotion ? 2 : 8;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
-    const pad = Math.min(20, bounds.width * 0.03);
-    const span = Math.max(1, bounds.width - pad * 2);
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
-      el.textContent = flowers[i % flowers.length];
-      // Random end X across the full width (not fixed slots).
-      const targetX = pad + Math.random() * span;
-      const drift = targetX - originX;
-      const lift = maxLift * (0.7 + Math.random() * 0.45);
-      const spin = `${Math.random() * 40 - 20}deg`;
-      const delay = reduceMotion ? 0 : Math.random() * 180;
+      el.textContent = flowers[(Math.random() * flowers.length) | 0];
+      // Independent arc from the button — same beat as hearts, wider throw.
+      const spread = (Math.random() * 2 - 1) * halfWidth;
+      const lift = maxLift * (0.65 + Math.random() * 0.45);
+      const spin = `${Math.random() * 50 - 25}deg`;
+      const flight = reduceMotion ? 1.1 : 1.7 + Math.random() * 1.1;
+      const delay = reduceMotion ? 0 : Math.random() * 90;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
-      el.style.setProperty("--drift", `${drift}px`);
+      el.style.setProperty("--drift", `${spread}px`);
       el.style.setProperty("--lift", `${lift}px`);
       el.style.setProperty("--spin", spin);
+      el.style.setProperty("--flight", `${flight}s`);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 2700 + delay);
+      window.setTimeout(() => el.remove(), flight * 1000 + delay + 80);
     }
   }
 
