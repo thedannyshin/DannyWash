@@ -7,151 +7,64 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
-      :root {
-        color-scheme: dark;
-        --panel: rgba(12, 10, 9, 0.92);
-        --line: rgba(255, 255, 255, 0.12);
-        --text: #f2ebe3;
-        --muted: rgba(242, 235, 227, 0.62);
-        --accent: #c4a07a;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        font-family: "Bricolage Grotesque", sans-serif;
-        background: #000;
-        color: var(--text);
-      }
-
-      .stage {
+      /* Tuner-only chrome — preview uses the real death-screen CSS */
+      .tune-back {
         position: fixed;
-        inset: 0;
-        background: #000;
-        overflow: hidden;
+        top: max(0.75rem, env(safe-area-inset-top));
+        left: max(0.75rem, env(safe-area-inset-left));
+        z-index: 30;
+        text-decoration: none;
+        color: rgba(242, 235, 227, 0.7);
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(12, 10, 9, 0.92);
       }
 
-      .face {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: 50% 38%;
-        filter: grayscale(1) contrast(1.08) brightness(0.92);
-        user-select: none;
-        pointer-events: none;
-      }
-
-      .coffin-wrap {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        pointer-events: none;
-        overflow: visible;
-      }
-
-      .coffin {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        object-position: center center;
-        transform-origin: center center;
-        filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.7));
-        user-select: none;
-        pointer-events: none;
-        will-change: transform;
-      }
-
-      .vignette {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: linear-gradient(
-          180deg,
-          rgba(0, 0, 0, 0.15) 0%,
-          transparent 28%,
-          transparent 48%,
-          rgba(0, 0, 0, 0.72) 78%,
-          rgba(0, 0, 0, 0.92) 100%
-        );
-      }
-
-      .crosshair {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 18px;
-        height: 18px;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-        opacity: 0.55;
-      }
-
-      .crosshair::before,
-      .crosshair::after {
-        content: "";
-        position: absolute;
-        background: #ff4d4d;
-      }
-
-      .crosshair::before {
-        left: 50%;
-        top: 0;
-        width: 1px;
-        height: 100%;
-        transform: translateX(-50%);
-      }
-
-      .crosshair::after {
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 1px;
-        transform: translateY(-50%);
-      }
-
-      .panel {
+      .tune-panel {
         position: fixed;
         left: max(0.75rem, env(safe-area-inset-left));
         right: max(0.75rem, env(safe-area-inset-right));
         bottom: max(0.75rem, env(safe-area-inset-bottom));
-        z-index: 10;
+        z-index: 30;
         max-width: 420px;
         margin-inline: auto;
         padding: 0.9rem 1rem 1rem;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 16px;
-        background: var(--panel);
+        background: rgba(12, 10, 9, 0.92);
         backdrop-filter: blur(14px);
+        color: #f2ebe3;
+        font-family: "Bricolage Grotesque", sans-serif;
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
       }
 
-      .panel h1 {
+      .tune-panel.is-hidden {
+        display: none;
+      }
+
+      .tune-panel h1 {
         margin: 0 0 0.15rem;
         font-size: 0.95rem;
         font-weight: 800;
         letter-spacing: -0.02em;
       }
 
-      .panel p {
+      .tune-panel > p {
         margin: 0 0 0.85rem;
         font-size: 0.75rem;
-        color: var(--muted);
+        color: rgba(242, 235, 227, 0.62);
       }
 
-      .row {
+      .tune-row {
         display: grid;
         grid-template-columns: 64px 1fr 58px;
         gap: 0.55rem;
@@ -159,48 +72,47 @@
         margin-bottom: 0.55rem;
       }
 
-      .row label {
+      .tune-row label {
         font-size: 0.72rem;
-        color: var(--muted);
+        color: rgba(242, 235, 227, 0.62);
       }
 
-      .row input[type="range"] {
+      .tune-row input[type="range"] {
         width: 100%;
-        accent-color: var(--accent);
+        accent-color: #c4a07a;
       }
 
-      .row output {
+      .tune-row output {
         font-variant-numeric: tabular-nums;
         font-size: 0.72rem;
         text-align: right;
-        color: var(--text);
       }
 
-      .specs {
+      .tune-specs {
         margin: 0.65rem 0 0.7rem;
         padding: 0.65rem 0.7rem;
         border-radius: 10px;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         background: rgba(255, 255, 255, 0.03);
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         font-size: 0.68rem;
         line-height: 1.45;
         white-space: pre-wrap;
-        word-break: break-word;
         color: #e8dccf;
       }
 
-      .actions {
+      .tune-actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
       }
 
-      button {
+      .tune-actions button {
         appearance: none;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.06);
-        color: var(--text);
+        color: #f2ebe3;
         font: inherit;
         font-size: 0.75rem;
         font-weight: 700;
@@ -208,85 +120,132 @@
         cursor: pointer;
       }
 
-      button.primary {
-        background: var(--accent);
+      .tune-actions button.primary {
+        background: #c4a07a;
         border-color: transparent;
         color: #1a100c;
       }
 
-      button:active {
-        transform: scale(0.98);
+      /* Match the closed death-screen coffin (no slide-in) */
+      #died {
+        display: block !important;
       }
 
-      .back {
-        position: fixed;
-        top: max(0.75rem, env(safe-area-inset-top));
-        left: max(0.75rem, env(safe-area-inset-left));
-        z-index: 10;
-        text-decoration: none;
-        color: var(--muted);
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 0.45rem 0.7rem;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: var(--panel);
+      #died .died-coffin {
+        transform: translateX(0);
+        animation: none;
+      }
+
+      .tune-crosshair {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: 4;
+        width: 18px;
+        height: 18px;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        opacity: 0.55;
+      }
+
+      .tune-crosshair::before,
+      .tune-crosshair::after {
+        content: "";
+        position: absolute;
+        background: #ff4d4d;
+      }
+
+      .tune-crosshair::before {
+        left: 50%;
+        top: 0;
+        width: 1px;
+        height: 100%;
+        transform: translateX(-50%);
+      }
+
+      .tune-crosshair::after {
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        transform: translateY(-50%);
       }
     </style>
   </head>
   <body>
-    <a class="back" href="index.html">← DannyWash</a>
+    <a class="tune-back" href="index.html">← DannyWash</a>
 
-    <div class="stage" aria-label="Coffin preview">
-      <img class="face" src="assets/danny.png" alt="" width="428" height="399" draggable="false" />
-      <div class="coffin-wrap">
-        <img
-          class="coffin"
-          id="coffin"
-          src="assets/coffin.svg"
-          alt=""
-          width="300"
-          height="520"
-          draggable="false"
-        />
-      </div>
-      <div class="vignette" aria-hidden="true"></div>
-      <div class="crosshair" aria-hidden="true" title="Screen center"></div>
+    <div id="app">
+      <section id="died" class="screen screen--died is-in" aria-label="Danny has died">
+        <div class="died-face-wrap" aria-hidden="true" style="opacity: 1">
+          <img
+            class="died-face"
+            src="assets/danny.png"
+            alt=""
+            width="428"
+            height="399"
+            draggable="false"
+          />
+          <div class="died-coffin is-closing" id="died-coffin">
+            <img
+              class="died-coffin__svg"
+              id="coffin"
+              src="assets/coffin.svg"
+              alt=""
+              width="300"
+              height="520"
+              draggable="false"
+            />
+          </div>
+        </div>
+        <div class="died-bottom" style="opacity: 1; transform: none">
+          <p class="died-message">Danny has died.</p>
+          <button type="button" class="flowers-btn" tabindex="-1" aria-hidden="true">
+            <span class="flowers-btn__rim"></span>
+            <span class="flowers-btn__face">
+              <span class="flowers-btn__label">Send flowers</span>
+            </span>
+            <span class="flowers-btn__sheen"></span>
+          </button>
+        </div>
+        <div class="tune-crosshair" aria-hidden="true"></div>
+      </section>
     </div>
 
-    <aside class="panel">
+    <aside class="tune-panel" id="panel">
       <h1>Coffin tuner</h1>
       <p>
-        Drag to adjust. Red crosshair is screen center. Negative Y moves up. Copy the specs when it
-        looks right.
+        Same death-screen CSS as the real app. Negative Y moves up. Hide the panel to judge the final
+        frame, then copy specs.
       </p>
 
-      <div class="row">
+      <div class="tune-row">
         <label for="scale">Scale</label>
-        <input id="scale" type="range" min="0.4" max="2.5" step="0.01" value="1" />
-        <output id="scaleOut" for="scale">1.00</output>
+        <input id="scale" type="range" min="0.4" max="2.5" step="0.01" value="1.19" />
+        <output id="scaleOut" for="scale">1.19</output>
       </div>
-      <div class="row">
+      <div class="tune-row">
         <label for="x">X</label>
         <input id="x" type="range" min="-40" max="40" step="0.5" value="0" />
-        <output id="xOut" for="x">0%</output>
+        <output id="xOut" for="x">0.0%</output>
       </div>
-      <div class="row">
+      <div class="tune-row">
         <label for="y">Y</label>
-        <input id="y" type="range" min="-40" max="40" step="0.5" value="0" />
-        <output id="yOut" for="y">0%</output>
+        <input id="y" type="range" min="-40" max="40" step="0.5" value="-29.5" />
+        <output id="yOut" for="y">-29.5%</output>
       </div>
 
-      <pre class="specs" id="specs"></pre>
+      <pre class="tune-specs" id="specs"></pre>
 
-      <div class="actions">
+      <div class="tune-actions">
         <button type="button" class="primary" id="copy">Copy specs</button>
+        <button type="button" id="togglePanel">Hide panel</button>
         <button type="button" id="reset">Reset</button>
       </div>
     </aside>
 
     <script>
-      const coffin = document.getElementById("coffin");
+      const root = document.documentElement;
       const scaleEl = document.getElementById("scale");
       const xEl = document.getElementById("x");
       const yEl = document.getElementById("y");
@@ -296,14 +255,20 @@
       const specsEl = document.getElementById("specs");
       const copyBtn = document.getElementById("copy");
       const resetBtn = document.getElementById("reset");
+      const panel = document.getElementById("panel");
+      const togglePanel = document.getElementById("togglePanel");
 
-      const defaults = { scale: 1, x: 0, y: 0 };
+      const defaults = { scale: 1.19, x: 0, y: -29.5 };
 
       function formatSpecs(scale, x, y) {
         return [
           `scale: ${scale.toFixed(2)}`,
           `x: ${x.toFixed(1)}%`,
           `y: ${y.toFixed(1)}%`,
+          "",
+          `--coffin-scale: ${scale.toFixed(2)};`,
+          `--coffin-x: ${x.toFixed(1)}%;`,
+          `--coffin-y: ${y.toFixed(1)}%;`,
           "",
           `transform: scale(${scale.toFixed(2)}) translate(${x.toFixed(1)}%, ${y.toFixed(1)}%);`,
           `transform-origin: center center;`,
@@ -316,7 +281,10 @@
         const x = Number(xEl.value);
         const y = Number(yEl.value);
 
-        coffin.style.transform = `scale(${scale}) translate(${x}%, ${y}%)`;
+        root.style.setProperty("--coffin-scale", String(scale));
+        root.style.setProperty("--coffin-x", `${x}%`);
+        root.style.setProperty("--coffin-y", `${y}%`);
+
         scaleOut.textContent = scale.toFixed(2);
         xOut.textContent = `${x.toFixed(1)}%`;
         yOut.textContent = `${y.toFixed(1)}%`;
@@ -334,10 +302,30 @@
         apply();
       });
 
+      togglePanel.addEventListener("click", () => {
+        const hidden = panel.classList.toggle("is-hidden");
+        togglePanel.textContent = hidden ? "Show panel" : "Hide panel";
+        if (hidden) {
+          const show = document.createElement("button");
+          show.type = "button";
+          show.id = "showPanelFab";
+          show.textContent = "Show panel";
+          show.style.cssText =
+            "position:fixed;right:max(0.75rem,env(safe-area-inset-right));bottom:max(0.75rem,env(safe-area-inset-bottom));z-index:30;appearance:none;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(12,10,9,.92);color:#f2ebe3;font:700 0.75rem Bricolage Grotesque,sans-serif;padding:0.55rem 0.9rem;cursor:pointer";
+          show.addEventListener("click", () => {
+            panel.classList.remove("is-hidden");
+            togglePanel.textContent = "Hide panel";
+            show.remove();
+          });
+          document.body.appendChild(show);
+        } else {
+          document.getElementById("showPanelFab")?.remove();
+        }
+      });
+
       copyBtn.addEventListener("click", async () => {
-        const text = specsEl.textContent;
         try {
-          await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(specsEl.textContent);
           copyBtn.textContent = "Copied";
           window.setTimeout(() => {
             copyBtn.textContent = "Copy specs";
