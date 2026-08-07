@@ -72,11 +72,10 @@
 
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
-  // Brief coast on the map, then cut to black while crash SFX finishes.
-  const CRASH_SLOWDOWN_MS = 1800;
-  const CRASH_CROSSFADE_MS = 700;
-  // Black "Danny has crashed" hits ~2.5s into the crash SFX.
+  // Coast until the black screen (~2.5s into crash SFX).
   const CRASH_MS = 2500;
+  const CRASH_SLOWDOWN_MS = CRASH_MS;
+  const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DOOR_OPEN_MS = 1150;
