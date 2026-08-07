@@ -1049,6 +1049,8 @@
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
+    // Travel from the button nearly to the top of the viewport.
+    const maxLift = Math.max(180, originY - 24);
     const count = reduceMotion ? 2 : 10;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
 
@@ -1056,8 +1058,8 @@
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[i % flowers.length];
-      const drift = (Math.random() * 180 - 90) * (reduceMotion ? 0 : 1);
-      const lift = 160 + Math.random() * 220;
+      const drift = (Math.random() * 200 - 100) * (reduceMotion ? 0 : 1);
+      const lift = maxLift * (0.72 + Math.random() * 0.28);
       const spin = `${Math.random() * 48 - 24}deg`;
       const delay = reduceMotion ? 0 : i * 45;
       el.style.setProperty("--x", `${originX + drift * 0.15}px`);
@@ -1067,7 +1069,7 @@
       el.style.setProperty("--spin", spin);
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 1500 + delay);
+      window.setTimeout(() => el.remove(), 1700 + delay);
     }
   }
 
