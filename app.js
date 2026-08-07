@@ -12,7 +12,6 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
-  const diedWipe = document.getElementById("died-wipe");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerBursts = document.getElementById("flower-bursts");
   const wash = document.getElementById("wash");
@@ -78,9 +77,9 @@
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
   const DIED_CRASH_HOLD_MS = 2600;
-  const DIED_FACE_FADE_MS = 1400;
-  const DIED_WIPE_DELAY_MS = 400;
-  const DIED_WIPE_MS = 14000;
+  const DIED_FACE_HOLD_MS = 900;
+  const DIED_WIPE_MS = 3600;
+  const DIED_FACE_FADE_MS = 400;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -139,7 +138,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
-  let diedWipeTimer = null;
+  let diedSequenceTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1103,45 +1102,43 @@
     }
   }
 
-  function clearDiedWipeTimer() {
-    if (diedWipeTimer) {
-      window.clearTimeout(diedWipeTimer);
-      diedWipeTimer = null;
+  function clearDiedSequence() {
+    if (diedSequenceTimer) {
+      window.clearTimeout(diedSequenceTimer);
+      diedSequenceTimer = null;
     }
-  }
-
-  function resetDiedWipe() {
-    clearDiedWipeTimer();
-    died.classList.remove("is-wiping");
-    died.style.removeProperty("--died-wipe-ms");
-    if (diedWipe) {
-      diedWipe.style.setProperty("--died-wipe-angle", "0deg");
-      void diedWipe.offsetWidth;
-    }
+    died.classList.remove("is-in", "is-wiping", "is-memorial");
   }
 
   function showDied() {
     map.hidden = true;
+    clearDiedSequence();
     died.hidden = false;
-    died.classList.remove("is-in", "is-wiping");
-    resetDiedWipe();
     void died.offsetWidth;
-    window.setTimeout(() => {
+
+    // 1) Hold "Danny has crashed" on black, then reveal the face.
+    diedSequenceTimer = window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-in");
-      playDannyLeftSting({
-        delayMs: 0,
-        onEnded: () => {
-          if (!died.hidden) resetToStart();
-        },
-      });
-      // After the face has faded in, clock-wipe black from the right edge down over the photo.
-      diedWipeTimer = window.setTimeout(() => {
-        diedWipeTimer = null;
+
+      // 2) After the face is visible, wipe it to black with the trapezoid.
+      diedSequenceTimer = window.setTimeout(() => {
         if (died.hidden) return;
-        died.style.setProperty("--died-wipe-ms", `${reduceMotion ? 0 : DIED_WIPE_MS}ms`);
         died.classList.add("is-wiping");
-      }, reduceMotion ? 0 : DIED_FACE_FADE_MS + DIED_WIPE_DELAY_MS);
+
+        // 3) Once covered, show memorial UI + sting.
+        diedSequenceTimer = window.setTimeout(() => {
+          diedSequenceTimer = null;
+          if (died.hidden) return;
+          died.classList.add("is-memorial");
+          playDannyLeftSting({
+            delayMs: 0,
+            onEnded: () => {
+              if (!died.hidden) resetToStart();
+            },
+          });
+        }, reduceMotion ? 200 : DIED_WIPE_MS);
+      }, reduceMotion ? 200 : DIED_FACE_HOLD_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
@@ -1460,8 +1457,7 @@
     door.hidden = true;
     map.hidden = true;
     died.hidden = true;
-    died.classList.remove("is-in");
-    resetDiedWipe();
+    clearDiedSequence();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();

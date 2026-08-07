@@ -820,7 +820,7 @@ body {
 
 .screen--died {
   background: #000;
-  overflow: visible;
+  overflow: hidden;
   padding: 0;
 }
 
@@ -832,39 +832,19 @@ body {
   opacity: 1;
 }
 
-.screen--died.is-in .died-bottom {
+.screen--died.is-wiping .died-wipe {
+  transform: translate3d(-8%, 0, 0);
+}
+
+.screen--died.is-memorial .died-bottom {
   opacity: 1;
   transform: translateY(0);
-}
-
-@property --died-wipe-angle {
-  syntax: "<angle>";
-  inherits: false;
-  initial-value: 0deg;
-}
-
-.screen--died.is-wiping .died-wipe {
-  animation: died-clock-wipe var(--died-wipe-ms, 14s) cubic-bezier(0.22, 0.15, 0.28, 1) forwards;
-}
-
-.died-wipe {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  /* Pivot at bottom-right; leading edge starts on the right and sweeps down across the photo. */
-  background: conic-gradient(
-    from calc(0deg - var(--died-wipe-angle)) at 100% 100%,
-    #000 0deg,
-    #000 var(--died-wipe-angle),
-    transparent var(--died-wipe-angle)
-  );
 }
 
 .died-crash-line {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 5;
   display: grid;
   place-items: center;
   margin: 0;
@@ -884,6 +864,7 @@ body {
 .died-face-wrap {
   position: absolute;
   inset: 0;
+  z-index: 1;
   opacity: 0;
   transition: opacity 1.4s var(--ease-out);
   background: #000;
@@ -905,10 +886,27 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 28%, transparent 48%, rgba(0, 0, 0, 0.72) 78%, rgba(0, 0, 0, 0.92) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 28%, transparent 48%, rgba(0, 0, 0, 0.55) 78%, rgba(0, 0, 0, 0.75) 100%);
   pointer-events: none;
+}
+
+.died-wipe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: auto;
+  right: -5%;
+  z-index: 3;
+  width: 145%;
+  height: 100%;
+  background: #000;
+  /* Full-height trapezoid: slanted leading edge on the left. */
+  clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+  transform: translate3d(100%, 0, 0);
+  transition: transform 3.6s cubic-bezier(0.35, 0.05, 0.25, 1);
+  pointer-events: none;
+  will-change: transform;
 }
 
 .died-bottom {
@@ -929,8 +927,8 @@ body {
   opacity: 0;
   transform: translateY(18px);
   transition:
-    opacity 0.9s var(--ease-out) 0.55s,
-    transform 0.9s var(--ease-out) 0.55s;
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out);
   text-align: center;
 }
 
@@ -1037,15 +1035,6 @@ body {
   text-shadow:
     0 1px 0 rgba(255, 240, 220, 0.8),
     0 1px 2px rgba(90, 35, 10, 0.22);
-}
-
-@keyframes died-clock-wipe {
-  from {
-    --died-wipe-angle: 0deg;
-  }
-  to {
-    --died-wipe-angle: 360deg;
-  }
 }
 
 .tip-flower {
@@ -1681,13 +1670,15 @@ body {
   }
 
   .screen--died .died-face-wrap,
-  .screen--died .died-bottom,
-  .screen--died.is-wiping .died-wipe {
-    animation: none;
+  .screen--died .died-bottom {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
-  .screen--died.is-wiping .died-wipe {
-    --died-wipe-angle: 360deg;
+  .died-wipe {
+    transition: none;
+    transform: translate3d(-8%, 0, 0);
   }
 
   .screen--died .died-crash-line {
