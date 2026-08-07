@@ -1050,34 +1050,47 @@
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
     const maxLift = Math.max(200, originY - 20);
-    const count = reduceMotion ? 2 : 10;
+    const count = reduceMotion ? 2 : 12;
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
     const faceGap = Math.min(bounds.width * 0.34, Math.max(130, bounds.width * 0.28));
     const narrowOut = bounds.width * 0.32;
-    const wideOut = bounds.width * 0.5;
+    const wideOut = bounds.width * 0.52;
+    const roomBelow = Math.max(36, bounds.height - originY - 12);
 
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
       const goLeft = i % 2 === 0;
-      const useWide = Math.random() < 0.45;
+      const useWide = Math.random() < 0.55;
       const maxOut = useWide ? wideOut : narrowOut;
       const inner = faceGap / 2;
       const minX = goLeft ? originX - maxOut : originX + inner;
       const maxX = goLeft ? originX - inner : originX + maxOut;
-      const t = Math.random();
-      const targetX = minX + t * Math.max(1, maxX - minX);
+      const targetX = minX + Math.random() * Math.max(1, maxX - minX);
       const spread = targetX - originX;
-      // Scatter end heights so they don't all vanish on one line.
-      const lift = maxLift * (0.55 + Math.random() * 0.48);
+
+      // Mix high / mid / bottom-side arcs around the face.
+      const lane = Math.random();
+      let dy;
+      if (lane < 0.3) {
+        // Bottom sides: mostly sideways, a little up or slightly down.
+        dy = Math.random() < 0.55
+          ? -(18 + Math.random() * 70)
+          : 12 + Math.random() * Math.min(56, roomBelow);
+      } else if (lane < 0.6) {
+        dy = -(maxLift * (0.35 + Math.random() * 0.28));
+      } else {
+        dy = -(maxLift * (0.65 + Math.random() * 0.4));
+      }
+
       const spin = `${Math.random() * 42 - 21}deg`;
       const flight = reduceMotion ? 0.7 : 0.85 + Math.random() * 0.45;
       const delay = reduceMotion ? 0 : Math.random() * 55;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${spread}px`);
-      el.style.setProperty("--lift", `${lift}px`);
+      el.style.setProperty("--dy", `${dy}px`);
       el.style.setProperty("--spin", spin);
       el.style.setProperty("--flight", `${flight}s`);
       el.style.animationDelay = `${delay}ms`;

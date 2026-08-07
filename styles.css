@@ -1033,20 +1033,20 @@ body {
     opacity: 1;
     transform: translate(-50%, -50%) scale(0.75) rotate(calc(var(--spin) * -0.2));
   }
-  /* Outward first so the path clears the face, then rising slows. */
+  /* Outward first so the path clears the face, then rise/settle. */
   12% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.48)),
-        calc(-50% - (var(--lift) * 0.16))
+        calc(-50% + (var(--drift) * 0.52)),
+        calc(-50% + (var(--dy) * 0.14))
       )
       scale(1.05) rotate(var(--spin));
   }
   30% {
     opacity: 1;
     transform: translate(
-        calc(-50% + (var(--drift) * 0.72)),
-        calc(-50% - (var(--lift) * 0.42))
+        calc(-50% + (var(--drift) * 0.74)),
+        calc(-50% + (var(--dy) * 0.4))
       )
       scale(1.02) rotate(calc(var(--spin) * 1.05));
   }
@@ -1054,7 +1054,7 @@ body {
     opacity: 0.9;
     transform: translate(
         calc(-50% + (var(--drift) * 0.88)),
-        calc(-50% - (var(--lift) * 0.7))
+        calc(-50% + (var(--dy) * 0.68))
       )
       scale(0.98) rotate(calc(var(--spin) * 1.15));
   }
@@ -1062,7 +1062,7 @@ body {
     opacity: 0.45;
     transform: translate(
         calc(-50% + (var(--drift) * 0.96)),
-        calc(-50% - (var(--lift) * 0.9))
+        calc(-50% + (var(--dy) * 0.88))
       )
       scale(0.94) rotate(calc(var(--spin) * 1.25));
   }
@@ -1070,7 +1070,7 @@ body {
     opacity: 0;
     transform: translate(
         calc(-50% + var(--drift)),
-        calc(-50% - var(--lift))
+        calc(-50% + var(--dy))
       )
       scale(0.9) rotate(calc(var(--spin) * 1.4));
   }
