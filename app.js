@@ -51,7 +51,7 @@
   const doorKnockAudio = document.getElementById("door-knock-audio");
   const openDoorAudio = document.getElementById("open-door-audio");
   const crashAudio = document.getElementById("crash-audio");
-  const screamAudio = document.getElementById("scream-audio");
+  const dannyCrashedAudio = document.getElementById("danny-crashed-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
@@ -79,6 +79,8 @@
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
+  // Danny scream layers in slightly after the crash SFX, then cuts before the black screen.
+  const DANNY_CRASHED_DELAY_MS = 350;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_MS = 3200;
@@ -142,6 +144,7 @@
   let activeTipSfx = [];
   let tripId = 0;
   let crashResetTimer = null;
+  let dannyCrashedTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -188,7 +191,7 @@
       ["doorknock", "assets/door-knock.mp3"],
       ["opendoor", "assets/open-door.mp3"],
       ["crash", "assets/crash.mp3"],
-      ["scream", "assets/scream.mp3"],
+      ["dannycrashed", "assets/danny-crashed.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
     ].forEach(([key, url]) => {
@@ -410,6 +413,9 @@
   function crossfadeComingToCrash() {
     cancelComingFade();
     const fadeMs = reduceMotion ? 0 : CRASH_CROSSFADE_MS;
+    playDannyCrashed({
+      delayMs: reduceMotion ? 0 : DANNY_CRASHED_DELAY_MS,
+    });
 
     try {
       crashAudio.pause();
@@ -632,8 +638,37 @@
     playDelayed("crash", crashAudio);
   }
 
-  function playScream() {
-    playDelayed("scream", screamAudio);
+  function stopDannyCrashed() {
+    if (dannyCrashedTimer) {
+      window.clearTimeout(dannyCrashedTimer);
+      dannyCrashedTimer = null;
+    }
+    if (!dannyCrashedAudio) return;
+    try {
+      dannyCrashedAudio.pause();
+      dannyCrashedAudio.currentTime = 0;
+    } catch {
+      // Ignore
+    }
+  }
+
+  function playDannyCrashed({ delayMs = DANNY_CRASHED_DELAY_MS } = {}) {
+    stopDannyCrashed();
+    if (!dannyCrashedAudio) return;
+    dannyCrashedTimer = window.setTimeout(() => {
+      dannyCrashedTimer = null;
+      try {
+        dannyCrashedAudio.muted = false;
+        dannyCrashedAudio.volume = 1;
+        dannyCrashedAudio.currentTime = 0;
+        const playPromise = dannyCrashedAudio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+      } catch {
+        // Ignore
+      }
+    }, Math.max(0, delayMs));
   }
 
   function playLowTip() {
@@ -1111,7 +1146,7 @@
   }
 
   function showDied() {
-    playScream();
+    stopDannyCrashed();
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
@@ -1478,6 +1513,7 @@
       crashResetTimer = null;
     }
     cancelComingFade();
+    stopDannyCrashed();
     try {
       crashAudio.pause();
       crashAudio.currentTime = 0;
