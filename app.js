@@ -79,8 +79,8 @@
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
-  // Danny scream layers in slightly after the crash SFX, then cuts before the black screen.
-  const DANNY_CRASHED_DELAY_MS = 350;
+  // Danny scream starts ~2s before the black "Danny has crashed" screen.
+  const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_MS = 3200;
