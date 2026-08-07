@@ -1062,8 +1062,8 @@
       const spread = (Math.random() * 2 - 1) * halfWidth;
       const lift = maxLift * (0.65 + Math.random() * 0.45);
       const spin = `${Math.random() * 50 - 25}deg`;
-      const flight = reduceMotion ? 1.1 : 1.7 + Math.random() * 1.1;
-      const delay = reduceMotion ? 0 : Math.random() * 90;
+      const flight = reduceMotion ? 1 : 1.6 + Math.random() * 0.9;
+      const delay = reduceMotion ? 0 : Math.random() * 40;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${spread}px`);
