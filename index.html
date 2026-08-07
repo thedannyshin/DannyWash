@@ -155,18 +155,12 @@
                   <stop offset="50%" stop-color="#2a1812" />
                   <stop offset="100%" stop-color="#100806" />
                 </linearGradient>
-                <radialGradient id="coffinShine" cx="50%" cy="35%" r="55%">
-                  <stop offset="0%" stop-color="rgba(255,220,180,0.14)" />
-                  <stop offset="60%" stop-color="rgba(255,220,180,0)" />
-                </radialGradient>
               </defs>
               <!-- Full-bleed wood so the lid covers every pixel -->
               <rect width="300" height="520" fill="url(#coffinWood)" />
-              <rect width="300" height="520" fill="url(#coffinShine)" />
               <!-- Coffin outline (screen-filling silhouette) -->
               <path
                 fill="url(#coffinEdge)"
-                opacity="0.55"
                 d="M95 8 L205 8 L288 130 L248 508 L52 508 L12 130 Z"
               />
               <path
@@ -174,24 +168,18 @@
                 d="M105 22 L195 22 L272 135 L236 492 L64 492 L28 135 Z"
               />
               <!-- Grain -->
-              <g fill="none" stroke="rgba(95,65,42,0.32)" stroke-width="1.6" stroke-linecap="round">
+              <g fill="none" stroke="#5f412a" stroke-opacity="0.32" stroke-width="1.6" stroke-linecap="round">
                 <path d="M70 90 C120 120, 180 115, 235 85" />
                 <path d="M55 160 C115 195, 185 190, 250 155" />
                 <path d="M48 240 C120 275, 185 270, 255 235" />
                 <path d="M55 320 C120 350, 180 345, 248 315" />
                 <path d="M70 400 C125 425, 175 420, 235 395" />
-                <path d="M150 40 C155 140, 160 280, 150 460" opacity="0.5" />
+                <path d="M150 40 C155 140, 160 280, 150 460" stroke-opacity="0.5" />
               </g>
               <!-- T-cross dead center of screen -->
-              <g transform="translate(150 260)">
-                <g fill="#070402">
-                  <rect x="-14" y="-78" width="28" height="156" rx="3" />
-                  <rect x="-58" y="-42" width="116" height="26" rx="3" />
-                </g>
-                <g fill="rgba(140,100,65,0.45)">
-                  <rect x="-10" y="-74" width="20" height="148" rx="2" />
-                  <rect x="-52" y="-38" width="104" height="18" rx="2" />
-                </g>
+              <g transform="translate(150 260)" fill="#8c643f">
+                <rect x="-14" y="-78" width="28" height="156" rx="3" />
+                <rect x="-58" y="-42" width="116" height="26" rx="3" />
               </g>
             </svg>
           </div>
