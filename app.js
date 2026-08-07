@@ -51,6 +51,7 @@
   const doorKnockAudio = document.getElementById("door-knock-audio");
   const openDoorAudio = document.getElementById("open-door-audio");
   const crashAudio = document.getElementById("crash-audio");
+  const screamAudio = document.getElementById("scream-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
@@ -187,6 +188,7 @@
       ["doorknock", "assets/door-knock.mp3"],
       ["opendoor", "assets/open-door.mp3"],
       ["crash", "assets/crash.mp3"],
+      ["scream", "assets/scream.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
     ].forEach(([key, url]) => {
@@ -628,6 +630,10 @@
 
   function playCrash() {
     playDelayed("crash", crashAudio);
+  }
+
+  function playScream() {
+    playDelayed("scream", screamAudio);
   }
 
   function playLowTip() {
@@ -1105,6 +1111,7 @@
   }
 
   function showDied() {
+    playScream();
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
