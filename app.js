@@ -1054,7 +1054,7 @@
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
     const pad = Math.min(18, bounds.width * 0.03);
     // Keep a clear center channel so flowers don't cover Danny's face.
-    const faceGap = Math.min(bounds.width * 0.42, Math.max(140, bounds.width * 0.34));
+    const faceGap = Math.min(bounds.width * 0.62, Math.max(220, bounds.width * 0.52));
     const leftMin = pad;
     const leftMax = Math.max(leftMin + 1, originX - faceGap / 2);
     const rightMin = Math.min(bounds.width - pad - 1, originX + faceGap / 2);
