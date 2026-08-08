@@ -1095,7 +1095,7 @@
     }
   }
 
-  function spawnFlowers(clientX, clientY, { count: countOverride } = {}) {
+  function spawnFlowers(clientX, clientY, { count: countOverride, flower } = {}) {
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
@@ -1103,7 +1103,9 @@
     const count = countOverride != null
       ? countOverride
       : (reduceMotion ? 2 : 12);
-    const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
+    const flowers = flower
+      ? [flower]
+      : ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
     const faceGap = Math.min(bounds.width * 0.34, Math.max(130, bounds.width * 0.28));
     const narrowOut = bounds.width * 0.32;
     const wideOut = bounds.width * 0.52;
@@ -1166,7 +1168,10 @@
   function dripOneFlower() {
     if (died.hidden || !flowerDripBtn) return;
     const rect = flowerDripBtn.getBoundingClientRect();
-    spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, { count: 1 });
+    spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, {
+      count: 1,
+      flower: "🥀",
+    });
   }
 
   function toggleFlowerDrip() {
