@@ -14,6 +14,7 @@
   const died = document.getElementById("died");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerDripBtn = document.getElementById("flower-drip-btn");
+  const flowerDripLabel = document.getElementById("flower-drip-label");
   const flowerBursts = document.getElementById("flower-bursts");
   const diedCoffin = document.getElementById("died-coffin");
   const diedBlackout = document.getElementById("died-blackout");
@@ -82,6 +83,7 @@
   const CRASH_CROSSFADE_MS = 700;
   // Danny scream starts ~2s before the black "Danny has crashed" screen.
   const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
+  const DANNY_CRASHED_FADE_MS = 750;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_MS = 3200;
@@ -147,7 +149,8 @@
   let tripId = 0;
   let crashResetTimer = null;
   let dannyCrashedTimer = null;
-  let flowerDripTimer = null;
+  let dannyCrashedFadeRaf = null;
+  let flowerDripTimers = [];
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -641,18 +644,61 @@
     playDelayed("crash", crashAudio);
   }
 
-  function stopDannyCrashed() {
+  function cancelDannyCrashedFade() {
+    if (dannyCrashedFadeRaf) {
+      cancelAnimationFrame(dannyCrashedFadeRaf);
+      dannyCrashedFadeRaf = null;
+    }
+  }
+
+  function stopDannyCrashed({ fadeMs = 0 } = {}) {
     if (dannyCrashedTimer) {
       window.clearTimeout(dannyCrashedTimer);
       dannyCrashedTimer = null;
     }
+    cancelDannyCrashedFade();
     if (!dannyCrashedAudio) return;
+
+    const shouldFade = fadeMs > 0 && !reduceMotion && !dannyCrashedAudio.paused;
+    if (!shouldFade) {
+      try {
+        dannyCrashedAudio.pause();
+        dannyCrashedAudio.currentTime = 0;
+        dannyCrashedAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+      return;
+    }
+
+    let startVol = 1;
     try {
-      dannyCrashedAudio.pause();
-      dannyCrashedAudio.currentTime = 0;
+      startVol = Math.max(0.001, dannyCrashedAudio.volume || 1);
     } catch {
       // Ignore
     }
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      try {
+        dannyCrashedAudio.volume = startVol * (1 - t);
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        dannyCrashedFadeRaf = requestAnimationFrame(tick);
+      } else {
+        dannyCrashedFadeRaf = null;
+        try {
+          dannyCrashedAudio.pause();
+          dannyCrashedAudio.currentTime = 0;
+          dannyCrashedAudio.volume = 1;
+        } catch {
+          // Ignore
+        }
+      }
+    };
+    dannyCrashedFadeRaf = requestAnimationFrame(tick);
   }
 
   function playDannyCrashed({ delayMs = DANNY_CRASHED_DELAY_MS } = {}) {
@@ -1094,7 +1140,7 @@
     }
   }
 
-  function spawnFlowers(clientX, clientY, { count: countOverride, flower } = {}) {
+  function spawnFlowers(clientX, clientY, { count: countOverride, flower, vary = false } = {}) {
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
@@ -1138,7 +1184,12 @@
       }
 
       const spin = `${Math.random() * 42 - 21}deg`;
-      const flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
+      const flight = vary
+        ? (reduceMotion ? 1.1 : 1.35 + Math.random() * 3.4)
+        : (reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1);
+      const scale = vary
+        ? (0.55 + Math.random() * 1.85)
+        : 1;
       const delay = reduceMotion || count <= 1 ? 0 : Math.random() * 80;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
@@ -1146,6 +1197,7 @@
       el.style.setProperty("--dy", `${dy}px`);
       el.style.setProperty("--spin", spin);
       el.style.setProperty("--flight", `${flight}s`);
+      el.style.setProperty("--flower-scale", String(scale));
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
       window.setTimeout(() => el.remove(), flight * 1000 + delay + 80);
@@ -1153,11 +1205,10 @@
   }
 
   function clearFlowerDripCooldown() {
-    if (flowerDripTimer) {
-      window.clearTimeout(flowerDripTimer);
-      flowerDripTimer = null;
-    }
+    for (const id of flowerDripTimers) window.clearTimeout(id);
+    flowerDripTimers = [];
     if (flowerDripBtn) flowerDripBtn.disabled = false;
+    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
   }
 
   function sendOneFlower() {
@@ -1166,16 +1217,26 @@
     spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, {
       count: 1,
       flower: "🥀",
+      vary: true,
     });
     flowerDripBtn.disabled = true;
-    flowerDripTimer = window.setTimeout(() => {
-      flowerDripTimer = null;
-      if (!died.hidden && flowerDripBtn) flowerDripBtn.disabled = false;
-    }, FLOWER_DRIP_MS);
+    if (flowerDripLabel) flowerDripLabel.textContent = "2";
+
+    flowerDripTimers.push(window.setTimeout(() => {
+      if (died.hidden || !flowerDripLabel) return;
+      flowerDripLabel.textContent = "1";
+    }, 1000));
+
+    flowerDripTimers.push(window.setTimeout(() => {
+      flowerDripTimers = [];
+      if (died.hidden || !flowerDripBtn) return;
+      flowerDripBtn.disabled = false;
+      if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
+    }, FLOWER_DRIP_MS));
   }
 
   function showDied() {
-    stopDannyCrashed();
+    stopDannyCrashed({ fadeMs: DANNY_CRASHED_FADE_MS });
     clearFlowerDripCooldown();
     map.hidden = true;
     died.hidden = false;
