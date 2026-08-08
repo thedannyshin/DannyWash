@@ -1014,12 +1014,16 @@ body {
     inset 0 -10px 16px rgba(24, 36, 12, 0.35);
 }
 
-.flowers-btn--drip.is-on {
-  transform: translateY(1px);
+.flowers-btn--drip:disabled {
+  cursor: default;
+  transform: none;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
+  opacity: 0.72;
 }
 
-.flowers-btn--drip.is-on .flowers-btn__label {
-  letter-spacing: 0.01em;
+.flowers-btn--drip:disabled:hover {
+  transform: none;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
 }
 
 .flowers-btn:focus-visible {

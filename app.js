@@ -14,7 +14,6 @@
   const died = document.getElementById("died");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerDripBtn = document.getElementById("flower-drip-btn");
-  const flowerDripLabel = document.getElementById("flower-drip-label");
   const flowerBursts = document.getElementById("flower-bursts");
   const diedCoffin = document.getElementById("died-coffin");
   const diedBlackout = document.getElementById("died-blackout");
@@ -1153,45 +1152,31 @@
     }
   }
 
-  function stopFlowerDrip() {
+  function clearFlowerDripCooldown() {
     if (flowerDripTimer) {
-      window.clearInterval(flowerDripTimer);
+      window.clearTimeout(flowerDripTimer);
       flowerDripTimer = null;
     }
-    if (flowerDripBtn) {
-      flowerDripBtn.classList.remove("is-on");
-      flowerDripBtn.setAttribute("aria-pressed", "false");
-    }
-    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
+    if (flowerDripBtn) flowerDripBtn.disabled = false;
   }
 
-  function dripOneFlower() {
-    if (died.hidden || !flowerDripBtn) return;
+  function sendOneFlower() {
+    if (died.hidden || !flowerDripBtn || flowerDripBtn.disabled) return;
     const rect = flowerDripBtn.getBoundingClientRect();
     spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, {
       count: 1,
       flower: "🥀",
     });
-  }
-
-  function toggleFlowerDrip() {
-    if (died.hidden) return;
-    if (flowerDripTimer) {
-      stopFlowerDrip();
-      return;
-    }
-    dripOneFlower();
-    flowerDripTimer = window.setInterval(dripOneFlower, FLOWER_DRIP_MS);
-    if (flowerDripBtn) {
-      flowerDripBtn.classList.add("is-on");
-      flowerDripBtn.setAttribute("aria-pressed", "true");
-    }
-    if (flowerDripLabel) flowerDripLabel.textContent = "Sending…";
+    flowerDripBtn.disabled = true;
+    flowerDripTimer = window.setTimeout(() => {
+      flowerDripTimer = null;
+      if (!died.hidden && flowerDripBtn) flowerDripBtn.disabled = false;
+    }, FLOWER_DRIP_MS);
   }
 
   function showDied() {
     stopDannyCrashed();
-    stopFlowerDrip();
+    clearFlowerDripCooldown();
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
@@ -1535,7 +1520,7 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
-    stopFlowerDrip();
+    clearFlowerDripCooldown();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
@@ -1935,7 +1920,7 @@
   doorBtn.addEventListener("click", openDoor);
   doorDanny.addEventListener("click", closeDoorChangeMind);
   flowersBtn.addEventListener("click", sendFlowers);
-  if (flowerDripBtn) flowerDripBtn.addEventListener("click", toggleFlowerDrip);
+  if (flowerDripBtn) flowerDripBtn.addEventListener("click", sendOneFlower);
 
   washGif.addEventListener("click", playGifClickSound);
   washGif.addEventListener("keydown", (event) => {
