@@ -13,6 +13,8 @@
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
   const flowersBtn = document.getElementById("flowers-btn");
+  const flowerDripBtn = document.getElementById("flower-drip-btn");
+  const flowerDripLabel = document.getElementById("flower-drip-label");
   const flowerBursts = document.getElementById("flower-bursts");
   const diedCoffin = document.getElementById("died-coffin");
   const diedBlackout = document.getElementById("died-blackout");
@@ -86,6 +88,7 @@
   const DIED_COFFIN_MS = 3200;
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
+  const FLOWER_DRIP_MS = 2000;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -145,6 +148,7 @@
   let tripId = 0;
   let crashResetTimer = null;
   let dannyCrashedTimer = null;
+  let flowerDripTimer = null;
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1091,12 +1095,14 @@
     }
   }
 
-  function spawnFlowers(clientX, clientY) {
+  function spawnFlowers(clientX, clientY, { count: countOverride } = {}) {
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
     const maxLift = Math.max(200, originY - 20);
-    const count = reduceMotion ? 2 : 12;
+    const count = countOverride != null
+      ? countOverride
+      : (reduceMotion ? 2 : 12);
     const flowers = ["🌸", "🌺", "🌻", "🌷", "🌹", "🌼", "💐"];
     const faceGap = Math.min(bounds.width * 0.34, Math.max(130, bounds.width * 0.28));
     const narrowOut = bounds.width * 0.32;
@@ -1132,7 +1138,7 @@
 
       const spin = `${Math.random() * 42 - 21}deg`;
       const flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
-      const delay = reduceMotion ? 0 : Math.random() * 80;
+      const delay = reduceMotion || count <= 1 ? 0 : Math.random() * 80;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
       el.style.setProperty("--drift", `${spread}px`);
@@ -1145,8 +1151,42 @@
     }
   }
 
+  function stopFlowerDrip() {
+    if (flowerDripTimer) {
+      window.clearInterval(flowerDripTimer);
+      flowerDripTimer = null;
+    }
+    if (flowerDripBtn) {
+      flowerDripBtn.classList.remove("is-on");
+      flowerDripBtn.setAttribute("aria-pressed", "false");
+    }
+    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
+  }
+
+  function dripOneFlower() {
+    if (died.hidden || !flowerDripBtn) return;
+    const rect = flowerDripBtn.getBoundingClientRect();
+    spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, { count: 1 });
+  }
+
+  function toggleFlowerDrip() {
+    if (died.hidden) return;
+    if (flowerDripTimer) {
+      stopFlowerDrip();
+      return;
+    }
+    dripOneFlower();
+    flowerDripTimer = window.setInterval(dripOneFlower, FLOWER_DRIP_MS);
+    if (flowerDripBtn) {
+      flowerDripBtn.classList.add("is-on");
+      flowerDripBtn.setAttribute("aria-pressed", "true");
+    }
+    if (flowerDripLabel) flowerDripLabel.textContent = "Sending…";
+  }
+
   function showDied() {
     stopDannyCrashed();
+    stopFlowerDrip();
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
@@ -1490,6 +1530,7 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
+    stopFlowerDrip();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
@@ -1889,6 +1930,7 @@
   doorBtn.addEventListener("click", openDoor);
   doorDanny.addEventListener("click", closeDoorChangeMind);
   flowersBtn.addEventListener("click", sendFlowers);
+  if (flowerDripBtn) flowerDripBtn.addEventListener("click", toggleFlowerDrip);
 
   washGif.addEventListener("click", playGifClickSound);
   washGif.addEventListener("keydown", (event) => {

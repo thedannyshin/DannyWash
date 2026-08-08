@@ -154,13 +154,28 @@
         </div>
         <div class="died-bottom">
           <p class="died-message">Danny has died.</p>
-          <button type="button" id="flowers-btn" class="flowers-btn" aria-label="Send flowers">
-            <span class="flowers-btn__rim" aria-hidden="true"></span>
-            <span class="flowers-btn__face">
-              <span class="flowers-btn__label">Send flowers</span>
-            </span>
-            <span class="flowers-btn__sheen" aria-hidden="true"></span>
-          </button>
+          <div class="flowers-actions">
+            <button type="button" id="flowers-btn" class="flowers-btn" aria-label="Send flowers">
+              <span class="flowers-btn__rim" aria-hidden="true"></span>
+              <span class="flowers-btn__face">
+                <span class="flowers-btn__label">Send flowers</span>
+              </span>
+              <span class="flowers-btn__sheen" aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              id="flower-drip-btn"
+              class="flowers-btn flowers-btn--drip"
+              aria-label="Send 1 flower every two seconds"
+              aria-pressed="false"
+            >
+              <span class="flowers-btn__rim" aria-hidden="true"></span>
+              <span class="flowers-btn__face">
+                <span class="flowers-btn__label" id="flower-drip-label">Send 1 flower</span>
+              </span>
+              <span class="flowers-btn__sheen" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
         <div id="flower-bursts" class="tip-bursts" aria-hidden="true"></div>
         <div id="died-blackout" class="died-blackout" aria-hidden="true"></div>
