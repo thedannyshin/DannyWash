@@ -109,7 +109,7 @@
   const LEFT_STING_FADE_MS = 1200;
   const LOWTIP_DELAY_MS = 1000;
   const LOWTIP_TO_CLOSE_MS = 1800;
-  const LOWTIP_MS = 1600;
+  const LOWTIP_MS = 2000;
   const HIGHTIP_DELAY_MS = 350;
   const HIGHTIP_MS = 1050;
   const CELEBRATE_MS = 16000;
