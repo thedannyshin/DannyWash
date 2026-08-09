@@ -1224,9 +1224,8 @@
       : (Math.random() < 0.5
         ? 2 + Math.random() * 3.5
         : 90 + Math.random() * 110);
-    let angle = Math.random() < 0.85
-      ? -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.75)
-      : Math.random() * Math.PI * 2;
+    // Always launch upward (with some sideways lean).
+    let angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.7);
     let vx = Math.cos(angle) * baseSpeed;
     let vy = Math.sin(angle) * baseSpeed;
     let spin = Math.random() * 360;
@@ -1244,6 +1243,17 @@
     const roseBox = el.getBoundingClientRect();
     const padX = Math.max(10, roseBox.width / 2);
     const padY = Math.max(10, roseBox.height / 2);
+
+    // Keep roses above the flower buttons / "Danny has died" block.
+    const getFloorY = () => {
+      const actions = document.querySelector(".flowers-actions") || document.querySelector(".died-bottom");
+      if (!actions) return flowerBursts.clientHeight - padY;
+      const box = actions.getBoundingClientRect();
+      return Math.max(padY * 2, box.top - bounds.top - padY - 12);
+    };
+    let floorY = getFloorY();
+    // Start just above the button zone so they never sit on top of it.
+    y = Math.min(y, floorY - 8);
 
     let raf = null;
     let last = performance.now();
@@ -1267,10 +1277,12 @@
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
-      // Soft wondering — keep steering subtle so motion stays slow.
+      // Soft wondering with upward bias.
       angle += (Math.random() * 2 - 1) * 0.28 * dt;
       vx += Math.cos(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
       vy += Math.sin(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
+      // Prefer floating up.
+      if (vy > -baseSpeed * 0.15) vy -= baseSpeed * 0.35 * dt;
       const mag = Math.hypot(vx, vy) || 1;
       const speed = baseSpeed * (0.9 + 0.1 * Math.sin(now / 4200 + scale));
       vx = (vx / mag) * speed;
@@ -1280,7 +1292,7 @@
       y += vy * dt;
 
       const w = flowerBursts.clientWidth || bounds.width;
-      const h = flowerBursts.clientHeight || bounds.height;
+      floorY = getFloorY();
       if (x < padX) {
         x = padX;
         vx = Math.abs(vx);
@@ -1294,9 +1306,10 @@
         y = padY;
         vy = Math.abs(vy);
         angle = Math.atan2(vy, vx);
-      } else if (y > h - padY) {
-        y = h - padY;
-        vy = -Math.abs(vy);
+      } else if (y > floorY) {
+        // Bounce up off the button zone — never cover the buttons.
+        y = floorY;
+        vy = -Math.abs(vy || baseSpeed * 0.6);
         angle = Math.atan2(vy, vx);
       }
 
