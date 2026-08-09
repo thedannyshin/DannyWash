@@ -1113,6 +1113,8 @@ body {
   font-variant-numeric: tabular-nums;
   min-width: 0;
   text-align: center;
+  font-size: clamp(0.72rem, 2.7vmin, 0.92rem);
+  padding: 0 0.35rem;
   color: #1f2e14;
   text-shadow:
     0 1px 0 rgba(235, 255, 210, 0.7),

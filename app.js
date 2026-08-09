@@ -1249,11 +1249,11 @@
       vary: true,
     });
     flowerDripBtn.disabled = true;
-    if (flowerDripLabel) flowerDripLabel.textContent = "2";
+    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower (2s)";
 
     flowerDripTimers.push(window.setTimeout(() => {
       if (died.hidden || !flowerDripLabel) return;
-      flowerDripLabel.textContent = "1";
+      flowerDripLabel.textContent = "Send 1 flower (1s)";
     }, 1000));
 
     flowerDripTimers.push(window.setTimeout(() => {
