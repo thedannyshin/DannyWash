@@ -1139,6 +1139,13 @@ body {
   animation-timing-function: cubic-bezier(0.22, 0.61, 0.28, 1);
 }
 
+.tip-flower--wander {
+  animation: none;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(calc(0.75 * var(--flower-scale, 1)));
+  will-change: left, top, transform;
+}
+
 @keyframes tip-flower-fly {
   0% {
     opacity: 1;

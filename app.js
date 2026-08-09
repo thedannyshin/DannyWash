@@ -152,6 +152,7 @@
   let dannyCrashedTimer = null;
   let dannyCrashedFadeRaf = null;
   let flowerDripTimers = [];
+  let wanderingRoses = [];
   let forceCrashNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
@@ -1141,7 +1142,7 @@
     }
   }
 
-  function spawnFlowers(clientX, clientY, { count: countOverride, flower, vary = false } = {}) {
+  function spawnFlowers(clientX, clientY, { count: countOverride, flower } = {}) {
     const bounds = flowerBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
     const originY = clientY - bounds.top;
@@ -1161,99 +1162,30 @@
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
+      const goLeft = i % 2 === 0;
+      const useWide = Math.random() < 0.55;
+      const maxOut = useWide ? wideOut : narrowOut;
+      const inner = faceGap / 2;
+      const minX = goLeft ? originX - maxOut : originX + inner;
+      const maxX = goLeft ? originX - inner : originX + maxOut;
+      const targetX = minX + Math.random() * Math.max(1, maxX - minX);
+      const spread = targetX - originX;
 
-      let spread;
+      // Mix high / mid / bottom-side arcs around the face.
+      const lane = Math.random();
       let dy;
-      let spin;
-      let flight;
-      let scale;
-
-      if (vary) {
-        // Full-screen scatter: any direction, wild size/speed/spin.
-        // Keep roses big — never tiny.
-        scale = 4.8 + Math.random() * 8.5;
-        // Extra overshoot so large roses fully leave the viewport (don't fade out).
-        const exitPad = 120 + scale * 55;
-        const reach = 1.7 + Math.random() * 1.2;
-        const maxLeft = (originX + exitPad) * reach;
-        const maxRight = Math.max(160, bounds.width - originX + exitPad) * reach;
-        const maxUp = (originY + exitPad) * reach;
-        const maxDown = Math.max(160, bounds.height - originY + exitPad) * reach;
-        const side = Math.random() < 0.5 ? -1 : 1;
-        const horizSpan = side < 0 ? maxLeft : maxRight;
-        // Always travel a meaningful distance — no short hops.
-        spread = side * (horizSpan * (0.65 + Math.random() * 0.35));
-        const dir = Math.random();
-        if (dir < 0.85) {
-          // Mostly upward — mix steep and gentler lifts.
-          dy = Math.random() < 0.65
-            ? -(maxUp * (0.55 + Math.random() * 0.45))
-            : -(maxUp * (0.25 + Math.random() * 0.5));
-        } else if (dir < 0.93) {
-          dy = maxDown * (0.5 + Math.random() * 0.5);
-        } else {
-          // Mostly sideways exit.
-          dy = (Math.random() * 2 - 1) * Math.min(maxUp, maxDown) * 0.35;
-        }
-        spin = `${(Math.random() * 2 - 1) * (60 + Math.random() * 320)}deg`;
-        // Slow float — take a long time to drift off-screen.
-        flight = reduceMotion ? 10 : 22 + Math.random() * 14;
-
-        // Highly varied curved midpoints (S-curves, loops, early/late bends).
-        const absSpread = Math.abs(spread);
-        const absDy = Math.abs(dy) || maxUp * 0.35;
-        const swayA = (0.15 + Math.random() * 0.85) * absSpread;
-        const swayB = (0.15 + Math.random() * 0.85) * absSpread;
-        const bumpA = (0.1 + Math.random() * 0.75) * absDy;
-        const bumpB = (0.1 + Math.random() * 0.75) * absDy;
-        const sign1 = Math.random() < 0.5 ? 1 : -1;
-        const sign2 = Math.random() < 0.55 ? -sign1 : sign1;
-        const sign3 = Math.random() < 0.5 ? 1 : -1;
-        const p1 = 0.08 + Math.random() * 0.22;
-        const p2 = 0.32 + Math.random() * 0.28;
-        const p3 = 0.62 + Math.random() * 0.22;
-        const liftDir = dy <= 0 ? 1 : -1;
-        el.style.setProperty("--drift1", `${spread * p1 + sign1 * swayA * (0.3 + Math.random() * 0.7)}px`);
-        el.style.setProperty("--dy1", `${dy * (p1 * 0.6 + Math.random() * 0.25) - liftDir * bumpA * (0.4 + Math.random() * 0.8)}px`);
-        el.style.setProperty("--drift2", `${spread * p2 + sign2 * swayB * (0.4 + Math.random() * 0.9)}px`);
-        el.style.setProperty("--dy2", `${dy * (p2 * 0.55 + Math.random() * 0.35) - liftDir * bumpB * (0.5 + Math.random() * 1.1)}px`);
-        el.style.setProperty("--drift3", `${spread * p3 + sign3 * swayA * (0.15 + Math.random() * 0.55)}px`);
-        el.style.setProperty("--dy3", `${dy * (p3 * 0.7 + Math.random() * 0.25) - liftDir * bumpA * (0.1 + Math.random() * 0.55)}px`);
-        // Random ease so some feel lazy, others a bit more decisive.
-        const ease = Math.random();
-        el.style.animationTimingFunction = ease < 0.34
-          ? "cubic-bezier(0.22, 0.7, 0.25, 1)"
-          : ease < 0.67
-            ? "cubic-bezier(0.37, 0.05, 0.2, 1)"
-            : "cubic-bezier(0.15, 0.85, 0.35, 1)";
-        el.classList.add("tip-flower--float");
+      if (lane < 0.3) {
+        dy = Math.random() < 0.55
+          ? -(18 + Math.random() * 70)
+          : 12 + Math.random() * Math.min(56, roomBelow);
+      } else if (lane < 0.6) {
+        dy = -(maxLift * (0.35 + Math.random() * 0.28));
       } else {
-        const goLeft = i % 2 === 0;
-        const useWide = Math.random() < 0.55;
-        const maxOut = useWide ? wideOut : narrowOut;
-        const inner = faceGap / 2;
-        const minX = goLeft ? originX - maxOut : originX + inner;
-        const maxX = goLeft ? originX - inner : originX + maxOut;
-        const targetX = minX + Math.random() * Math.max(1, maxX - minX);
-        spread = targetX - originX;
-
-        // Mix high / mid / bottom-side arcs around the face.
-        const lane = Math.random();
-        if (lane < 0.3) {
-          dy = Math.random() < 0.55
-            ? -(18 + Math.random() * 70)
-            : 12 + Math.random() * Math.min(56, roomBelow);
-        } else if (lane < 0.6) {
-          dy = -(maxLift * (0.35 + Math.random() * 0.28));
-        } else {
-          dy = -(maxLift * (0.65 + Math.random() * 0.4));
-        }
-
-        spin = `${Math.random() * 42 - 21}deg`;
-        flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
-        scale = 1;
+        dy = -(maxLift * (0.65 + Math.random() * 0.4));
       }
 
+      const spin = `${Math.random() * 42 - 21}deg`;
+      const flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
       const delay = reduceMotion || count <= 1 ? 0 : Math.random() * 80;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
@@ -1261,11 +1193,114 @@
       el.style.setProperty("--dy", `${dy}px`);
       el.style.setProperty("--spin", spin);
       el.style.setProperty("--flight", `${flight}s`);
-      el.style.setProperty("--flower-scale", String(scale));
+      el.style.setProperty("--flower-scale", "1");
       el.style.animationDelay = `${delay}ms`;
       flowerBursts.appendChild(el);
       window.setTimeout(() => el.remove(), flight * 1000 + delay + 80);
     }
+  }
+
+  function clearWanderingRoses() {
+    for (const rose of wanderingRoses) {
+      try {
+        rose.stop();
+      } catch {
+        // Ignore
+      }
+    }
+    wanderingRoses = [];
+  }
+
+  function spawnWanderingRose(clientX, clientY) {
+    if (!flowerBursts) return;
+    const bounds = flowerBursts.getBoundingClientRect();
+    let x = clientX - bounds.left;
+    let y = clientY - bounds.top;
+    const scale = 4.8 + Math.random() * 8.5;
+    const visual = Math.max(36, Math.min(bounds.width, bounds.height) * 0.035 * scale);
+    const pad = visual * 0.45;
+    // Slow wander speed (px/s).
+    const baseSpeed = reduceMotion ? 36 : 10 + Math.random() * 16;
+    let angle = Math.random() < 0.85
+      ? -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.75)
+      : Math.random() * Math.PI * 2;
+    let vx = Math.cos(angle) * baseSpeed;
+    let vy = Math.sin(angle) * baseSpeed;
+    let spin = Math.random() * 360;
+    const spinSpeed = (Math.random() * 2 - 1) * (6 + Math.random() * 16);
+
+    const el = document.createElement("span");
+    el.className = "tip-flower tip-flower--wander";
+    el.textContent = "🥀";
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.transform = `translate(-50%, -50%) scale(${scale * 0.75}) rotate(${spin}deg)`;
+    flowerBursts.appendChild(el);
+
+    let raf = null;
+    let last = performance.now();
+    let alive = true;
+
+    const stop = () => {
+      alive = false;
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+      el.remove();
+    };
+
+    const tick = (now) => {
+      if (!alive || died.hidden || !el.isConnected) {
+        alive = false;
+        raf = null;
+        return;
+      }
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+
+      // Gentle wondering: soft steering + speed breath.
+      angle += (Math.random() * 2 - 1) * 0.55 * dt;
+      vx += Math.cos(angle) * 4 * dt + (Math.random() * 2 - 1) * 8 * dt;
+      vy += Math.sin(angle) * 4 * dt + (Math.random() * 2 - 1) * 8 * dt;
+      const mag = Math.hypot(vx, vy) || 1;
+      const speed = baseSpeed * (0.82 + 0.18 * Math.sin(now / 2800 + scale));
+      vx = (vx / mag) * speed;
+      vy = (vy / mag) * speed;
+
+      x += vx * dt;
+      y += vy * dt;
+
+      const w = flowerBursts.clientWidth || bounds.width;
+      const h = flowerBursts.clientHeight || bounds.height;
+      if (x < pad) {
+        x = pad;
+        vx = Math.abs(vx);
+        angle = Math.atan2(vy, vx);
+      } else if (x > w - pad) {
+        x = w - pad;
+        vx = -Math.abs(vx);
+        angle = Math.atan2(vy, vx);
+      }
+      if (y < pad) {
+        y = pad;
+        vy = Math.abs(vy);
+        angle = Math.atan2(vy, vx);
+      } else if (y > h - pad) {
+        y = h - pad;
+        vy = -Math.abs(vy);
+        angle = Math.atan2(vy, vx);
+      }
+
+      spin += spinSpeed * dt;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      el.style.transform = `translate(-50%, -50%) scale(${scale * 0.75}) rotate(${spin}deg)`;
+      raf = requestAnimationFrame(tick);
+    };
+
+    wanderingRoses.push({ el, stop });
+    raf = requestAnimationFrame(tick);
   }
 
   function clearFlowerDripCooldown() {
@@ -1278,11 +1313,7 @@
   function sendOneFlower() {
     if (died.hidden || !flowerDripBtn || flowerDripBtn.disabled) return;
     const rect = flowerDripBtn.getBoundingClientRect();
-    spawnFlowers(rect.left + rect.width / 2, rect.top + rect.height / 2, {
-      count: 1,
-      flower: "🥀",
-      vary: true,
-    });
+    spawnWanderingRose(rect.left + rect.width / 2, rect.top + rect.height / 2);
     flowerDripBtn.disabled = true;
     if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower (2s)";
 
@@ -1302,6 +1333,7 @@
   function showDied() {
     stopDannyCrashed({ fadeMs: DANNY_CRASHED_FADE_MS });
     clearFlowerDripCooldown();
+    clearWanderingRoses();
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
@@ -1647,6 +1679,7 @@
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
     clearFlowerDripCooldown();
+    clearWanderingRoses();
     summon.hidden = false;
     tipBursts.replaceChildren();
     rateBurst.replaceChildren();
