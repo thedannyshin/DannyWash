@@ -1716,6 +1716,12 @@ body {
 
 #flower-bursts {
   overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--blackout-ms, 3.2s) linear;
+}
+
+.screen--died.is-blackout #flower-bursts {
+  opacity: 0;
 }
 
 .tip-cent {
@@ -1825,6 +1831,11 @@ body {
 
   .died-blackout {
     transition: none;
+  }
+
+  .screen--died.is-blackout #flower-bursts {
+    transition: none;
+    opacity: 0;
   }
 
   .screen--died .died-crash-line {
