@@ -1170,29 +1170,30 @@
 
       if (vary) {
         // Full-screen scatter: any direction, wild size/speed/spin.
-        // Overshoot past the edges so roses travel clearly off-screen.
-        const reach = 1.55 + Math.random() * 0.7;
-        const maxLeft = (originX + 80) * reach;
-        const maxRight = Math.max(120, bounds.width - originX + 80) * reach;
-        const maxUp = (originY + 100) * reach;
-        const maxDown = Math.max(120, bounds.height - originY + 100) * reach;
+        // Keep roses big — never tiny.
+        scale = 4.8 + Math.random() * 8.5;
+        // Extra overshoot so large roses fully leave the viewport (don't fade out).
+        const exitPad = 120 + scale * 55;
+        const reach = 1.85 + Math.random() * 0.85;
+        const maxLeft = (originX + exitPad) * reach;
+        const maxRight = Math.max(160, bounds.width - originX + exitPad) * reach;
+        const maxUp = (originY + exitPad) * reach;
+        const maxDown = Math.max(160, bounds.height - originY + exitPad) * reach;
         const side = Math.random() < 0.5 ? -1 : 1;
         const horizSpan = side < 0 ? maxLeft : maxRight;
         // Always travel a meaningful distance — no short hops.
-        spread = side * (horizSpan * (0.55 + Math.random() * 0.45));
+        spread = side * (horizSpan * (0.72 + Math.random() * 0.28));
         const dir = Math.random();
         if (dir < 0.6) {
-          dy = -(maxUp * (0.55 + Math.random() * 0.45));
+          dy = -(maxUp * (0.7 + Math.random() * 0.3));
         } else if (dir < 0.82) {
-          dy = -(maxUp * (0.25 + Math.random() * 0.35));
+          dy = -(maxUp * (0.4 + Math.random() * 0.4));
         } else {
-          dy = maxDown * (0.45 + Math.random() * 0.55);
+          dy = maxDown * (0.65 + Math.random() * 0.35);
         }
         spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
         // Longer flights read more like floating.
         flight = reduceMotion ? 1.4 : 2.4 + Math.random() * 3.8;
-        // Keep roses big — never tiny.
-        scale = 4.8 + Math.random() * 8.5;
 
         // Curved midpoints: sway opposite the main drift, then back.
         const sway = (0.28 + Math.random() * 0.42) * Math.abs(spread);

@@ -1171,7 +1171,7 @@ body {
       rotate(calc(var(--spin) * 0.2));
   }
   42% {
-    opacity: 0.95;
+    opacity: 1;
     transform: translate(
         calc(-50% + var(--drift2)),
         calc(-50% + var(--dy2))
@@ -1180,7 +1180,7 @@ body {
       rotate(calc(var(--spin) * 0.55));
   }
   68% {
-    opacity: 0.7;
+    opacity: 1;
     transform: translate(
         calc(-50% + var(--drift3)),
         calc(-50% + var(--dy3))
@@ -1189,12 +1189,12 @@ body {
       rotate(calc(var(--spin) * 0.95));
   }
   100% {
-    opacity: 0;
+    opacity: 1;
     transform: translate(
         calc(-50% + var(--drift)),
         calc(-50% + var(--dy))
       )
-      scale(calc(0.82 * var(--flower-scale, 1)))
+      scale(calc(0.9 * var(--flower-scale, 1)))
       rotate(calc(var(--spin) * 1.4));
   }
 }
@@ -1708,7 +1708,7 @@ body {
 }
 
 #flower-bursts {
-  overflow: visible;
+  overflow: hidden;
 }
 
 .tip-cent {
