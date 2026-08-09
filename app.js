@@ -1217,8 +1217,8 @@
     let x = clientX - bounds.left;
     let y = clientY - bounds.top;
     const scale = 4.8 + Math.random() * 8.5;
-    const visual = Math.max(36, Math.min(bounds.width, bounds.height) * 0.035 * scale);
-    const pad = visual * 0.45;
+    // Bounce at the real viewport edge (center can reach the border).
+    const pad = 8;
     // Slow wander speed (px/s).
     const baseSpeed = reduceMotion ? 36 : 10 + Math.random() * 16;
     let angle = Math.random() < 0.85
