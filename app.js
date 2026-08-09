@@ -1174,7 +1174,7 @@
         scale = 4.8 + Math.random() * 8.5;
         // Extra overshoot so large roses fully leave the viewport (don't fade out).
         const exitPad = 120 + scale * 55;
-        const reach = 1.85 + Math.random() * 0.85;
+        const reach = 1.7 + Math.random() * 1.2;
         const maxLeft = (originX + exitPad) * reach;
         const maxRight = Math.max(160, bounds.width - originX + exitPad) * reach;
         const maxUp = (originY + exitPad) * reach;
@@ -1182,29 +1182,49 @@
         const side = Math.random() < 0.5 ? -1 : 1;
         const horizSpan = side < 0 ? maxLeft : maxRight;
         // Always travel a meaningful distance — no short hops.
-        spread = side * (horizSpan * (0.72 + Math.random() * 0.28));
+        spread = side * (horizSpan * (0.65 + Math.random() * 0.35));
         const dir = Math.random();
-        if (dir < 0.6) {
-          dy = -(maxUp * (0.7 + Math.random() * 0.3));
-        } else if (dir < 0.82) {
-          dy = -(maxUp * (0.4 + Math.random() * 0.4));
+        if (dir < 0.5) {
+          dy = -(maxUp * (0.55 + Math.random() * 0.45));
+        } else if (dir < 0.75) {
+          dy = -(maxUp * (0.25 + Math.random() * 0.5));
+        } else if (dir < 0.9) {
+          dy = maxDown * (0.5 + Math.random() * 0.5);
         } else {
-          dy = maxDown * (0.65 + Math.random() * 0.35);
+          // Mostly sideways exit.
+          dy = (Math.random() * 2 - 1) * Math.min(maxUp, maxDown) * 0.35;
         }
-        spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
-        // Longer flights read more like floating.
-        flight = reduceMotion ? 2.2 : 5.5 + Math.random() * 5.5;
+        spin = `${(Math.random() * 2 - 1) * (60 + Math.random() * 320)}deg`;
+        // Wide speed range: some drift slowly, some glide a bit quicker.
+        flight = reduceMotion ? 2.2 : 3.2 + Math.random() * 10.5;
 
-        // Curved midpoints: sway opposite the main drift, then back.
-        const sway = (0.28 + Math.random() * 0.42) * Math.abs(spread);
-        const liftBump = (0.18 + Math.random() * 0.32) * Math.abs(dy || maxUp * 0.4);
-        const swaySign = Math.random() < 0.5 ? 1 : -1;
-        el.style.setProperty("--drift1", `${spread * 0.18 + swaySign * sway * 0.55}px`);
-        el.style.setProperty("--dy1", `${dy * 0.22 - liftBump * (dy <= 0 ? 1 : -0.35)}px`);
-        el.style.setProperty("--drift2", `${spread * 0.48 - swaySign * sway}px`);
-        el.style.setProperty("--dy2", `${dy * 0.5 - liftBump * (dy <= 0 ? 1.15 : -0.5)}px`);
-        el.style.setProperty("--drift3", `${spread * 0.78 + swaySign * sway * 0.35}px`);
-        el.style.setProperty("--dy3", `${dy * 0.78 - liftBump * (dy <= 0 ? 0.35 : -0.2)}px`);
+        // Highly varied curved midpoints (S-curves, loops, early/late bends).
+        const absSpread = Math.abs(spread);
+        const absDy = Math.abs(dy) || maxUp * 0.35;
+        const swayA = (0.15 + Math.random() * 0.85) * absSpread;
+        const swayB = (0.15 + Math.random() * 0.85) * absSpread;
+        const bumpA = (0.1 + Math.random() * 0.75) * absDy;
+        const bumpB = (0.1 + Math.random() * 0.75) * absDy;
+        const sign1 = Math.random() < 0.5 ? 1 : -1;
+        const sign2 = Math.random() < 0.55 ? -sign1 : sign1;
+        const sign3 = Math.random() < 0.5 ? 1 : -1;
+        const p1 = 0.08 + Math.random() * 0.22;
+        const p2 = 0.32 + Math.random() * 0.28;
+        const p3 = 0.62 + Math.random() * 0.22;
+        const liftDir = dy <= 0 ? 1 : -1;
+        el.style.setProperty("--drift1", `${spread * p1 + sign1 * swayA * (0.3 + Math.random() * 0.7)}px`);
+        el.style.setProperty("--dy1", `${dy * (p1 * 0.6 + Math.random() * 0.25) - liftDir * bumpA * (0.4 + Math.random() * 0.8)}px`);
+        el.style.setProperty("--drift2", `${spread * p2 + sign2 * swayB * (0.4 + Math.random() * 0.9)}px`);
+        el.style.setProperty("--dy2", `${dy * (p2 * 0.55 + Math.random() * 0.35) - liftDir * bumpB * (0.5 + Math.random() * 1.1)}px`);
+        el.style.setProperty("--drift3", `${spread * p3 + sign3 * swayA * (0.15 + Math.random() * 0.55)}px`);
+        el.style.setProperty("--dy3", `${dy * (p3 * 0.7 + Math.random() * 0.25) - liftDir * bumpA * (0.1 + Math.random() * 0.55)}px`);
+        // Random ease so some feel lazy, others a bit more decisive.
+        const ease = Math.random();
+        el.style.animationTimingFunction = ease < 0.34
+          ? "cubic-bezier(0.22, 0.7, 0.25, 1)"
+          : ease < 0.67
+            ? "cubic-bezier(0.37, 0.05, 0.2, 1)"
+            : "cubic-bezier(0.15, 0.85, 0.35, 1)";
         el.classList.add("tip-flower--float");
       } else {
         const goLeft = i % 2 === 0;
