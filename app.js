@@ -1218,17 +1218,15 @@
     let y = clientY - bounds.top;
     // Min size matches "Send flowers" burst; still vary larger from there.
     const scale = 1 + Math.random() * 2.4;
-    // Bounce at the real viewport edge (center can reach the border).
-    const pad = 8;
-    // Slow wander speed (px/s).
-    const baseSpeed = reduceMotion ? 36 : 10 + Math.random() * 16;
+    // Very slow wander (px/s).
+    const baseSpeed = reduceMotion ? 14 : 2.2 + Math.random() * 3.2;
     let angle = Math.random() < 0.85
       ? -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.75)
       : Math.random() * Math.PI * 2;
     let vx = Math.cos(angle) * baseSpeed;
     let vy = Math.sin(angle) * baseSpeed;
     let spin = Math.random() * 360;
-    const spinSpeed = (Math.random() * 2 - 1) * (6 + Math.random() * 16);
+    const spinSpeed = (Math.random() * 2 - 1) * (4 + Math.random() * 10);
 
     const el = document.createElement("span");
     el.className = "tip-flower tip-flower--wander";
@@ -1237,6 +1235,11 @@
     el.style.top = `${y}px`;
     el.style.transform = `translate(-50%, -50%) scale(${scale * 0.75}) rotate(${spin}deg)`;
     flowerBursts.appendChild(el);
+
+    // Edge = half the rendered rose, so it turns when it visually hits the screen.
+    const roseBox = el.getBoundingClientRect();
+    const padX = Math.max(10, roseBox.width / 2);
+    const padY = Math.max(10, roseBox.height / 2);
 
     let raf = null;
     let last = performance.now();
@@ -1260,12 +1263,12 @@
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
-      // Gentle wondering: soft steering + speed breath.
-      angle += (Math.random() * 2 - 1) * 0.55 * dt;
-      vx += Math.cos(angle) * 4 * dt + (Math.random() * 2 - 1) * 8 * dt;
-      vy += Math.sin(angle) * 4 * dt + (Math.random() * 2 - 1) * 8 * dt;
+      // Soft wondering — keep steering subtle so motion stays slow.
+      angle += (Math.random() * 2 - 1) * 0.28 * dt;
+      vx += Math.cos(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
+      vy += Math.sin(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
       const mag = Math.hypot(vx, vy) || 1;
-      const speed = baseSpeed * (0.82 + 0.18 * Math.sin(now / 2800 + scale));
+      const speed = baseSpeed * (0.9 + 0.1 * Math.sin(now / 4200 + scale));
       vx = (vx / mag) * speed;
       vy = (vy / mag) * speed;
 
@@ -1274,21 +1277,21 @@
 
       const w = flowerBursts.clientWidth || bounds.width;
       const h = flowerBursts.clientHeight || bounds.height;
-      if (x < pad) {
-        x = pad;
+      if (x < padX) {
+        x = padX;
         vx = Math.abs(vx);
         angle = Math.atan2(vy, vx);
-      } else if (x > w - pad) {
-        x = w - pad;
+      } else if (x > w - padX) {
+        x = w - padX;
         vx = -Math.abs(vx);
         angle = Math.atan2(vy, vx);
       }
-      if (y < pad) {
-        y = pad;
+      if (y < padY) {
+        y = padY;
         vy = Math.abs(vy);
         angle = Math.atan2(vy, vx);
-      } else if (y > h - pad) {
-        y = h - pad;
+      } else if (y > h - padY) {
+        y = h - padY;
         vy = -Math.abs(vy);
         angle = Math.atan2(vy, vx);
       }
