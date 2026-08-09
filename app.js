@@ -1218,12 +1218,12 @@
     let y = clientY - bounds.top;
     // Min size matches "Send flowers" burst; still vary larger from there.
     const scale = 1 + Math.random() * 2.4;
-    // Wide speed range: some crawl like now, some as fast as before.
+    // Extreme speed split: crawl or zip.
     const baseSpeed = reduceMotion
-      ? 18
+      ? 40
       : (Math.random() < 0.5
-        ? 2.2 + Math.random() * 3.2
-        : 10 + Math.random() * 16);
+        ? 2 + Math.random() * 3.5
+        : 90 + Math.random() * 110);
     let angle = Math.random() < 0.85
       ? -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.75)
       : Math.random() * Math.PI * 2;
