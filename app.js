@@ -1216,7 +1216,8 @@
     const bounds = flowerBursts.getBoundingClientRect();
     let x = clientX - bounds.left;
     let y = clientY - bounds.top;
-    const scale = 4.8 + Math.random() * 8.5;
+    // Min size matches "Send flowers" burst; still vary larger from there.
+    const scale = 1 + Math.random() * 2.4;
     // Bounce at the real viewport edge (center can reach the border).
     const pad = 8;
     // Slow wander speed (px/s).
