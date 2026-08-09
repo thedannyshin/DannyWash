@@ -1184,11 +1184,12 @@
         // Always travel a meaningful distance — no short hops.
         spread = side * (horizSpan * (0.65 + Math.random() * 0.35));
         const dir = Math.random();
-        if (dir < 0.5) {
-          dy = -(maxUp * (0.55 + Math.random() * 0.45));
-        } else if (dir < 0.75) {
-          dy = -(maxUp * (0.25 + Math.random() * 0.5));
-        } else if (dir < 0.9) {
+        if (dir < 0.85) {
+          // Mostly upward — mix steep and gentler lifts.
+          dy = Math.random() < 0.65
+            ? -(maxUp * (0.55 + Math.random() * 0.45))
+            : -(maxUp * (0.25 + Math.random() * 0.5));
+        } else if (dir < 0.93) {
           dy = maxDown * (0.5 + Math.random() * 0.5);
         } else {
           // Mostly sideways exit.
