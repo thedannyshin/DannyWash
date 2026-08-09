@@ -1219,11 +1219,11 @@
     // Min size matches "Send flowers" burst; big ones can get much larger.
     const scale = 1 + Math.random() * 5.5;
     // Extreme speed split: mostly zip, sometimes crawl.
-    const isFast = !reduceMotion && Math.random() < 0.7;
+    const isFast = !reduceMotion && Math.random() < 0.88;
     const baseSpeed = reduceMotion
       ? 40
       : (isFast
-        ? 160 + Math.random() * 160
+        ? 220 + Math.random() * 280
         : 2 + Math.random() * 3.5);
     // Always launch upward (with some sideways lean).
     let angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.7);
