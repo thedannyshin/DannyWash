@@ -1186,7 +1186,7 @@
         }
         spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
         flight = reduceMotion ? 1.1 : 0.85 + Math.random() * 4.6;
-        scale = 0.28 + Math.random() * 2.9;
+        scale = 1.6 + Math.random() * 10.5;
       } else {
         const goLeft = i % 2 === 0;
         const useWide = Math.random() < 0.55;
