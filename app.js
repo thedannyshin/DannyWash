@@ -86,6 +86,7 @@
   const DANNY_CRASHED_FADE_MS = 750;
   const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
+  const DIED_COFFIN_DELAY_MS = 1500;
   const DIED_COFFIN_MS = 3200;
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
@@ -1264,6 +1265,7 @@
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
+    died.style.setProperty("--coffin-delay-ms", `${DIED_COFFIN_DELAY_MS}ms`);
     died.style.setProperty("--coffin-ms", `${DIED_COFFIN_MS}ms`);
     died.style.setProperty("--blackout-ms", `${DIED_BLACKOUT_MS}ms`);
     if (diedCoffin) {
@@ -1284,7 +1286,7 @@
       window.setTimeout(() => {
         if (died.hidden) return;
         died.classList.add("is-blackout");
-      }, reduceMotion ? 0 : DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
+      }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
