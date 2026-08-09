@@ -896,6 +896,7 @@ body {
 
 .screen--died.is-in .died-coffin {
   animation: died-coffin-cover var(--coffin-ms, 9.5s) linear forwards;
+  animation-delay: var(--coffin-delay-ms, 1.5s);
 }
 
 @keyframes died-coffin-cover {
