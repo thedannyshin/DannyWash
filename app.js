@@ -1193,7 +1193,7 @@
         }
         spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
         // Longer flights read more like floating.
-        flight = reduceMotion ? 1.4 : 2.4 + Math.random() * 3.8;
+        flight = reduceMotion ? 2.2 : 5.5 + Math.random() * 5.5;
 
         // Curved midpoints: sway opposite the main drift, then back.
         const sway = (0.28 + Math.random() * 0.42) * Math.abs(spread);
