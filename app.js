@@ -1160,36 +1160,59 @@
       const el = document.createElement("span");
       el.className = "tip-flower";
       el.textContent = flowers[(Math.random() * flowers.length) | 0];
-      const goLeft = i % 2 === 0;
-      const useWide = Math.random() < 0.55;
-      const maxOut = useWide ? wideOut : narrowOut;
-      const inner = faceGap / 2;
-      const minX = goLeft ? originX - maxOut : originX + inner;
-      const maxX = goLeft ? originX - inner : originX + maxOut;
-      const targetX = minX + Math.random() * Math.max(1, maxX - minX);
-      const spread = targetX - originX;
 
-      // Mix high / mid / bottom-side arcs around the face.
-      const lane = Math.random();
+      let spread;
       let dy;
-      if (lane < 0.3) {
-        // Bottom sides: mostly sideways, a little up or slightly down.
-        dy = Math.random() < 0.55
-          ? -(18 + Math.random() * 70)
-          : 12 + Math.random() * Math.min(56, roomBelow);
-      } else if (lane < 0.6) {
-        dy = -(maxLift * (0.35 + Math.random() * 0.28));
+      let spin;
+      let flight;
+      let scale;
+
+      if (vary) {
+        // Full-screen scatter: any direction, wild size/speed/spin.
+        const maxLeft = originX + 24;
+        const maxRight = Math.max(48, bounds.width - originX + 24);
+        const maxUp = originY + 40;
+        const maxDown = Math.max(48, bounds.height - originY + 40);
+        spread = (Math.random() * 2 - 1) * (Math.random() < 0.5 ? maxLeft : maxRight);
+        // Bias a bit upward, but still allow down / sideways.
+        const dir = Math.random();
+        if (dir < 0.55) {
+          dy = -(40 + Math.random() * maxUp);
+        } else if (dir < 0.8) {
+          dy = -(Math.random() * maxUp * 0.35);
+        } else {
+          dy = Math.random() * maxDown * 0.85;
+        }
+        spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
+        flight = reduceMotion ? 1.1 : 0.85 + Math.random() * 4.6;
+        scale = 0.28 + Math.random() * 2.9;
       } else {
-        dy = -(maxLift * (0.65 + Math.random() * 0.4));
+        const goLeft = i % 2 === 0;
+        const useWide = Math.random() < 0.55;
+        const maxOut = useWide ? wideOut : narrowOut;
+        const inner = faceGap / 2;
+        const minX = goLeft ? originX - maxOut : originX + inner;
+        const maxX = goLeft ? originX - inner : originX + maxOut;
+        const targetX = minX + Math.random() * Math.max(1, maxX - minX);
+        spread = targetX - originX;
+
+        // Mix high / mid / bottom-side arcs around the face.
+        const lane = Math.random();
+        if (lane < 0.3) {
+          dy = Math.random() < 0.55
+            ? -(18 + Math.random() * 70)
+            : 12 + Math.random() * Math.min(56, roomBelow);
+        } else if (lane < 0.6) {
+          dy = -(maxLift * (0.35 + Math.random() * 0.28));
+        } else {
+          dy = -(maxLift * (0.65 + Math.random() * 0.4));
+        }
+
+        spin = `${Math.random() * 42 - 21}deg`;
+        flight = reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1;
+        scale = 1;
       }
 
-      const spin = `${Math.random() * 42 - 21}deg`;
-      const flight = vary
-        ? (reduceMotion ? 1.1 : 1.35 + Math.random() * 3.4)
-        : (reduceMotion ? 1.2 : 2.4 + Math.random() * 1.1);
-      const scale = vary
-        ? (0.55 + Math.random() * 1.85)
-        : 1;
       const delay = reduceMotion || count <= 1 ? 0 : Math.random() * 80;
       el.style.setProperty("--x", `${originX}px`);
       el.style.setProperty("--y", `${originY}px`);
