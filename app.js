@@ -1218,12 +1218,13 @@
     let y = clientY - bounds.top;
     // Min size matches "Send flowers" burst; still vary larger from there.
     const scale = 1 + Math.random() * 2.4;
-    // Extreme speed split: crawl or zip.
+    // Extreme speed split: mostly zip, sometimes crawl.
+    const isFast = !reduceMotion && Math.random() < 0.7;
     const baseSpeed = reduceMotion
       ? 40
-      : (Math.random() < 0.5
-        ? 2 + Math.random() * 3.5
-        : 90 + Math.random() * 110);
+      : (isFast
+        ? 160 + Math.random() * 160
+        : 2 + Math.random() * 3.5);
     // Always launch upward (with some sideways lean).
     let angle = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.7);
     let vx = Math.cos(angle) * baseSpeed;
@@ -1277,14 +1278,16 @@
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
-      // Soft wondering with upward bias.
-      angle += (Math.random() * 2 - 1) * 0.28 * dt;
-      vx += Math.cos(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
-      vy += Math.sin(angle) * 1.2 * dt + (Math.random() * 2 - 1) * 1.6 * dt;
+      // Soft wondering — lighter steering on fast roses so they stay zippy.
+      const steer = isFast ? 0.08 : 0.28;
+      const nudge = isFast ? 0.4 : 1.6;
+      angle += (Math.random() * 2 - 1) * steer * dt;
+      vx += Math.cos(angle) * (isFast ? 0.3 : 1.2) * dt + (Math.random() * 2 - 1) * nudge * dt;
+      vy += Math.sin(angle) * (isFast ? 0.3 : 1.2) * dt + (Math.random() * 2 - 1) * nudge * dt;
       // Prefer floating up.
-      if (vy > -baseSpeed * 0.15) vy -= baseSpeed * 0.35 * dt;
+      if (vy > -baseSpeed * 0.15) vy -= baseSpeed * (isFast ? 0.8 : 0.35) * dt;
       const mag = Math.hypot(vx, vy) || 1;
-      const speed = baseSpeed * (0.9 + 0.1 * Math.sin(now / 4200 + scale));
+      const speed = baseSpeed * (isFast ? 1 : (0.9 + 0.1 * Math.sin(now / 4200 + scale)));
       vx = (vx / mag) * speed;
       vy = (vy / mag) * speed;
 
