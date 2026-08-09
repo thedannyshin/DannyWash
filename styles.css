@@ -1897,6 +1897,10 @@ body {
     opacity: 1;
   }
 
+  .tip-flower--wander {
+    transition: none;
+  }
+
   .tip-total.is-bump {
     animation: none;
   }
