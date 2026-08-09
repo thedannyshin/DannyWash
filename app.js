@@ -1216,8 +1216,8 @@
     const bounds = flowerBursts.getBoundingClientRect();
     let x = clientX - bounds.left;
     let y = clientY - bounds.top;
-    // Min size matches "Send flowers" burst; still vary larger from there.
-    const scale = 1 + Math.random() * 2.4;
+    // Min size matches "Send flowers" burst; big ones can get much larger.
+    const scale = 1 + Math.random() * 5.5;
     // Extreme speed split: mostly zip, sometimes crawl.
     const isFast = !reduceMotion && Math.random() < 0.7;
     const baseSpeed = reduceMotion
