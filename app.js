@@ -1218,8 +1218,12 @@
     let y = clientY - bounds.top;
     // Min size matches "Send flowers" burst; still vary larger from there.
     const scale = 1 + Math.random() * 2.4;
-    // Very slow wander (px/s).
-    const baseSpeed = reduceMotion ? 14 : 2.2 + Math.random() * 3.2;
+    // Wide speed range: some crawl like now, some as fast as before.
+    const baseSpeed = reduceMotion
+      ? 18
+      : (Math.random() < 0.5
+        ? 2.2 + Math.random() * 3.2
+        : 10 + Math.random() * 16);
     let angle = Math.random() < 0.85
       ? -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI * 0.75)
       : Math.random() * Math.PI * 2;
