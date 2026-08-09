@@ -1196,8 +1196,8 @@
           dy = (Math.random() * 2 - 1) * Math.min(maxUp, maxDown) * 0.35;
         }
         spin = `${(Math.random() * 2 - 1) * (60 + Math.random() * 320)}deg`;
-        // Wide speed range, but never rush — at least ~10s to float off.
-        flight = reduceMotion ? 6 : 10 + Math.random() * 8;
+        // Slow float — take a long time to drift off-screen.
+        flight = reduceMotion ? 10 : 22 + Math.random() * 14;
 
         // Highly varied curved midpoints (S-curves, loops, early/late bends).
         const absSpread = Math.abs(spread);
