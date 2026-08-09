@@ -1189,9 +1189,22 @@
           dy = maxDown * (0.45 + Math.random() * 0.55);
         }
         spin = `${(Math.random() * 2 - 1) * (90 + Math.random() * 220)}deg`;
-        flight = reduceMotion ? 1.2 : 1.1 + Math.random() * 4.4;
+        // Longer flights read more like floating.
+        flight = reduceMotion ? 1.4 : 2.4 + Math.random() * 3.8;
         // Keep roses big — never tiny.
         scale = 4.8 + Math.random() * 8.5;
+
+        // Curved midpoints: sway opposite the main drift, then back.
+        const sway = (0.28 + Math.random() * 0.42) * Math.abs(spread);
+        const liftBump = (0.18 + Math.random() * 0.32) * Math.abs(dy || maxUp * 0.4);
+        const swaySign = Math.random() < 0.5 ? 1 : -1;
+        el.style.setProperty("--drift1", `${spread * 0.18 + swaySign * sway * 0.55}px`);
+        el.style.setProperty("--dy1", `${dy * 0.22 - liftBump * (dy <= 0 ? 1 : -0.35)}px`);
+        el.style.setProperty("--drift2", `${spread * 0.48 - swaySign * sway}px`);
+        el.style.setProperty("--dy2", `${dy * 0.5 - liftBump * (dy <= 0 ? 1.15 : -0.5)}px`);
+        el.style.setProperty("--drift3", `${spread * 0.78 + swaySign * sway * 0.35}px`);
+        el.style.setProperty("--dy3", `${dy * 0.78 - liftBump * (dy <= 0 ? 0.35 : -0.2)}px`);
+        el.classList.add("tip-flower--float");
       } else {
         const goLeft = i % 2 === 0;
         const useWide = Math.random() < 0.55;

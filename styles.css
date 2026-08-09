@@ -1134,6 +1134,11 @@ body {
   will-change: transform, opacity;
 }
 
+.tip-flower--float {
+  animation-name: tip-flower-float;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.28, 1);
+}
+
 @keyframes tip-flower-fly {
   0% {
     opacity: 1;
@@ -1146,6 +1151,51 @@ body {
         calc(-50% + var(--dy))
       )
       scale(calc(0.9 * var(--flower-scale, 1))) rotate(calc(var(--spin) * 1.35));
+  }
+}
+
+@keyframes tip-flower-float {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%)
+      scale(calc(0.72 * var(--flower-scale, 1)))
+      rotate(calc(var(--spin) * -0.15));
+  }
+  18% {
+    opacity: 1;
+    transform: translate(
+        calc(-50% + var(--drift1)),
+        calc(-50% + var(--dy1))
+      )
+      scale(calc(0.92 * var(--flower-scale, 1)))
+      rotate(calc(var(--spin) * 0.2));
+  }
+  42% {
+    opacity: 0.95;
+    transform: translate(
+        calc(-50% + var(--drift2)),
+        calc(-50% + var(--dy2))
+      )
+      scale(calc(1.08 * var(--flower-scale, 1)))
+      rotate(calc(var(--spin) * 0.55));
+  }
+  68% {
+    opacity: 0.7;
+    transform: translate(
+        calc(-50% + var(--drift3)),
+        calc(-50% + var(--dy3))
+      )
+      scale(calc(0.98 * var(--flower-scale, 1)))
+      rotate(calc(var(--spin) * 0.95));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--drift)),
+        calc(-50% + var(--dy))
+      )
+      scale(calc(0.82 * var(--flower-scale, 1)))
+      rotate(calc(var(--spin) * 1.4));
   }
 }
 
