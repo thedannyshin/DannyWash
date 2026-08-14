@@ -139,6 +139,7 @@
   let lowtipTimer = null;
   let tipCents = 0;
   let lifetimeCents = 0;
+  let lifetimeTipsReady = false;
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -1090,7 +1091,14 @@
     return `${formatMoney(cents)} given`;
   }
 
+  function markLifetimeTipsReady() {
+    if (lifetimeTipsReady || !tipTotal) return;
+    lifetimeTipsReady = true;
+    tipTotal.hidden = false;
+  }
+
   function renderLifetimeTotal({ bump = false } = {}) {
+    if (!lifetimeTipsReady || !tipTotal) return;
     tipTotal.textContent = formatTipTotal(lifetimeCents);
     if (!bump) return;
     tipTotal.classList.remove("is-bump");
@@ -1105,14 +1113,16 @@
       const data = await response.json();
       if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
         lifetimeCents = Math.max(lifetimeCents, data.cents);
+        markLifetimeTipsReady();
         renderLifetimeTotal();
       }
     } catch {
-      // Keep the last known total if the store is unreachable.
+      // Keep hidden until we know the total or the user tips.
     }
   }
 
   async function addLifetimeTip() {
+    markLifetimeTipsReady();
     lifetimeCents += 6;
     renderLifetimeTotal({ bump: true });
     try {
