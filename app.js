@@ -138,6 +138,7 @@
   let dannyLeftFadeRaf = null;
   let lowtipTimer = null;
   let tipCents = 0;
+  let lifetimeCents = 0;
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -1081,20 +1082,58 @@
     }
   }
 
-  function formatTipTotal(cents) {
-    return `$${(cents / 100).toFixed(2)} given`;
+  function formatMoney(cents) {
+    return `$${(Math.max(0, Number(cents) || 0) / 100).toFixed(2)}`;
   }
 
-  function updateTipTotal() {
-    tipTotal.textContent = formatTipTotal(tipCents);
+  function formatTipTotal(cents) {
+    return `${formatMoney(cents)} given`;
+  }
+
+  function renderLifetimeTotal({ bump = false } = {}) {
+    tipTotal.textContent = formatTipTotal(lifetimeCents);
+    if (!bump) return;
     tipTotal.classList.remove("is-bump");
     void tipTotal.offsetWidth;
     tipTotal.classList.add("is-bump");
   }
 
+  async function fetchLifetimeTips() {
+    try {
+      const response = await fetch("/api/tips", { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
+        lifetimeCents = Math.max(lifetimeCents, data.cents);
+        renderLifetimeTotal();
+      }
+    } catch {
+      // Keep the last known total if the store is unreachable.
+    }
+  }
+
+  async function addLifetimeTip() {
+    lifetimeCents += 6;
+    renderLifetimeTotal({ bump: true });
+    try {
+      const response = await fetch("/api/tips", {
+        method: "POST",
+        cache: "no-store",
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
+        lifetimeCents = Math.max(lifetimeCents, data.cents);
+        renderLifetimeTotal();
+      }
+    } catch {
+      // Session total still counts even if the global store misses this tap.
+    }
+  }
+
   function spawnSixCents(clientX, clientY) {
     tipCents += 6;
-    updateTipTotal();
+    addLifetimeTip();
 
     const bounds = tipBursts.getBoundingClientRect();
     const originX = clientX - bounds.left;
@@ -1640,6 +1679,7 @@
     door.hidden = true;
     wash.hidden = false;
     playWashing();
+    fetchLifetimeTips();
     if (washTimer) window.clearTimeout(washTimer);
     washTimer = window.setTimeout(showBye, reduceMotion ? 1500 : WASH_DURATION_MS);
   }
@@ -1652,7 +1692,7 @@
     stopWashing();
     tipBursts.replaceChildren();
     wash.hidden = true;
-    byeTotal.textContent = `${formatTipTotal(tipCents).replace(" given", "")} tipped`;
+    byeTotal.textContent = `${formatMoney(tipCents)} tipped`;
     bye.hidden = false;
 
     if (tipCents < 100) {
@@ -1712,7 +1752,7 @@
     tipCents = 0;
     ratingStars = 0;
     lowtipPlayed = false;
-    tipTotal.textContent = formatTipTotal(0);
+    renderLifetimeTotal();
     tipTotal.classList.remove("is-bump");
     stopComing();
     stopWashing();
@@ -2181,4 +2221,6 @@
   window.addEventListener("orientationchange", () => {
     window.setTimeout(layoutDoorFace, 100);
   });
+
+  fetchLifetimeTips();
 })();
