@@ -161,6 +161,7 @@
   let dannyCrashedFadeRaf = null;
   let flowerDripTimers = [];
   let tickleCooldownTimers = [];
+  let tickleSource = null;
   let wanderingRoses = [];
   let forceCrashNext = false;
   let comingFadeRaf = null;
@@ -561,9 +562,61 @@
     if (tickleLabel) tickleLabel.textContent = "tickle";
   }
 
+  function stopTickleAudio() {
+    if (tickleSource) {
+      try {
+        tickleSource.onended = null;
+        tickleSource.stop();
+      } catch {
+        // Ignore
+      }
+      activeSources = activeSources.filter((s) => s !== tickleSource);
+      tickleSource = null;
+    }
+    if (!tickleAudio) return;
+    try {
+      tickleAudio.pause();
+      tickleAudio.currentTime = 0;
+    } catch {
+      // Ignore
+    }
+  }
+
   function playTickle() {
     if (wash.hidden || !tickleAudio || !tickleBtn || tickleBtn.disabled) return;
-    playDelayed("tickle", tickleAudio, { duckable: false, volume: TICKLE_VOLUME });
+    // One tickle at a time — restart instead of stacking.
+    stopTickleAudio();
+    try {
+      const ctx = ensureAudioContext();
+      const buffer = bufferCache.get("tickle");
+      if (ctx && buffer) {
+        if (ctx.state === "suspended") ctx.resume().catch(() => {});
+        const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        gain.gain.value = TICKLE_VOLUME;
+        source.buffer = buffer;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        tickleSource = source;
+        activeSources.push(source);
+        source.onended = () => {
+          activeSources = activeSources.filter((s) => s !== source);
+          if (tickleSource === source) tickleSource = null;
+        };
+        source.start(0);
+      } else {
+        tickleAudio.muted = false;
+        tickleAudio.volume = 1;
+        tickleAudio.currentTime = 0;
+        const playPromise = tickleAudio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+      }
+    } catch {
+      // Ignore playback failures
+    }
+
     tickleBtn.disabled = true;
     const cooldownSec = Math.round(TICKLE_COOLDOWN_MS / 1000);
     if (tickleLabel) tickleLabel.textContent = `tickle (${cooldownSec}s)`;
@@ -586,13 +639,7 @@
 
   function stopTickle() {
     clearTickleCooldown();
-    if (!tickleAudio) return;
-    try {
-      tickleAudio.pause();
-      tickleAudio.currentTime = 0;
-    } catch {
-      // Ignore
-    }
+    stopTickleAudio();
   }
 
   function playWashing() {
