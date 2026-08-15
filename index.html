@@ -198,13 +198,22 @@
             aria-label="Play Danny tip line"
           />
           <p class="wash-caption">Danny is washing</p>
-          <button type="button" id="tip-btn" class="tip-btn" aria-label="Give 6 cents">
-            <span class="tip-btn__rim" aria-hidden="true"></span>
-            <span class="tip-btn__face">
-              <span class="tip-btn__label">give 6 cents</span>
-            </span>
-            <span class="tip-btn__sheen" aria-hidden="true"></span>
-          </button>
+          <div class="wash-actions">
+            <button type="button" id="tip-btn" class="tip-btn" aria-label="Give 6 cents">
+              <span class="tip-btn__rim" aria-hidden="true"></span>
+              <span class="tip-btn__face">
+                <span class="tip-btn__label">give 6 cents</span>
+              </span>
+              <span class="tip-btn__sheen" aria-hidden="true"></span>
+            </button>
+            <button type="button" id="tickle-btn" class="tip-btn tip-btn--tickle" aria-label="Tickle Danny">
+              <span class="tip-btn__rim" aria-hidden="true"></span>
+              <span class="tip-btn__face">
+                <span class="tip-btn__label">tickle</span>
+              </span>
+              <span class="tip-btn__sheen" aria-hidden="true"></span>
+            </button>
+          </div>
           <div id="tip-bursts" class="tip-bursts" aria-hidden="true"></div>
         </div>
       </section>
@@ -277,6 +286,12 @@
     <audio
       id="tip-audio"
       src="assets/tip.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="tickle-audio"
+      src="assets/tickle.mp3"
       preload="auto"
       playsinline
     ></audio>

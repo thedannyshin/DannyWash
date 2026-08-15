@@ -37,6 +37,7 @@
   const doorbellAudio = document.getElementById("doorbell-audio");
   const comingAudio = document.getElementById("coming-audio");
   const tipAudio = document.getElementById("tip-audio");
+  const tickleAudio = document.getElementById("tickle-audio");
   const washingAudio = document.getElementById("washing-audio");
   const knockAudio = document.getElementById("knock-audio");
   const helloKnockAudio = document.getElementById("hello-knock-audio");
@@ -59,6 +60,7 @@
   const celebrateAudio = document.getElementById("celebrate-audio");
   const washGif = document.getElementById("wash-gif");
   const tipBtn = document.getElementById("tip-btn");
+  const tickleBtn = document.getElementById("tickle-btn");
   const tipBursts = document.getElementById("tip-bursts");
   const tipTotal = document.getElementById("tip-total");
 
@@ -190,6 +192,8 @@
       ["helloknock", "assets/hello-knock.mp3"],
       ["hello2", "assets/hello2.mp3"],
       ["doorbell", "assets/doorbell.mp3"],
+      ["tip", "assets/tip.mp3"],
+      ["tickle", "assets/tickle.mp3"],
       ["washing", "assets/washing.mp3"],
       ["lowtip", "assets/lowtip.mp3"],
       ["hightip", "assets/hightip.mp3"],
@@ -545,6 +549,31 @@
     }
   }
 
+  function playTickle() {
+    if (wash.hidden || !tickleAudio) return;
+    try {
+      tickleAudio.muted = false;
+      tickleAudio.volume = 1;
+      tickleAudio.currentTime = 0;
+      const playPromise = tickleAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore playback failures
+    }
+  }
+
+  function stopTickle() {
+    if (!tickleAudio) return;
+    try {
+      tickleAudio.pause();
+      tickleAudio.currentTime = 0;
+    } catch {
+      // Ignore
+    }
+  }
+
   function playWashing() {
     // Keep wash BGM unduckable so GIF clicks don't lower it.
     try {
@@ -558,6 +587,7 @@
   function stopWashing() {
     clearWashLineTimers();
     stopBufferSources();
+    stopTickle();
     try {
       washingAudio.pause();
       washingAudio.currentTime = 0;
@@ -2216,6 +2246,22 @@
     playTip();
     spawnSixCents(x, y);
   });
+
+  if (tickleBtn) {
+    tickleBtn.addEventListener("pointerdown", () => {
+      tickleBtn.classList.add("is-pressed");
+    });
+    tickleBtn.addEventListener("pointerup", () => {
+      tickleBtn.classList.remove("is-pressed");
+    });
+    tickleBtn.addEventListener("pointerleave", () => {
+      tickleBtn.classList.remove("is-pressed");
+    });
+    tickleBtn.addEventListener("pointercancel", () => {
+      tickleBtn.classList.remove("is-pressed");
+    });
+    tickleBtn.addEventListener("click", playTickle);
+  }
 
   byeBtn.addEventListener("pointerdown", () => {
     byeBtn.classList.add("is-pressed");

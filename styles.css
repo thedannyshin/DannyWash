@@ -1591,10 +1591,19 @@ body {
   }
 }
 
+.wash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+}
+
 .tip-btn {
   position: relative;
   z-index: 2;
-  width: min(72vw, 220px);
+  width: min(42vw, 11.5rem);
   height: clamp(52px, 10vmin, 64px);
   border: 0;
   padding: 0;
@@ -1604,6 +1613,26 @@ body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition: transform 0.12s var(--ease-soft);
+}
+
+.tip-btn--tickle .tip-btn__rim {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.55), transparent 35%),
+    linear-gradient(165deg, #f0a8c4 0%, #d96a96 35%, #9a3a62 70%, #c45a88 100%);
+}
+
+.tip-btn--tickle .tip-btn__face {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.1) 28%, transparent 48%),
+    radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.2), transparent 45%),
+    linear-gradient(180deg, #f4b6ce 0%, #e27aa3 40%, #c75a88 78%, #b24a78 100%);
+}
+
+.tip-btn--tickle .tip-btn__label {
+  color: #4a1830;
+  text-shadow:
+    0 1px 0 rgba(255, 220, 235, 0.55),
+    0 1px 2px rgba(90, 30, 50, 0.2);
 }
 
 .tip-btn:focus-visible {
