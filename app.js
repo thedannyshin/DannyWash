@@ -96,6 +96,7 @@
   const DIED_BLACKOUT_MS = 3200;
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 3000;
+  const TICKLE_PLAY_MS = 3000;
   const TICKLE_VOLUME = 1.4;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -161,6 +162,7 @@
   let dannyCrashedFadeRaf = null;
   let flowerDripTimers = [];
   let tickleCooldownTimers = [];
+  let tickleStopTimer = null;
   let tickleSource = null;
   let wanderingRoses = [];
   let forceCrashNext = false;
@@ -563,6 +565,10 @@
   }
 
   function stopTickleAudio() {
+    if (tickleStopTimer) {
+      window.clearTimeout(tickleStopTimer);
+      tickleStopTimer = null;
+    }
     if (tickleSource) {
       try {
         tickleSource.onended = null;
@@ -570,7 +576,6 @@
       } catch {
         // Ignore
       }
-      activeSources = activeSources.filter((s) => s !== tickleSource);
       tickleSource = null;
     }
     if (!tickleAudio) return;
@@ -582,41 +587,51 @@
     }
   }
 
-  function playTickle() {
-    if (wash.hidden || !tickleAudio || !tickleBtn || tickleBtn.disabled) return;
-    // One tickle at a time — restart instead of stacking.
+  function playTickleClip() {
     stopTickleAudio();
-    try {
-      const ctx = ensureAudioContext();
-      const buffer = bufferCache.get("tickle");
-      if (ctx && buffer) {
-        if (ctx.state === "suspended") ctx.resume().catch(() => {});
-        const source = ctx.createBufferSource();
-        const gain = ctx.createGain();
-        gain.gain.value = TICKLE_VOLUME;
-        source.buffer = buffer;
-        source.connect(gain);
-        gain.connect(ctx.destination);
-        tickleSource = source;
-        activeSources.push(source);
-        source.onended = () => {
-          activeSources = activeSources.filter((s) => s !== source);
-          if (tickleSource === source) tickleSource = null;
-        };
-        source.start(0);
-      } else {
-        tickleAudio.muted = false;
-        tickleAudio.volume = 1;
-        tickleAudio.currentTime = 0;
-        const playPromise = tickleAudio.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {});
-        }
+    const ctx = ensureAudioContext();
+    const buffer = bufferCache.get("tickle");
+    const durationSec = TICKLE_PLAY_MS / 1000;
+
+    if (ctx && buffer) {
+      if (ctx.state === "suspended") {
+        ctx.resume().catch(() => {});
       }
-    } catch {
-      // Ignore playback failures
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      gain.gain.value = TICKLE_VOLUME;
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0, 0, durationSec);
+      tickleSource = source;
+      source.onended = () => {
+        if (tickleSource === source) tickleSource = null;
+      };
+      return;
     }
 
+    if (!tickleAudio) return;
+    try {
+      tickleAudio.muted = false;
+      tickleAudio.volume = 1;
+      tickleAudio.currentTime = 0;
+      const playPromise = tickleAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+      tickleStopTimer = window.setTimeout(() => {
+        tickleStopTimer = null;
+        stopTickleAudio();
+      }, TICKLE_PLAY_MS);
+    } catch {
+      // Ignore
+    }
+  }
+
+  function playTickle() {
+    if (wash.hidden || !tickleAudio || !tickleBtn || tickleBtn.disabled) return;
+    playTickleClip();
     tickleBtn.disabled = true;
     const cooldownSec = Math.round(TICKLE_COOLDOWN_MS / 1000);
     if (tickleLabel) tickleLabel.textContent = `tickle (${cooldownSec}s)`;
