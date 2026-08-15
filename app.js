@@ -119,7 +119,6 @@
   const ARRIVE_LINE_MS = 1500;
   const DOOR_KNOCK_MS = 4300;
   const DOOR_KNOCK_CLIP_MS = 1150;
-  const RETHINK_CLOSED_MS = 3900;
   const ANGRY_LEAVE_THRESHOLD = 3;
   const LEAVE_AFTER_FIRST_MIN_MS = 500;
   const LEAVE_AFTER_FIRST_MAX_MS = 12000;
@@ -1972,7 +1971,7 @@
     void doorDannyZoom.offsetWidth;
     doorDannyZoom.style.animation = "";
 
-    // After the door finishes closing: allow reopen, then knock → closed line → "open the door".
+    // After the door finishes closing: allow reopen, then knock → closed line.
     clearRethinkKnockTimer();
     rethinkKnockTimer = window.setTimeout(() => {
       rethinkKnockTimer = null;
@@ -1984,11 +1983,6 @@
         rethinkKnockTimer = null;
         if (sayingGoodbye || door.hidden || doorOpened) return;
         playRethinkClosedLine();
-        rethinkKnockTimer = window.setTimeout(() => {
-          rethinkKnockTimer = null;
-          if (sayingGoodbye || door.hidden || doorOpened) return;
-          playOpenDoorLine();
-        }, RETHINK_CLOSED_MS);
       }, DOOR_KNOCK_CLIP_MS);
     }, reduceMotion ? 80 : DOOR_CLOSE_MS);
   }
