@@ -949,6 +949,10 @@ body {
   width: min(100%, 22rem);
 }
 
+.funeral-amounts {
+  width: min(100%, 34rem);
+}
+
 .funeral-actions[hidden],
 .funeral-amounts[hidden] {
   display: none !important;
@@ -966,9 +970,9 @@ body {
 
 .funeral-amounts__row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 0.55rem;
+  gap: clamp(0.3rem, 1.4vw, 0.55rem);
   width: 100%;
 }
 
@@ -1008,11 +1012,12 @@ body {
 }
 
 .funeral-amount-btn {
-  min-width: 4.4rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 0.75rem;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.65rem 0.35rem;
+  border-radius: 0.7rem;
   font-weight: 800;
-  font-size: clamp(0.95rem, 3.4vmin, 1.1rem);
+  font-size: clamp(0.85rem, 2.8vmin, 1.05rem);
   color: #1a1408;
   background:
     linear-gradient(180deg, #f5d76e 0%, #e0b83a 42%, #c9a227 100%);
@@ -2001,6 +2006,26 @@ body {
     0 0 28px rgba(180, 30, 30, 0.55),
     0 2px 0 rgba(255, 200, 200, 0.55),
     0 8px 20px rgba(0, 0, 0, 0.55);
+  animation: tip-cent-debit 2.8s var(--ease-out) forwards;
+}
+
+@keyframes tip-cent-debit {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 8px)) scale(1.08);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(-50%, calc(-50% - 56px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 110px)) scale(0.96);
+  }
 }
 
 @keyframes tip-cent-fly {

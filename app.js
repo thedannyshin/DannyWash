@@ -1315,29 +1315,16 @@
     return `-$${dollars.toFixed(2)}`;
   }
 
-  function spawnDebitBurst(cents) {
+  function spawnDebitOnce(cents) {
     if (!flowerBursts || cents <= 0) return;
-    const label = formatDebitLabel(cents);
+    const el = document.createElement("span");
+    el.className = "tip-cent tip-cent--debit";
+    el.textContent = formatDebitLabel(cents);
     const bounds = flowerBursts.getBoundingClientRect();
-    const originX = bounds.width / 2;
-    const originY = bounds.height * 0.42;
-    const count = reduceMotion ? 1 : 5;
-
-    for (let i = 0; i < count; i++) {
-      const el = document.createElement("span");
-      el.className = "tip-cent tip-cent--debit";
-      el.textContent = label;
-      const drift = (Math.random() * 110 - 55) * (reduceMotion ? 0 : 1);
-      const spin = `${Math.random() * 36 - 18}deg`;
-      const delay = reduceMotion ? 0 : i * 55;
-      el.style.setProperty("--x", `${originX + drift * 0.2}px`);
-      el.style.setProperty("--y", `${originY - i * 10}px`);
-      el.style.setProperty("--drift", `${drift}px`);
-      el.style.setProperty("--spin", spin);
-      el.style.animationDelay = `${delay}ms`;
-      flowerBursts.appendChild(el);
-      window.setTimeout(() => el.remove(), 1300 + delay);
-    }
+    el.style.setProperty("--x", `${bounds.width / 2}px`);
+    el.style.setProperty("--y", `${bounds.height * 0.4}px`);
+    flowerBursts.appendChild(el);
+    window.setTimeout(() => el.remove(), reduceMotion ? 900 : 3200);
   }
 
   function showFuneralActions() {
@@ -1363,6 +1350,7 @@
     if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
     funeralFundCents += amount;
     adjustLifetimeTips(amount, { bump: true });
+    attendFuneral();
   }
 
   function attendFuneral() {
@@ -1382,7 +1370,7 @@
       if (debit <= 0) return;
       funeralFundCents = 0;
       adjustLifetimeTips(-debit, { bump: true });
-      spawnDebitBurst(debit);
+      spawnDebitOnce(debit);
     }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
     window.setTimeout(() => {
       if (died.hidden) return;
