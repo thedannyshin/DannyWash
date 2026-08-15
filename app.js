@@ -96,6 +96,7 @@
   // Danny scream starts ~2s before the black "Danny has crashed" screen.
   const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
   const DANNY_CRASHED_FADE_MS = 750;
+  const DIED_CRASH_HOLD_MS = 2200;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_DELAY_MS = 1500;
   const DIED_COFFIN_MS = 3200;
@@ -157,6 +158,7 @@
   let lifetimeTipsReady = false;
   let funeralFundCents = 0;
   let funeralDebitTimer = null;
+  let funeralActionsTimer = null;
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -1332,6 +1334,11 @@
     if (funeralAmounts) funeralAmounts.hidden = true;
   }
 
+  function hideFuneralChoices() {
+    if (funeralActions) funeralActions.hidden = true;
+    if (funeralAmounts) funeralAmounts.hidden = true;
+  }
+
   function showFuneralAmounts() {
     if (funeralActions) funeralActions.hidden = true;
     if (funeralAmounts) funeralAmounts.hidden = false;
@@ -1342,6 +1349,23 @@
       window.clearTimeout(funeralDebitTimer);
       funeralDebitTimer = null;
     }
+  }
+
+  function clearFuneralActionsTimer() {
+    if (funeralActionsTimer) {
+      window.clearTimeout(funeralActionsTimer);
+      funeralActionsTimer = null;
+    }
+  }
+
+  function scheduleFuneralActions() {
+    clearFuneralActionsTimer();
+    hideFuneralChoices();
+    funeralActionsTimer = window.setTimeout(() => {
+      funeralActionsTimer = null;
+      if (died.hidden || died.classList.contains("is-in")) return;
+      showFuneralActions();
+    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
   function fundDannyFuneral(cents) {
@@ -1355,6 +1379,7 @@
 
   function attendFuneral() {
     if (died.hidden || died.classList.contains("is-in")) return;
+    clearFuneralActionsTimer();
     died.classList.add("is-in");
     playDannyLeftSting({
       delayMs: 0,
@@ -1719,7 +1744,7 @@
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
     if (diedCrash) diedCrash.hidden = false;
-    showFuneralActions();
+    scheduleFuneralActions();
     died.style.setProperty("--coffin-delay-ms", `${DIED_COFFIN_DELAY_MS}ms`);
     died.style.setProperty("--coffin-ms", `${DIED_COFFIN_MS}ms`);
     died.style.setProperty("--blackout-ms", `${DIED_BLACKOUT_MS}ms`);
@@ -2046,9 +2071,10 @@
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
     clearFuneralDebitTimer();
+    clearFuneralActionsTimer();
     funeralFundCents = 0;
     if (diedCrash) diedCrash.hidden = false;
-    showFuneralActions();
+    hideFuneralChoices();
     clearFlowerDripCooldown();
     clearWanderingRoses();
     summon.hidden = false;
