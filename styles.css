@@ -263,7 +263,7 @@ body {
   height: 100%;
   padding-left: 10vw;
   will-change: transform;
-  animation: review-ticker-scroll var(--ticker-ms, 40s) linear infinite;
+  animation: review-ticker-scroll var(--ticker-ms, 18s) linear infinite;
 }
 
 .review-ticker__item {
