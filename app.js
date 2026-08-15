@@ -94,7 +94,7 @@
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
   const FLOWER_DRIP_MS = 2000;
-  const TICKLE_COOLDOWN_MS = 5000;
+  const TICKLE_COOLDOWN_MS = 3000;
   const TICKLE_VOLUME = 1.4;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
@@ -564,9 +564,10 @@
     if (wash.hidden || !tickleAudio || !tickleBtn || tickleBtn.disabled) return;
     playDelayed("tickle", tickleAudio, { duckable: false, volume: TICKLE_VOLUME });
     tickleBtn.disabled = true;
-    if (tickleLabel) tickleLabel.textContent = "tickle (5s)";
+    const cooldownSec = Math.round(TICKLE_COOLDOWN_MS / 1000);
+    if (tickleLabel) tickleLabel.textContent = `tickle (${cooldownSec}s)`;
 
-    for (let sec = 4; sec >= 1; sec -= 1) {
+    for (let sec = cooldownSec - 1; sec >= 1; sec -= 1) {
       const remain = sec;
       tickleCooldownTimers.push(window.setTimeout(() => {
         if (wash.hidden || !tickleLabel) return;
