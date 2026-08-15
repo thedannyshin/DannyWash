@@ -1329,7 +1329,7 @@
     for (const review of sequence) {
       reviewTickerTrack.appendChild(makeReviewItem(review));
     }
-    const durationSec = Math.max(12, list.length * 3);
+    const durationSec = Math.max(9, list.length * 2.2);
     reviewTicker.style.setProperty("--ticker-ms", `${durationSec}s`);
     reviewTicker.hidden = false;
   }
