@@ -821,6 +821,34 @@
     }
   }
 
+  function stopRethinkAudio() {
+    clearRethinkKnockTimer();
+    try {
+      if (doorKnockAudio) {
+        doorKnockAudio.pause();
+        doorKnockAudio.currentTime = 0;
+      }
+    } catch {
+      // Ignore
+    }
+    try {
+      if (doorRethinkAudio) {
+        doorRethinkAudio.pause();
+        doorRethinkAudio.currentTime = 0;
+      }
+    } catch {
+      // Ignore
+    }
+    try {
+      if (lowtipAudio && !lowtipAudio.paused) {
+        lowtipAudio.pause();
+        lowtipAudio.currentTime = 0;
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
   function randomMs(min, max) {
     return Math.floor(min + Math.random() * (max - min + 1));
   }
@@ -1634,32 +1662,33 @@
     stopKnock();
     hideDoorWave();
 
-    // Stay "opened" so the door can't be opened again this visit.
     door.classList.remove("is-open");
     doorBtn.disabled = true;
     doorBtn.setAttribute("aria-expanded", "false");
-    doorBtn.setAttribute("aria-label", "Door closed");
+    doorBtn.setAttribute("aria-label", "Open the door");
     doorDannyZoom.style.animation = "none";
     void doorDannyZoom.offsetWidth;
     doorDannyZoom.style.animation = "";
 
-    // After the door finishes closing: knock → lowtip → wait → knock → "open the door".
+    // After the door finishes closing: allow reopen, then knock → lowtip → wait → knock → "open the door".
     clearRethinkKnockTimer();
     rethinkKnockTimer = window.setTimeout(() => {
       rethinkKnockTimer = null;
       if (sayingGoodbye || door.hidden) return;
+      doorOpened = false;
+      doorBtn.disabled = false;
       playDoorKnock();
       rethinkKnockTimer = window.setTimeout(() => {
         rethinkKnockTimer = null;
-        if (sayingGoodbye || door.hidden) return;
+        if (sayingGoodbye || door.hidden || doorOpened) return;
         playLowTip();
         rethinkKnockTimer = window.setTimeout(() => {
           rethinkKnockTimer = null;
-          if (sayingGoodbye || door.hidden) return;
+          if (sayingGoodbye || door.hidden || doorOpened) return;
           playDoorKnock();
           rethinkKnockTimer = window.setTimeout(() => {
             rethinkKnockTimer = null;
-            if (sayingGoodbye || door.hidden) return;
+            if (sayingGoodbye || door.hidden || doorOpened) return;
             playOpenDoorLine();
           }, DOOR_KNOCK_CLIP_MS);
         }, LOWTIP_MS + RETHINK_OPEN_DOOR_GAP_MS);
@@ -2048,6 +2077,7 @@
 
   function openDoor() {
     if (doorOpened || sayingGoodbye) return;
+    stopRethinkAudio();
     clearDoorNudge();
     clearDoorHello();
 
