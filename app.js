@@ -554,7 +554,7 @@
     try {
       tickleAudio.muted = false;
       tickleAudio.volume = 1;
-      tickleAudio.currentTime = 0;
+      tickleAudio.currentTime = 9;
       const playPromise = tickleAudio.play();
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => {});
