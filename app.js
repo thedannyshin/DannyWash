@@ -95,7 +95,7 @@
   const DIED_BLACKOUT_MS = 3200;
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 5000;
-  const TICKLE_VOLUME = 2.6;
+  const TICKLE_VOLUME = 1.4;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
