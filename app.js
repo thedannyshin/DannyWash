@@ -61,6 +61,7 @@
   const washGif = document.getElementById("wash-gif");
   const tipBtn = document.getElementById("tip-btn");
   const tickleBtn = document.getElementById("tickle-btn");
+  const tickleLabel = document.getElementById("tickle-label");
   const tipBursts = document.getElementById("tip-bursts");
   const tipTotal = document.getElementById("tip-total");
 
@@ -93,6 +94,8 @@
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
   const FLOWER_DRIP_MS = 2000;
+  const TICKLE_COOLDOWN_MS = 5000;
+  const TICKLE_VOLUME = 2.6;
   const DOOR_OPEN_MS = 1150;
   const DOOR_CLOSE_MS = 1150;
   const DOOR_SLAM_AT_MS = 420;
@@ -156,6 +159,7 @@
   let dannyCrashedTimer = null;
   let dannyCrashedFadeRaf = null;
   let flowerDripTimers = [];
+  let tickleCooldownTimers = [];
   let wanderingRoses = [];
   let forceCrashNext = false;
   let comingFadeRaf = null;
@@ -549,22 +553,37 @@
     }
   }
 
+  function clearTickleCooldown() {
+    for (const id of tickleCooldownTimers) window.clearTimeout(id);
+    tickleCooldownTimers = [];
+    if (tickleBtn) tickleBtn.disabled = false;
+    if (tickleLabel) tickleLabel.textContent = "tickle";
+  }
+
   function playTickle() {
-    if (wash.hidden || !tickleAudio) return;
-    try {
-      tickleAudio.muted = false;
-      tickleAudio.volume = 1;
-      tickleAudio.currentTime = 9;
-      const playPromise = tickleAudio.play();
-      if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(() => {});
-      }
-    } catch {
-      // Ignore playback failures
+    if (wash.hidden || !tickleAudio || !tickleBtn || tickleBtn.disabled) return;
+    playDelayed("tickle", tickleAudio, { duckable: false, volume: TICKLE_VOLUME });
+    tickleBtn.disabled = true;
+    if (tickleLabel) tickleLabel.textContent = "tickle (5s)";
+
+    for (let sec = 4; sec >= 1; sec -= 1) {
+      const remain = sec;
+      tickleCooldownTimers.push(window.setTimeout(() => {
+        if (wash.hidden || !tickleLabel) return;
+        tickleLabel.textContent = `tickle (${remain}s)`;
+      }, (TICKLE_COOLDOWN_MS - remain * 1000)));
     }
+
+    tickleCooldownTimers.push(window.setTimeout(() => {
+      tickleCooldownTimers = [];
+      if (wash.hidden || !tickleBtn) return;
+      tickleBtn.disabled = false;
+      if (tickleLabel) tickleLabel.textContent = "tickle";
+    }, TICKLE_COOLDOWN_MS));
   }
 
   function stopTickle() {
+    clearTickleCooldown();
     if (!tickleAudio) return;
     try {
       tickleAudio.pause();
