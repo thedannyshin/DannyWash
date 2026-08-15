@@ -139,7 +139,28 @@
       </section>
 
       <section id="died" class="screen screen--died" hidden aria-label="Danny has died">
-        <p id="died-crash-line" class="died-crash-line">Danny has crashed</p>
+        <div id="died-crash" class="died-crash">
+          <p id="died-crash-line" class="died-crash-line">Danny has crashed</p>
+          <div id="funeral-actions" class="funeral-actions">
+            <button type="button" id="fund-funeral-btn" class="funeral-btn">
+              Fund Danny's funeral
+            </button>
+            <button type="button" id="attend-funeral-btn" class="funeral-btn funeral-btn--attend">
+              Attend Danny's Funeral
+            </button>
+          </div>
+          <div id="funeral-amounts" class="funeral-amounts" hidden>
+            <p class="funeral-amounts__label">How much?</p>
+            <div class="funeral-amounts__row" role="group" aria-label="Funeral fund amounts">
+              <button type="button" class="funeral-amount-btn" data-cents="100">$1</button>
+              <button type="button" class="funeral-amount-btn" data-cents="500">$5</button>
+              <button type="button" class="funeral-amount-btn" data-cents="1000">$10</button>
+              <button type="button" class="funeral-amount-btn" data-cents="10000">$100</button>
+              <button type="button" class="funeral-amount-btn" data-cents="50000">$500</button>
+            </div>
+            <button type="button" id="funeral-amounts-back" class="funeral-back">Back</button>
+          </div>
+        </div>
         <div class="died-face-wrap" aria-hidden="true">
           <img
             class="died-face"

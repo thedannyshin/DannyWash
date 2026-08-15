@@ -900,8 +900,9 @@ body {
   padding: 0;
 }
 
-.screen--died.is-in .died-crash-line {
+.screen--died.is-in .died-crash {
   opacity: 0;
+  pointer-events: none;
 }
 
 .screen--died.is-in .died-face-wrap {
@@ -913,24 +914,141 @@ body {
   transform: translateY(0);
 }
 
-.died-crash-line {
+.died-crash {
   position: absolute;
   inset: 0;
   z-index: 3;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.35rem;
   margin: 0;
-  padding: 1.5rem;
+  padding: 1.5rem 1.25rem 2rem;
+  background: #000;
+  opacity: 1;
+  transition: opacity 0.7s var(--ease-out);
+}
+
+.died-crash-line {
+  margin: 0;
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 800;
   font-size: clamp(1.55rem, 6.5vmin, 2.35rem);
   letter-spacing: -0.03em;
   color: #f2f2f2;
   text-align: center;
-  background: #000;
-  opacity: 1;
-  transition: opacity 0.7s var(--ease-out);
-  pointer-events: none;
+}
+
+.funeral-actions,
+.funeral-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(100%, 22rem);
+}
+
+.funeral-actions[hidden],
+.funeral-amounts[hidden] {
+  display: none !important;
+}
+
+.funeral-amounts__label {
+  margin: 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 3.5vmin, 1.2rem);
+  letter-spacing: -0.02em;
+  color: rgba(242, 242, 242, 0.72);
+  text-align: center;
+}
+
+.funeral-amounts__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.funeral-btn,
+.funeral-amount-btn,
+.funeral-back {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font-family: "Bricolage Grotesque", sans-serif;
+  letter-spacing: -0.02em;
+  text-align: center;
+  transition: transform 0.12s var(--ease-soft), opacity 0.12s var(--ease-soft);
+}
+
+.funeral-btn {
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.85rem;
+  font-weight: 800;
+  font-size: clamp(1rem, 3.6vmin, 1.15rem);
+  color: #1a1408;
+  background:
+    linear-gradient(180deg, #f5d76e 0%, #e0b83a 42%, #c9a227 100%);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.funeral-btn--attend {
+  color: #f2f2f2;
+  background:
+    linear-gradient(180deg, #3a3a3a 0%, #1f1f1f 55%, #141414 100%);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.funeral-amount-btn {
+  min-width: 4.4rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 3.4vmin, 1.1rem);
+  color: #1a1408;
+  background:
+    linear-gradient(180deg, #f5d76e 0%, #e0b83a 42%, #c9a227 100%);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.funeral-back {
+  margin-top: 0.15rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.55rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: rgba(242, 242, 242, 0.78);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.funeral-btn:hover,
+.funeral-amount-btn:hover {
+  transform: translateY(-1px);
+}
+
+.funeral-btn:active,
+.funeral-amount-btn:active,
+.funeral-back:active {
+  transform: translateY(1px);
+}
+
+.funeral-btn:focus-visible,
+.funeral-amount-btn:focus-visible,
+.funeral-back:focus-visible {
+  outline: 2px solid #f5d76e;
+  outline-offset: 3px;
 }
 
 .died-face-wrap {
@@ -1875,6 +1993,16 @@ body {
   will-change: transform, opacity;
 }
 
+.tip-cent--debit {
+  color: #ff7a7a;
+  -webkit-text-stroke: 1px rgba(80, 10, 10, 0.4);
+  text-shadow:
+    0 0 12px rgba(255, 90, 90, 0.85),
+    0 0 28px rgba(180, 30, 30, 0.55),
+    0 2px 0 rgba(255, 200, 200, 0.55),
+    0 8px 20px rgba(0, 0, 0, 0.55);
+}
+
 @keyframes tip-cent-fly {
   0% {
     opacity: 0;
@@ -1968,8 +2096,9 @@ body {
     opacity: 0;
   }
 
-  .screen--died .died-crash-line {
-    display: none;
+  .screen--died.is-in .died-crash {
+    transition: none;
+    opacity: 0;
   }
 
   .danny-left.is-fading {

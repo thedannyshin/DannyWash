@@ -14,6 +14,12 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
+  const diedCrash = document.getElementById("died-crash");
+  const funeralActions = document.getElementById("funeral-actions");
+  const funeralAmounts = document.getElementById("funeral-amounts");
+  const fundFuneralBtn = document.getElementById("fund-funeral-btn");
+  const attendFuneralBtn = document.getElementById("attend-funeral-btn");
+  const funeralAmountsBack = document.getElementById("funeral-amounts-back");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerDripBtn = document.getElementById("flower-drip-btn");
   const flowerDripLabel = document.getElementById("flower-drip-label");
@@ -90,12 +96,12 @@
   // Danny scream starts ~2s before the black "Danny has crashed" screen.
   const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
   const DANNY_CRASHED_FADE_MS = 750;
-  const DIED_CRASH_HOLD_MS = 2600;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_DELAY_MS = 1500;
   const DIED_COFFIN_MS = 3200;
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
+  const FUNERAL_FUND_OPTIONS = new Set([100, 500, 1000, 10000, 50000]);
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 2000;
   const TICKLE_PLAY_MS = 2000;
@@ -149,6 +155,8 @@
   let tipCents = 0;
   let lifetimeCents = 0;
   let lifetimeTipsReady = false;
+  let funeralFundCents = 0;
+  let funeralDebitTimer = null;
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -1273,24 +1281,113 @@
     }
   }
 
-  async function addLifetimeTip() {
+  async function adjustLifetimeTips(deltaCents, { bump = true } = {}) {
+    const delta = Number(deltaCents) || 0;
+    if (!delta) return;
     markLifetimeTipsReady();
-    lifetimeCents += 6;
-    renderLifetimeTotal({ bump: true });
+    lifetimeCents = Math.max(0, lifetimeCents + delta);
+    renderLifetimeTotal({ bump });
     try {
       const response = await fetch("/api/tips", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         cache: "no-store",
+        body: JSON.stringify({ cents: delta }),
       });
       if (!response.ok) return;
       const data = await response.json();
       if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
-        lifetimeCents = Math.max(lifetimeCents, data.cents);
+        lifetimeCents = Math.max(0, data.cents);
         renderLifetimeTotal();
       }
     } catch {
-      // Session total still counts even if the global store misses this tap.
+      // Session total still counts even if the global store misses this change.
     }
+  }
+
+  async function addLifetimeTip() {
+    await adjustLifetimeTips(6, { bump: true });
+  }
+
+  function formatDebitLabel(cents) {
+    const dollars = Math.abs(Number(cents) || 0) / 100;
+    if (dollars % 1 === 0) return `-$${dollars.toFixed(0)}`;
+    return `-$${dollars.toFixed(2)}`;
+  }
+
+  function spawnDebitBurst(cents) {
+    if (!flowerBursts || cents <= 0) return;
+    const label = formatDebitLabel(cents);
+    const bounds = flowerBursts.getBoundingClientRect();
+    const originX = bounds.width / 2;
+    const originY = bounds.height * 0.42;
+    const count = reduceMotion ? 1 : 5;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("span");
+      el.className = "tip-cent tip-cent--debit";
+      el.textContent = label;
+      const drift = (Math.random() * 110 - 55) * (reduceMotion ? 0 : 1);
+      const spin = `${Math.random() * 36 - 18}deg`;
+      const delay = reduceMotion ? 0 : i * 55;
+      el.style.setProperty("--x", `${originX + drift * 0.2}px`);
+      el.style.setProperty("--y", `${originY - i * 10}px`);
+      el.style.setProperty("--drift", `${drift}px`);
+      el.style.setProperty("--spin", spin);
+      el.style.animationDelay = `${delay}ms`;
+      flowerBursts.appendChild(el);
+      window.setTimeout(() => el.remove(), 1300 + delay);
+    }
+  }
+
+  function showFuneralActions() {
+    if (funeralActions) funeralActions.hidden = false;
+    if (funeralAmounts) funeralAmounts.hidden = true;
+  }
+
+  function showFuneralAmounts() {
+    if (funeralActions) funeralActions.hidden = true;
+    if (funeralAmounts) funeralAmounts.hidden = false;
+  }
+
+  function clearFuneralDebitTimer() {
+    if (funeralDebitTimer) {
+      window.clearTimeout(funeralDebitTimer);
+      funeralDebitTimer = null;
+    }
+  }
+
+  function fundDannyFuneral(cents) {
+    if (died.hidden || died.classList.contains("is-in")) return;
+    const amount = Number(cents) || 0;
+    if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
+    funeralFundCents += amount;
+    adjustLifetimeTips(amount, { bump: true });
+  }
+
+  function attendFuneral() {
+    if (died.hidden || died.classList.contains("is-in")) return;
+    died.classList.add("is-in");
+    playDannyLeftSting({
+      delayMs: 0,
+      onEnded: () => {
+        if (!died.hidden) resetToStart();
+      },
+    });
+    clearFuneralDebitTimer();
+    funeralDebitTimer = window.setTimeout(() => {
+      funeralDebitTimer = null;
+      if (died.hidden || !died.classList.contains("is-in")) return;
+      const debit = funeralFundCents;
+      if (debit <= 0) return;
+      funeralFundCents = 0;
+      adjustLifetimeTips(-debit, { bump: true });
+      spawnDebitBurst(debit);
+    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
+    window.setTimeout(() => {
+      if (died.hidden) return;
+      died.classList.add("is-blackout");
+    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
   }
 
   function starsLabel(stars) {
@@ -1628,9 +1725,13 @@
     stopDannyCrashed({ fadeMs: DANNY_CRASHED_FADE_MS });
     clearFlowerDripCooldown();
     clearWanderingRoses();
+    clearFuneralDebitTimer();
+    funeralFundCents = 0;
     map.hidden = true;
     died.hidden = false;
     died.classList.remove("is-in", "is-blackout");
+    if (diedCrash) diedCrash.hidden = false;
+    showFuneralActions();
     died.style.setProperty("--coffin-delay-ms", `${DIED_COFFIN_DELAY_MS}ms`);
     died.style.setProperty("--coffin-ms", `${DIED_COFFIN_MS}ms`);
     died.style.setProperty("--blackout-ms", `${DIED_BLACKOUT_MS}ms`);
@@ -1640,20 +1741,6 @@
       diedCoffin.style.animation = "";
     }
     void died.offsetWidth;
-    window.setTimeout(() => {
-      if (died.hidden) return;
-      died.classList.add("is-in");
-      playDannyLeftSting({
-        delayMs: 0,
-        onEnded: () => {
-          if (!died.hidden) resetToStart();
-        },
-      });
-      window.setTimeout(() => {
-        if (died.hidden) return;
-        died.classList.add("is-blackout");
-      }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
-    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
   function sendFlowers() {
@@ -1970,6 +2057,10 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
+    clearFuneralDebitTimer();
+    funeralFundCents = 0;
+    if (diedCrash) diedCrash.hidden = false;
+    showFuneralActions();
     clearFlowerDripCooldown();
     clearWanderingRoses();
     summon.hidden = false;
@@ -2379,6 +2470,24 @@
   doorDanny.addEventListener("click", closeDoorChangeMind);
   flowersBtn.addEventListener("click", sendFlowers);
   if (flowerDripBtn) flowerDripBtn.addEventListener("click", sendOneFlower);
+  if (fundFuneralBtn) {
+    fundFuneralBtn.addEventListener("click", () => {
+      showFuneralAmounts();
+    });
+  }
+  if (attendFuneralBtn) {
+    attendFuneralBtn.addEventListener("click", attendFuneral);
+  }
+  if (funeralAmountsBack) {
+    funeralAmountsBack.addEventListener("click", showFuneralActions);
+  }
+  if (funeralAmounts) {
+    funeralAmounts.addEventListener("click", (event) => {
+      const btn = event.target.closest(".funeral-amount-btn");
+      if (!btn || !funeralAmounts.contains(btn)) return;
+      fundDannyFuneral(Number(btn.dataset.cents));
+    });
+  }
 
   washGif.addEventListener("click", playGifClickSound);
   washGif.addEventListener("keydown", (event) => {
