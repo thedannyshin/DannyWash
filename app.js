@@ -64,6 +64,7 @@
   const tickleLabel = document.getElementById("tickle-label");
   const tipBursts = document.getElementById("tip-bursts");
   const tipTotal = document.getElementById("tip-total");
+  const sessionTip = document.getElementById("session-tip");
 
   // Waypoints sit on the drawn road grid (x=22/48/74, y=18/42/66/88).
   const WAYPOINTS = [
@@ -1169,6 +1170,15 @@
     return `${formatMoney(cents)} given`;
   }
 
+  function renderSessionTip({ bump = false } = {}) {
+    if (!sessionTip) return;
+    sessionTip.textContent = `${formatMoney(tipCents)} tipped`;
+    if (!bump) return;
+    sessionTip.classList.remove("is-bump");
+    void sessionTip.offsetWidth;
+    sessionTip.classList.add("is-bump");
+  }
+
   function markLifetimeTipsReady() {
     if (lifetimeTipsReady || !tipTotal) return;
     lifetimeTipsReady = true;
@@ -1221,6 +1231,7 @@
 
   function spawnSixCents(clientX, clientY) {
     tipCents += 6;
+    renderSessionTip({ bump: true });
     addLifetimeTip();
 
     const bounds = tipBursts.getBoundingClientRect();
@@ -1762,6 +1773,7 @@
     hideDoorWave();
     door.hidden = true;
     wash.hidden = false;
+    renderSessionTip();
     playWashing();
     fetchLifetimeTips();
     if (washTimer) window.clearTimeout(washTimer);
@@ -1837,8 +1849,10 @@
     tipCents = 0;
     ratingStars = 0;
     lowtipPlayed = false;
+    renderSessionTip();
     renderLifetimeTotal();
     tipTotal.classList.remove("is-bump");
+    if (sessionTip) sessionTip.classList.remove("is-bump");
     stopComing();
     stopWashing();
     stopKnock();

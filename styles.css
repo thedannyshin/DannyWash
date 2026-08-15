@@ -816,6 +816,21 @@ body {
   text-align: center;
 }
 
+.session-tip {
+  margin: 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.05rem, 3.8vmin, 1.35rem);
+  letter-spacing: -0.02em;
+  color: #f5d76e;
+  text-align: center;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.session-tip.is-bump {
+  animation: tip-total-bump 0.35s var(--ease-out);
+}
+
 /* ——— Died ——— */
 
 .screen--died {
