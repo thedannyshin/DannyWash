@@ -1,6 +1,8 @@
 (() => {
   const comeBtn = document.getElementById("come-btn");
   const tryCrashBtn = document.getElementById("try-crash-btn");
+  const reviewTicker = document.getElementById("review-ticker");
+  const reviewTickerTrack = document.getElementById("review-ticker-track");
   const summon = document.getElementById("summon");
   const map = document.getElementById("map");
   const door = document.getElementById("door");
@@ -1291,6 +1293,74 @@
     }
   }
 
+  function starsLabel(stars) {
+    const n = Math.max(1, Math.min(5, Number(stars) || 0));
+    return "★".repeat(n) + "☆".repeat(5 - n);
+  }
+
+  function makeReviewItem(review) {
+    const el = document.createElement("span");
+    el.className = "review-ticker__item";
+    const stars = document.createElement("span");
+    stars.className = "review-ticker__stars";
+    stars.textContent = starsLabel(review.stars);
+    el.appendChild(stars);
+    const comment = String(review.comment || "").trim();
+    if (comment) {
+      const text = document.createElement("span");
+      text.className = "review-ticker__text";
+      text.textContent = comment;
+      el.appendChild(text);
+    }
+    return el;
+  }
+
+  function renderReviewTicker(reviews) {
+    if (!reviewTicker || !reviewTickerTrack) return;
+    const list = Array.isArray(reviews) ? reviews.filter((r) => r && r.stars) : [];
+    reviewTickerTrack.replaceChildren();
+    if (!list.length) {
+      reviewTicker.hidden = true;
+      return;
+    }
+
+    // Duplicate the set so the marquee can loop seamlessly.
+    const sequence = list.concat(list);
+    for (const review of sequence) {
+      reviewTickerTrack.appendChild(makeReviewItem(review));
+    }
+    const durationSec = Math.max(28, list.length * 7);
+    reviewTicker.style.setProperty("--ticker-ms", `${durationSec}s`);
+    reviewTicker.hidden = false;
+  }
+
+  async function fetchReviews() {
+    try {
+      const response = await fetch("/api/reviews", { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (Array.isArray(data.reviews)) renderReviewTicker(data.reviews);
+    } catch {
+      // Leave the ticker alone if the store is unreachable.
+    }
+  }
+
+  async function saveReview({ stars, comment }) {
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ stars, comment }),
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (Array.isArray(data.reviews)) renderReviewTicker(data.reviews);
+    } catch {
+      // Rating UX continues even if persistence fails.
+    }
+  }
+
   function spawnSixCents(clientX, clientY) {
     tipCents += 6;
     renderSessionTip({ bump: true });
@@ -2100,6 +2170,9 @@
     }
     rateComment.disabled = true;
 
+    const comment = (rateComment.value || "").replace(/\s+/g, " ").trim();
+    saveReview({ stars: ratingStars, comment });
+
     // Rejected only when tip was under $1 and rating isn't 5 stars.
     if (tipCents < 100 && ratingStars < 5) {
       showRateOutcome({ rejected: true });
@@ -2401,4 +2474,5 @@
   });
 
   fetchLifetimeTips();
+  fetchReviews();
 })();
