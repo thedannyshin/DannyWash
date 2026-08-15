@@ -1326,7 +1326,7 @@
     el.style.setProperty("--x", `${bounds.width / 2}px`);
     el.style.setProperty("--y", `${bounds.height * 0.4}px`);
     flowerBursts.appendChild(el);
-    window.setTimeout(() => el.remove(), reduceMotion ? 900 : 3200);
+    window.setTimeout(() => el.remove(), reduceMotion ? 900 : 2600);
   }
 
   function showFuneralActions() {

@@ -2021,25 +2021,25 @@ body {
     0 0 28px rgba(180, 30, 30, 0.55),
     0 2px 0 rgba(255, 200, 200, 0.55),
     0 8px 20px rgba(0, 0, 0, 0.55);
-  animation: tip-cent-debit 2.8s var(--ease-out) forwards;
+  animation: tip-cent-debit 2.4s linear forwards;
 }
 
 @keyframes tip-cent-debit {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.85);
+    transform: translate(-50%, -50%) scale(0.9);
   }
-  18% {
+  10% {
     opacity: 1;
-    transform: translate(-50%, calc(-50% - 8px)) scale(1.08);
+    transform: translate(-50%, calc(-50% - 16px)) scale(1.06);
   }
-  62% {
+  70% {
     opacity: 1;
-    transform: translate(-50%, calc(-50% - 56px)) scale(1);
+    transform: translate(-50%, calc(-50% - 108px)) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, calc(-50% - 110px)) scale(0.96);
+    transform: translate(-50%, calc(-50% - 168px)) scale(0.98);
   }
 }
 
