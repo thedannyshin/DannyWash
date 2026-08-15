@@ -1818,6 +1818,7 @@
     rateBurst.replaceChildren();
     if (flowerBursts) flowerBursts.replaceChildren();
     tipBtn.classList.remove("is-pressed");
+    if (tickleBtn) tickleBtn.classList.remove("is-pressed");
     tipCents = 0;
     ratingStars = 0;
     lowtipPlayed = false;
