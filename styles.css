@@ -503,6 +503,10 @@ body {
   animation: danny-bob 1.6s ease-in-out infinite;
 }
 
+.danny.is-jammed-stopped .danny__photo {
+  animation: none;
+}
+
 .jam-cars {
   position: absolute;
   inset: 0;
@@ -519,8 +523,8 @@ body {
   margin: 0;
   border-radius: 3px 6px 6px 3px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 40%),
-    var(--car, #c94b4b);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 42%),
+    #3d4a46;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.35),
     0 4px 8px rgba(15, 61, 54, 0.28);

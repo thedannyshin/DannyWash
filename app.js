@@ -66,6 +66,7 @@
   const doorRethinkClosedAudio = document.getElementById("door-rethink-closed-audio");
   const crashAudio = document.getElementById("crash-audio");
   const dannyCrashedAudio = document.getElementById("danny-crashed-audio");
+  const honkAudio = document.getElementById("honk-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
@@ -93,9 +94,20 @@
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
   const JAM_CHANCE = 0.18;
-  const JAM_MS = 4200;
-  const JAM_CRAWL = 0.05;
-  const JAM_PLAYBACK_RATE = 0.55;
+  const JAM_PHASES = [
+    { kind: "stop", ms: 780 },
+    { kind: "go", ms: 420, crawl: 0.014 },
+    { kind: "stop", ms: 1040 },
+    { kind: "go", ms: 280, crawl: 0.008 },
+    { kind: "stop", ms: 680 },
+    { kind: "go", ms: 540, crawl: 0.018 },
+    { kind: "stop", ms: 920 },
+    { kind: "go", ms: 360, crawl: 0.011 },
+    { kind: "stop", ms: 760 },
+  ];
+  const JAM_MS = JAM_PHASES.reduce((sum, phase) => sum + phase.ms, 0);
+  const JAM_GO_RATE = 0.72;
+  const JAM_STOP_RATE = 0.22;
   // Coast until the black screen (~2.5s into crash SFX).
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
@@ -185,6 +197,7 @@
   let wanderingRoses = [];
   let forceCrashNext = false;
   let forceJamNext = false;
+  let jamHonkTimers = [];
   let comingFadeRaf = null;
   let audioCtx = null;
   const bufferCache = new Map();
@@ -234,6 +247,7 @@
       ["doorrethinkclosed", "assets/door-rethink-closed.mp3"],
       ["crash", "assets/crash.mp3"],
       ["dannycrashed", "assets/danny-crashed.mp3"],
+      ["honk", "assets/honk.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
     ].forEach(([key, url]) => {
@@ -241,7 +255,7 @@
     });
   }
 
-  function playBuffer(key, { volume = 1, duckable = true } = {}) {
+  function playBuffer(key, { volume = 1, duckable = true, playbackRate = 1 } = {}) {
     const ctx = ensureAudioContext();
     const buffer = bufferCache.get(key);
     if (!ctx || !buffer) return false;
@@ -253,6 +267,7 @@
     const bedLevel = duckable && gifHightipDuckCount > 0 ? 0.12 : 1;
     gain.gain.value = volume * bedLevel;
     source.buffer = buffer;
+    source.playbackRate.value = playbackRate;
     source.connect(gain);
     gain.connect(ctx.destination);
     source.start(0);
@@ -1877,9 +1892,62 @@
     return 0;
   }
 
+  function playHonk() {
+    playDelayed("honk", honkAudio, {
+      volume: 0.55 + Math.random() * 0.3,
+      duckable: false,
+      playbackRate: 0.88 + Math.random() * 0.28,
+    });
+  }
+
+  function clearJamHonkTimers() {
+    for (const timer of jamHonkTimers) window.clearTimeout(timer);
+    jamHonkTimers = [];
+  }
+
+  function scheduleJamHonks(trip) {
+    clearJamHonkTimers();
+    let elapsed = 0;
+    JAM_PHASES.forEach((phase, index) => {
+      if (phase.kind === "stop") {
+        const firstAt = elapsed + 90 + Math.floor(Math.random() * 160);
+        jamHonkTimers.push(window.setTimeout(() => {
+          if (trip !== tripId) return;
+          playHonk();
+        }, firstAt));
+        if (index > 0 && Math.random() < 0.7) {
+          jamHonkTimers.push(window.setTimeout(() => {
+            if (trip !== tripId) return;
+            playHonk();
+          }, firstAt + 220 + Math.floor(Math.random() * 140)));
+        }
+      }
+      elapsed += phase.ms;
+    });
+  }
+
+  function jamStateAt(elapsedMs) {
+    let t = 0;
+    let dist = 0;
+    let kind = "stop";
+    for (const phase of JAM_PHASES) {
+      if (elapsedMs < t + phase.ms) {
+        const local = (elapsedMs - t) / phase.ms;
+        if (phase.kind === "go") dist += (phase.crawl || 0) * Math.min(1, local);
+        return { dist, kind: phase.kind, done: false };
+      }
+      t += phase.ms;
+      if (phase.kind === "go") dist += phase.crawl || 0;
+      kind = phase.kind;
+    }
+    return { dist, kind, done: true };
+  }
+
   function clearJamCars() {
+    clearJamHonkTimers();
     if (jamCars) jamCars.replaceChildren();
     danny.classList.remove("is-jammed");
+    danny.classList.remove("is-jammed-stopped");
     status.classList.remove("is-jam");
     setComingPlaybackRate(1);
   }
@@ -1887,7 +1955,6 @@
   function spawnJamCars(metrics, fromT) {
     if (!jamCars) return;
     jamCars.replaceChildren();
-    const colors = ["#c94b4b", "#e0b83a", "#f2f2f2", "#2c3a4a", "#d97a32"];
     const count = 4;
     for (let i = 1; i <= count; i++) {
       const t = Math.min(0.97, fromT + 0.035 * i + Math.random() * 0.01);
@@ -1898,7 +1965,6 @@
       el.style.left = `${pt.x}%`;
       el.style.top = `${pt.y}%`;
       el.style.setProperty("--rot", `${rot}deg`);
-      el.style.setProperty("--car", colors[(i - 1) % colors.length]);
       el.style.animationDelay = `${i * 90}ms`;
       jamCars.appendChild(el);
     }
@@ -1945,6 +2011,7 @@
     let jamEndT = 0;
     let jamDone = false;
     let resumeStart = 0;
+    let jamPhaseKind = "go";
 
     function frame(now) {
       if (myTrip !== tripId) return;
@@ -1963,15 +2030,22 @@
       }
 
       if (jammed) {
-        const jamRaw = Math.min(1, (now - jamStart) / JAM_MS);
-        jamEndT = Math.min(0.97, jamFromT + jamRaw * JAM_CRAWL);
+        const jamElapsed = now - jamStart;
+        const state = jamStateAt(jamElapsed);
+        jamEndT = Math.min(0.97, jamFromT + state.dist);
         setDannyPos(pointAlongRoute(metrics, metrics.total * jamEndT));
-        if (jamRaw < 1) {
+        if (state.kind !== jamPhaseKind) {
+          jamPhaseKind = state.kind;
+          setComingPlaybackRate(state.kind === "stop" ? JAM_STOP_RATE : JAM_GO_RATE);
+          danny.classList.toggle("is-jammed-stopped", state.kind === "stop");
+        }
+        if (!state.done) {
           requestAnimationFrame(frame);
         } else {
           jammed = false;
           jamDone = true;
           resumeStart = now;
+          danny.classList.remove("is-jammed-stopped");
           clearJamCars();
           status.textContent = "Danny is coming to wash!";
           requestAnimationFrame(frame);
@@ -2014,11 +2088,13 @@
         jamStart = now;
         jamFromT = t;
         jamEndT = t;
-        danny.classList.add("is-jammed");
+        jamPhaseKind = "stop";
+        danny.classList.add("is-jammed", "is-jammed-stopped");
         status.textContent = "Traffic jam";
         status.classList.add("is-jam");
         spawnJamCars(metrics, t);
-        setComingPlaybackRate(JAM_PLAYBACK_RATE);
+        setComingPlaybackRate(JAM_STOP_RATE);
+        scheduleJamHonks(myTrip);
         requestAnimationFrame(frame);
         return;
       }
@@ -2244,7 +2320,7 @@
     clearWashEnterTimer();
     setDoorRethink(false);
     doorDannyZoom.style.animation = "none";
-    danny.classList.remove("is-moving", "is-arrived", "is-jammed");
+    danny.classList.remove("is-moving", "is-arrived", "is-jammed", "is-jammed-stopped");
     setDannyPos(WAYPOINTS[0]);
     status.textContent = "Danny is coming to wash!";
     status.classList.remove("is-arrived", "is-jam");
