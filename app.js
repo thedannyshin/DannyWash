@@ -1895,10 +1895,11 @@
   }
 
   function playHonk() {
+    const playbackRate = 0.72 + Math.random() * 0.48;
     playDelayed("honk", honkAudio, {
       volume: 2.2,
       duckable: false,
-      playbackRate: 1,
+      playbackRate,
     });
   }
 
