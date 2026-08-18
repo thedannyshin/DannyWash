@@ -228,6 +228,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.debug-trips {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
 .try-crash-btn:focus-visible {
   outline: 2px solid rgba(232, 196, 90, 0.75);
   outline-offset: 3px;
@@ -366,6 +375,10 @@ body {
   animation: map-in 0.4s var(--ease-out) both;
 }
 
+.status.is-jam {
+  color: #8a3a12;
+}
+
 .map-canvas {
   position: absolute;
   inset: 0;
@@ -484,6 +497,46 @@ body {
 
 .danny.is-moving .danny__photo {
   animation: danny-bob 0.7s ease-in-out infinite;
+}
+
+.danny.is-jammed .danny__photo {
+  animation: danny-bob 1.6s ease-in-out infinite;
+}
+
+.jam-cars {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.jam-car {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(18px, 3.6vmin, 26px);
+  height: clamp(10px, 2vmin, 14px);
+  margin: 0;
+  border-radius: 3px 6px 6px 3px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 40%),
+    var(--car, #c94b4b);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 4px 8px rgba(15, 61, 54, 0.28);
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  animation: jam-car-in 0.35s var(--ease-out) both;
+}
+
+@keyframes jam-car-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1);
+  }
 }
 
 .danny.is-arrived .danny__photo {
@@ -2097,7 +2150,9 @@ body {
   .summon__atmosphere::before,
   .come-btn,
   .you-pin__pulse,
-  .danny.is-moving .danny__photo {
+  .danny.is-moving .danny__photo,
+  .danny.is-jammed .danny__photo,
+  .jam-car {
     animation: none;
   }
 

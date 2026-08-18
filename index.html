@@ -26,7 +26,10 @@
             <span class="come-btn__label">Come to Wash</span>
           </span>
         </button>
-        <button type="button" id="try-crash-btn" class="try-crash-btn">Try crash</button>
+        <div class="debug-trips">
+          <button type="button" id="try-crash-btn" class="try-crash-btn">Try crash</button>
+          <button type="button" id="try-jam-btn" class="try-crash-btn">Try traffic jam</button>
+        </div>
         <div id="review-ticker" class="review-ticker" hidden aria-label="Latest reviews">
           <div class="review-ticker__fade review-ticker__fade--left" aria-hidden="true"></div>
           <div class="review-ticker__track" id="review-ticker-track"></div>
@@ -86,6 +89,7 @@
               />
               <span class="danny__ring"></span>
             </div>
+            <div id="jam-cars" class="jam-cars" aria-hidden="true"></div>
 
             <svg class="trail" id="trail" viewBox="0 0 100 100" preserveAspectRatio="none">
               <path

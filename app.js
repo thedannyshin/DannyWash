@@ -1,6 +1,7 @@
 (() => {
   const comeBtn = document.getElementById("come-btn");
   const tryCrashBtn = document.getElementById("try-crash-btn");
+  const tryJamBtn = document.getElementById("try-jam-btn");
   const reviewTicker = document.getElementById("review-ticker");
   const reviewTickerTrack = document.getElementById("review-ticker-track");
   const summon = document.getElementById("summon");
@@ -40,6 +41,7 @@
   const rateThanks = document.getElementById("rate-thanks");
   const rateBurst = document.getElementById("rate-burst");
   const danny = document.getElementById("danny");
+  const jamCars = document.getElementById("jam-cars");
   const status = document.getElementById("status");
   const route = document.getElementById("route");
   const doorbellAudio = document.getElementById("doorbell-audio");
@@ -90,6 +92,10 @@
 
   const DURATION_MS = 6800;
   const CRASH_CHANCE = 0.18;
+  const JAM_CHANCE = 0.18;
+  const JAM_MS = 4200;
+  const JAM_CRAWL = 0.05;
+  const JAM_PLAYBACK_RATE = 0.55;
   // Coast until the black screen (~2.5s into crash SFX).
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
@@ -178,6 +184,7 @@
   let tickleSource = null;
   let wanderingRoses = [];
   let forceCrashNext = false;
+  let forceJamNext = false;
   let comingFadeRaf = null;
   let audioCtx = null;
   const bufferCache = new Map();
@@ -440,6 +447,15 @@
       comingAudio.pause();
       comingAudio.currentTime = 0;
       comingAudio.volume = 1;
+      comingAudio.playbackRate = 1;
+    } catch {
+      // Ignore
+    }
+  }
+
+  function setComingPlaybackRate(rate) {
+    try {
+      comingAudio.playbackRate = rate;
     } catch {
       // Ignore
     }
@@ -1851,6 +1867,43 @@
     return metrics.segments[metrics.segments.length - 1].to;
   }
 
+  function headingAlongRoute(metrics, distance) {
+    const d = Math.max(0, Math.min(distance, metrics.total));
+    for (const seg of metrics.segments) {
+      if (d <= seg.start + seg.length || seg === metrics.segments[metrics.segments.length - 1]) {
+        return (Math.atan2(seg.to.y - seg.from.y, seg.to.x - seg.from.x) * 180) / Math.PI;
+      }
+    }
+    return 0;
+  }
+
+  function clearJamCars() {
+    if (jamCars) jamCars.replaceChildren();
+    danny.classList.remove("is-jammed");
+    status.classList.remove("is-jam");
+    setComingPlaybackRate(1);
+  }
+
+  function spawnJamCars(metrics, fromT) {
+    if (!jamCars) return;
+    jamCars.replaceChildren();
+    const colors = ["#c94b4b", "#e0b83a", "#f2f2f2", "#2c3a4a", "#d97a32"];
+    const count = 4;
+    for (let i = 1; i <= count; i++) {
+      const t = Math.min(0.97, fromT + 0.035 * i + Math.random() * 0.01);
+      const pt = pointAlongRoute(metrics, metrics.total * t);
+      const rot = headingAlongRoute(metrics, metrics.total * t);
+      const el = document.createElement("span");
+      el.className = "jam-car";
+      el.style.left = `${pt.x}%`;
+      el.style.top = `${pt.y}%`;
+      el.style.setProperty("--rot", `${rot}deg`);
+      el.style.setProperty("--car", colors[(i - 1) % colors.length]);
+      el.style.animationDelay = `${i * 90}ms`;
+      jamCars.appendChild(el);
+    }
+  }
+
   function buildRoutePath(points) {
     const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
     route.setAttribute("d", d);
@@ -1876,13 +1929,22 @@
       return;
     }
 
-    const willCrash = forceCrashNext || Math.random() < CRASH_CHANCE;
+    const willCrash = forceCrashNext || (!forceJamNext && Math.random() < CRASH_CHANCE);
+    const willJam = !willCrash && (forceJamNext || Math.random() < JAM_CHANCE);
     const crashAt = willCrash ? 0.32 + Math.random() * 0.2 : null;
+    const jamAt = willJam ? 0.28 + Math.random() * 0.22 : null;
     forceCrashNext = false;
+    forceJamNext = false;
     const startTime = performance.now();
     let crashing = false;
     let crashStart = 0;
     let crashFromT = 0;
+    let jammed = false;
+    let jamStart = 0;
+    let jamFromT = 0;
+    let jamEndT = 0;
+    let jamDone = false;
+    let resumeStart = 0;
 
     function frame(now) {
       if (myTrip !== tripId) return;
@@ -1900,6 +1962,36 @@
         return;
       }
 
+      if (jammed) {
+        const jamRaw = Math.min(1, (now - jamStart) / JAM_MS);
+        jamEndT = Math.min(0.97, jamFromT + jamRaw * JAM_CRAWL);
+        setDannyPos(pointAlongRoute(metrics, metrics.total * jamEndT));
+        if (jamRaw < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          jammed = false;
+          jamDone = true;
+          resumeStart = now;
+          clearJamCars();
+          status.textContent = "Danny is coming to wash!";
+          requestAnimationFrame(frame);
+        }
+        return;
+      }
+
+      if (jamDone) {
+        const remainMs = Math.max(900, DURATION_MS * (1 - jamAt));
+        const resumeRaw = Math.min(1, (now - resumeStart) / remainMs);
+        const t = jamEndT + (1 - jamEndT) * easeInOutCubic(resumeRaw);
+        setDannyPos(pointAlongRoute(metrics, metrics.total * t));
+        if (resumeRaw < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          finishArrival();
+        }
+        return;
+      }
+
       const raw = Math.min(1, (now - startTime) / DURATION_MS);
       const t = easeInOutCubic(raw);
 
@@ -1913,6 +2005,20 @@
           crashResetTimer = null;
           showDied();
         }, reduceMotion ? 500 : CRASH_MS);
+        requestAnimationFrame(frame);
+        return;
+      }
+
+      if (jamAt !== null && raw >= jamAt) {
+        jammed = true;
+        jamStart = now;
+        jamFromT = t;
+        jamEndT = t;
+        danny.classList.add("is-jammed");
+        status.textContent = "Traffic jam";
+        status.classList.add("is-jam");
+        spawnJamCars(metrics, t);
+        setComingPlaybackRate(JAM_PLAYBACK_RATE);
         requestAnimationFrame(frame);
         return;
       }
@@ -2138,10 +2244,11 @@
     clearWashEnterTimer();
     setDoorRethink(false);
     doorDannyZoom.style.animation = "none";
-    danny.classList.remove("is-moving", "is-arrived");
+    danny.classList.remove("is-moving", "is-arrived", "is-jammed");
     setDannyPos(WAYPOINTS[0]);
     status.textContent = "Danny is coming to wash!";
-    status.classList.remove("is-arrived");
+    status.classList.remove("is-arrived", "is-jam");
+    clearJamCars();
     route.removeAttribute("d");
 
     started = false;
@@ -2152,6 +2259,7 @@
     sayingGoodbye = false;
     comeBtn.disabled = false;
     if (tryCrashBtn) tryCrashBtn.disabled = false;
+    if (tryJamBtn) tryJamBtn.disabled = false;
     comeBtn.classList.remove("is-pressed");
     byeBtn.classList.remove("is-pressed");
     byeBtn.disabled = false;
@@ -2364,7 +2472,9 @@
     danny.classList.remove("is-moving");
     danny.classList.add("is-arrived");
     status.textContent = "He's here.";
+    status.classList.remove("is-jam");
     status.classList.add("is-arrived");
+    clearJamCars();
     stopComing();
     window.setTimeout(showDoor, reduceMotion ? 400 : 1100);
   }
@@ -2447,12 +2557,14 @@
     }, wait);
   }
 
-  function startVisit({ forceCrash = false } = {}) {
+  function startVisit({ forceCrash = false, forceJam = false } = {}) {
     if (started) return;
     started = true;
     forceCrashNext = forceCrash;
+    forceJamNext = forceJam && !forceCrash;
     comeBtn.disabled = true;
     if (tryCrashBtn) tryCrashBtn.disabled = true;
+    if (tryJamBtn) tryJamBtn.disabled = true;
 
     // Start the car/coming track first so mobile doesn't drop it
     // behind muted unlock plays for the other SFX.
@@ -2480,6 +2592,11 @@
   if (tryCrashBtn) {
     tryCrashBtn.addEventListener("click", () => {
       startVisit({ forceCrash: true });
+    });
+  }
+  if (tryJamBtn) {
+    tryJamBtn.addEventListener("click", () => {
+      startVisit({ forceJam: true });
     });
   }
 
