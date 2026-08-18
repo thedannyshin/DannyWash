@@ -119,6 +119,7 @@
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
   const FUNERAL_FUND_OPTIONS = new Set([100, 500, 1000, 10000, 50000]);
+  const ATTEND_FUNERAL_MIN_CENTS = 3000;
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 2000;
   const TICKLE_PLAY_MS = 2000;
@@ -1333,10 +1334,14 @@
   function renderLifetimeTotal({ bump = false } = {}) {
     if (!lifetimeTipsReady || !tipTotal) return;
     tipTotal.textContent = formatTipTotal(lifetimeCents);
-    if (!bump) return;
+    if (!bump) {
+      updateAttendFuneralBtn();
+      return;
+    }
     tipTotal.classList.remove("is-bump");
     void tipTotal.offsetWidth;
     tipTotal.classList.add("is-bump");
+    updateAttendFuneralBtn();
   }
 
   async function fetchLifetimeTips() {
@@ -1403,6 +1408,7 @@
   function showFuneralActions() {
     if (funeralActions) funeralActions.hidden = false;
     if (funeralAmounts) funeralAmounts.hidden = true;
+    updateAttendFuneralBtn();
   }
 
   function hideFuneralChoices() {
@@ -1439,13 +1445,40 @@
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
+  function canAttendFuneral() {
+    return lifetimeCents >= ATTEND_FUNERAL_MIN_CENTS;
+  }
+
+  function updateAttendFuneralBtn() {
+    if (!attendFuneralBtn) return;
+    const unlocked = canAttendFuneral();
+    attendFuneralBtn.disabled = !unlocked;
+    const label = attendFuneralBtn.querySelector(".tip-btn__label");
+    if (label) {
+      label.textContent = unlocked
+        ? "Take a look"
+        : `Take a look (${formatMoney(lifetimeCents)} / $30.00)`;
+    }
+    attendFuneralBtn.setAttribute(
+      "aria-label",
+      unlocked
+        ? "Take a look at the funeral"
+        : `Take a look — give ${formatMoney(Math.max(0, ATTEND_FUNERAL_MIN_CENTS - lifetimeCents))} more to unlock`,
+    );
+  }
+
   function fundDannyFuneral(cents) {
     if (died.hidden || died.classList.contains("is-in")) return;
     const amount = Number(cents) || 0;
     if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
     funeralFundCents += amount;
     adjustLifetimeTips(amount, { bump: true });
-    attendFuneral();
+    updateAttendFuneralBtn();
+    if (canAttendFuneral()) {
+      attendFuneral();
+    } else {
+      showFuneralActions();
+    }
   }
 
   function refuseFuneral() {
@@ -1457,7 +1490,7 @@
   }
 
   function attendFuneral() {
-    if (died.hidden || died.classList.contains("is-in")) return;
+    if (died.hidden || died.classList.contains("is-in") || !canAttendFuneral()) return;
     clearFuneralActionsTimer();
     died.classList.add("is-in");
     playDannyLeftSting({
