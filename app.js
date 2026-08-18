@@ -20,6 +20,7 @@
   const funeralAmounts = document.getElementById("funeral-amounts");
   const fundFuneralBtn = document.getElementById("fund-funeral-btn");
   const attendFuneralBtn = document.getElementById("attend-funeral-btn");
+  const attendFuneralHint = document.getElementById("attend-funeral-hint");
   const refuseFuneralBtn = document.getElementById("refuse-funeral-btn");
   const funeralAmountsBack = document.getElementById("funeral-amounts-back");
   const flowersBtn = document.getElementById("flowers-btn");
@@ -1452,18 +1453,20 @@
   function updateAttendFuneralBtn() {
     if (!attendFuneralBtn) return;
     const unlocked = canAttendFuneral();
+    const remaining = Math.max(0, ATTEND_FUNERAL_MIN_CENTS - lifetimeCents);
     attendFuneralBtn.disabled = !unlocked;
-    const label = attendFuneralBtn.querySelector(".tip-btn__label");
-    if (label) {
-      label.textContent = unlocked
-        ? "Take a look"
-        : `Take a look (${formatMoney(lifetimeCents)} / $30.00)`;
+    attendFuneralBtn.classList.toggle("is-locked", !unlocked);
+    if (attendFuneralHint) {
+      attendFuneralHint.hidden = unlocked;
+      attendFuneralHint.textContent = remaining === ATTEND_FUNERAL_MIN_CENTS
+        ? "Give $30.00 to unlock"
+        : `Give ${formatMoney(remaining)} more to unlock`;
     }
     attendFuneralBtn.setAttribute(
       "aria-label",
       unlocked
         ? "Take a look at the funeral"
-        : `Take a look — give ${formatMoney(Math.max(0, ATTEND_FUNERAL_MIN_CENTS - lifetimeCents))} more to unlock`,
+        : `Take a look is locked. Give ${formatMoney(remaining)} more to unlock.`,
     );
   }
 

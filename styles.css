@@ -980,11 +980,43 @@ body {
   height: clamp(52px, 10vmin, 64px);
 }
 
+.funeral-actions .funeral-action-btn.is-locked {
+  height: clamp(4.15rem, 12vmin, 4.7rem);
+}
+
 .funeral-actions .tip-btn__label {
+  display: grid;
+  justify-items: center;
+  gap: 0.12rem;
   font-size: clamp(0.82rem, 3.1vmin, 1.05rem);
   padding: 0 0.35rem;
   text-align: center;
   line-height: 1.05;
+}
+
+.funeral-lock-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.funeral-action-btn.is-locked .funeral-lock-title::before {
+  content: "🔒";
+  font-size: 0.92em;
+  line-height: 1;
+}
+
+.funeral-lock-hint {
+  font-family: "Figtree", sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.68rem, 2.5vmin, 0.82rem);
+  letter-spacing: 0;
+  color: #f5d76e;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.funeral-lock-hint[hidden] {
+  display: none !important;
 }
 
 .funeral-amounts {
