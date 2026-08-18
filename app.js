@@ -1909,7 +1909,7 @@
   }
 
   function playHonk() {
-    const playbackRate = 0.22 + Math.random() * 2.08;
+    const playbackRate = 0.7 + Math.random() * 0.7;
     playDelayed("honk", honkAudio, {
       volume: 2.2,
       duckable: false,
