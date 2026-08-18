@@ -1916,10 +1916,6 @@
           if (trip !== tripId) return;
           playHonk();
         }, elapsed + 80));
-        jamHonkTimers.push(window.setTimeout(() => {
-          if (trip !== tripId) return;
-          playHonk();
-        }, elapsed + 300));
       }
       elapsed += phase.ms;
     }
