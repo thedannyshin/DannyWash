@@ -1453,17 +1453,18 @@
   function updateAttendFuneralBtn() {
     if (!attendFuneralBtn) return;
     const unlocked = canAttendFuneral();
+    const remaining = Math.max(0, ATTEND_FUNERAL_MIN_CENTS - lifetimeCents);
     attendFuneralBtn.disabled = !unlocked;
     attendFuneralBtn.classList.toggle("is-locked", !unlocked);
     if (attendFuneralHint) {
       attendFuneralHint.hidden = unlocked;
-      attendFuneralHint.textContent = `${formatMoney(lifetimeCents)} of $30.00 given`;
+      attendFuneralHint.textContent = `${formatMoney(remaining)} more to unlock`;
     }
     attendFuneralBtn.setAttribute(
       "aria-label",
       unlocked
         ? "Take a look at the funeral"
-        : `Take a look is locked until $30.00 has been given in total. ${formatMoney(lifetimeCents)} given so far.`,
+        : `Take a look is locked. ${formatMoney(remaining)} more to unlock.`,
     );
   }
 
