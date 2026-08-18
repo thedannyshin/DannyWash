@@ -507,42 +507,6 @@ body {
   animation: none;
 }
 
-.jam-cars {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.jam-car {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: clamp(18px, 3.6vmin, 26px);
-  height: clamp(10px, 2vmin, 14px);
-  margin: 0;
-  border-radius: 3px 6px 6px 3px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 42%),
-    #3d4a46;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 4px 8px rgba(15, 61, 54, 0.28);
-  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
-  animation: jam-car-in 0.35s var(--ease-out) both;
-}
-
-@keyframes jam-car-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.4);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1);
-  }
-}
-
 .danny.is-arrived .danny__photo {
   animation: arrive-pop 0.55s var(--ease-out) both;
 }
@@ -2155,8 +2119,7 @@ body {
   .come-btn,
   .you-pin__pulse,
   .danny.is-moving .danny__photo,
-  .danny.is-jammed .danny__photo,
-  .jam-car {
+  .danny.is-jammed .danny__photo {
     animation: none;
   }
 

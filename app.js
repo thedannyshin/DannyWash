@@ -41,7 +41,6 @@
   const rateThanks = document.getElementById("rate-thanks");
   const rateBurst = document.getElementById("rate-burst");
   const danny = document.getElementById("danny");
-  const jamCars = document.getElementById("jam-cars");
   const status = document.getElementById("status");
   const route = document.getElementById("route");
   const doorbellAudio = document.getElementById("doorbell-audio");
@@ -105,8 +104,6 @@
     { kind: "go", ms: 360, crawl: 0.011 },
     { kind: "stop", ms: 760 },
   ];
-  const JAM_GO_RATE = 0.72;
-  const JAM_STOP_RATE = 0.22;
   // Coast until the black screen (~2.5s into crash SFX).
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
@@ -467,9 +464,25 @@
     }
   }
 
-  function setComingPlaybackRate(rate) {
+  function pauseComing() {
+    cancelComingFade();
     try {
-      comingAudio.playbackRate = rate;
+      comingAudio.pause();
+    } catch {
+      // Ignore
+    }
+  }
+
+  function resumeComing() {
+    cancelComingFade();
+    try {
+      comingAudio.muted = false;
+      comingAudio.volume = 1;
+      comingAudio.playbackRate = 1;
+      const playPromise = comingAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
     } catch {
       // Ignore
     }
@@ -1881,21 +1894,11 @@
     return metrics.segments[metrics.segments.length - 1].to;
   }
 
-  function headingAlongRoute(metrics, distance) {
-    const d = Math.max(0, Math.min(distance, metrics.total));
-    for (const seg of metrics.segments) {
-      if (d <= seg.start + seg.length || seg === metrics.segments[metrics.segments.length - 1]) {
-        return (Math.atan2(seg.to.y - seg.from.y, seg.to.x - seg.from.x) * 180) / Math.PI;
-      }
-    }
-    return 0;
-  }
-
   function playHonk() {
     playDelayed("honk", honkAudio, {
-      volume: 0.55 + Math.random() * 0.3,
+      volume: 2.2,
       duckable: false,
-      playbackRate: 0.88 + Math.random() * 0.28,
+      playbackRate: 1,
     });
   }
 
@@ -1907,22 +1910,19 @@
   function scheduleJamHonks(trip) {
     clearJamHonkTimers();
     let elapsed = 0;
-    JAM_PHASES.forEach((phase, index) => {
+    for (const phase of JAM_PHASES) {
       if (phase.kind === "stop") {
-        const firstAt = elapsed + 90 + Math.floor(Math.random() * 160);
         jamHonkTimers.push(window.setTimeout(() => {
           if (trip !== tripId) return;
           playHonk();
-        }, firstAt));
-        if (index > 0 && Math.random() < 0.7) {
-          jamHonkTimers.push(window.setTimeout(() => {
-            if (trip !== tripId) return;
-            playHonk();
-          }, firstAt + 220 + Math.floor(Math.random() * 140)));
-        }
+        }, elapsed + 80));
+        jamHonkTimers.push(window.setTimeout(() => {
+          if (trip !== tripId) return;
+          playHonk();
+        }, elapsed + 300));
       }
       elapsed += phase.ms;
-    });
+    }
   }
 
   function jamStateAt(elapsedMs) {
@@ -1942,31 +1942,10 @@
     return { dist, kind, done: true };
   }
 
-  function clearJamCars() {
+  function clearJam() {
     clearJamHonkTimers();
-    if (jamCars) jamCars.replaceChildren();
-    danny.classList.remove("is-jammed");
-    danny.classList.remove("is-jammed-stopped");
+    danny.classList.remove("is-jammed", "is-jammed-stopped");
     status.classList.remove("is-jam");
-    setComingPlaybackRate(1);
-  }
-
-  function spawnJamCars(metrics, fromT) {
-    if (!jamCars) return;
-    jamCars.replaceChildren();
-    const count = 4;
-    for (let i = 1; i <= count; i++) {
-      const t = Math.min(0.97, fromT + 0.035 * i + Math.random() * 0.01);
-      const pt = pointAlongRoute(metrics, metrics.total * t);
-      const rot = headingAlongRoute(metrics, metrics.total * t);
-      const el = document.createElement("span");
-      el.className = "jam-car";
-      el.style.left = `${pt.x}%`;
-      el.style.top = `${pt.y}%`;
-      el.style.setProperty("--rot", `${rot}deg`);
-      el.style.animationDelay = `${i * 90}ms`;
-      jamCars.appendChild(el);
-    }
   }
 
   function buildRoutePath(points) {
@@ -2035,7 +2014,6 @@
         setDannyPos(pointAlongRoute(metrics, metrics.total * jamEndT));
         if (state.kind !== jamPhaseKind) {
           jamPhaseKind = state.kind;
-          setComingPlaybackRate(state.kind === "stop" ? JAM_STOP_RATE : JAM_GO_RATE);
           danny.classList.toggle("is-jammed-stopped", state.kind === "stop");
         }
         if (!state.done) {
@@ -2045,7 +2023,8 @@
           jamDone = true;
           resumeStart = now;
           danny.classList.remove("is-jammed-stopped");
-          clearJamCars();
+          clearJam();
+          resumeComing();
           status.textContent = "Danny is coming to wash!";
           requestAnimationFrame(frame);
         }
@@ -2091,8 +2070,7 @@
         danny.classList.add("is-jammed", "is-jammed-stopped");
         status.textContent = "Traffic jam";
         status.classList.add("is-jam");
-        spawnJamCars(metrics, t);
-        setComingPlaybackRate(JAM_STOP_RATE);
+        pauseComing();
         scheduleJamHonks(myTrip);
         requestAnimationFrame(frame);
         return;
@@ -2323,7 +2301,7 @@
     setDannyPos(WAYPOINTS[0]);
     status.textContent = "Danny is coming to wash!";
     status.classList.remove("is-arrived", "is-jam");
-    clearJamCars();
+    clearJam();
     route.removeAttribute("d");
 
     started = false;
@@ -2549,7 +2527,7 @@
     status.textContent = "He's here.";
     status.classList.remove("is-jam");
     status.classList.add("is-arrived");
-    clearJamCars();
+    clearJam();
     stopComing();
     window.setTimeout(showDoor, reduceMotion ? 400 : 1100);
   }
