@@ -20,6 +20,7 @@
   const funeralAmounts = document.getElementById("funeral-amounts");
   const fundFuneralBtn = document.getElementById("fund-funeral-btn");
   const attendFuneralBtn = document.getElementById("attend-funeral-btn");
+  const refuseFuneralBtn = document.getElementById("refuse-funeral-btn");
   const funeralAmountsBack = document.getElementById("funeral-amounts-back");
   const flowersBtn = document.getElementById("flowers-btn");
   const flowerDripBtn = document.getElementById("flower-drip-btn");
@@ -1447,6 +1448,14 @@
     attendFuneral();
   }
 
+  function refuseFuneral() {
+    if (died.hidden || died.classList.contains("is-in")) return;
+    clearFuneralActionsTimer();
+    clearFuneralDebitTimer();
+    funeralFundCents = 0;
+    resetToStart();
+  }
+
   function attendFuneral() {
     if (died.hidden || died.classList.contains("is-in")) return;
     clearFuneralActionsTimer();
@@ -2676,6 +2685,9 @@
   }
   if (attendFuneralBtn) {
     attendFuneralBtn.addEventListener("click", attendFuneral);
+  }
+  if (refuseFuneralBtn) {
+    refuseFuneralBtn.addEventListener("click", refuseFuneral);
   }
   if (funeralAmountsBack) {
     funeralAmountsBack.addEventListener("click", showFuneralActions);

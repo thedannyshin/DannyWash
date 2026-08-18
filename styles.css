@@ -972,6 +972,19 @@ body {
 
 .funeral-actions {
   animation: funeral-actions-in 0.55s var(--ease-out);
+  gap: 0.65rem;
+}
+
+.funeral-actions .funeral-action-btn {
+  width: 100%;
+  height: clamp(52px, 10vmin, 64px);
+}
+
+.funeral-actions .tip-btn__label {
+  font-size: clamp(0.82rem, 3.1vmin, 1.05rem);
+  padding: 0 0.35rem;
+  text-align: center;
+  line-height: 1.05;
 }
 
 .funeral-amounts {
@@ -1012,7 +1025,6 @@ body {
   width: 100%;
 }
 
-.funeral-btn,
 .funeral-amount-btn,
 .funeral-back {
   appearance: none;
@@ -1022,29 +1034,6 @@ body {
   letter-spacing: -0.02em;
   text-align: center;
   transition: transform 0.12s var(--ease-soft), opacity 0.12s var(--ease-soft);
-}
-
-.funeral-btn {
-  width: 100%;
-  padding: 0.85rem 1.1rem;
-  border-radius: 0.85rem;
-  font-weight: 800;
-  font-size: clamp(1rem, 3.6vmin, 1.15rem);
-  color: #1a1408;
-  background:
-    linear-gradient(180deg, #f5d76e 0%, #e0b83a 42%, #c9a227 100%);
-  box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-.funeral-btn--attend {
-  color: #f2f2f2;
-  background:
-    linear-gradient(180deg, #3a3a3a 0%, #1f1f1f 55%, #141414 100%);
-  box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .funeral-amount-btn {
@@ -1074,18 +1063,15 @@ body {
   text-underline-offset: 0.18em;
 }
 
-.funeral-btn:hover,
 .funeral-amount-btn:hover {
   transform: translateY(-1px);
 }
 
-.funeral-btn:active,
 .funeral-amount-btn:active,
 .funeral-back:active {
   transform: translateY(1px);
 }
 
-.funeral-btn:focus-visible,
 .funeral-amount-btn:focus-visible,
 .funeral-back:focus-visible {
   outline: 2px solid #f5d76e;
