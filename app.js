@@ -105,7 +105,6 @@
     { kind: "go", ms: 360, crawl: 0.011 },
     { kind: "stop", ms: 760 },
   ];
-  const JAM_MS = JAM_PHASES.reduce((sum, phase) => sum + phase.ms, 0);
   const JAM_GO_RATE = 0.72;
   const JAM_STOP_RATE = 0.22;
   // Coast until the black screen (~2.5s into crash SFX).
