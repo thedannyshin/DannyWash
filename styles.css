@@ -1956,12 +1956,16 @@ body {
 }
 
 .tip-btn--attend.is-locked .tip-btn__label {
-  color: rgba(242, 242, 242, 0.42);
+  color: #ffffff;
   text-shadow: none;
 }
 
-.tip-btn--attend.is-locked .funeral-lock-icon {
-  color: rgba(255, 255, 255, 0.88);
+.tip-btn--attend.is-locked .funeral-lock-title {
+  color: #ffffff;
+}
+
+.tip-btn--attend.is-locked .funeral-lock-hint {
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .tip-btn--attend:disabled:hover,
