@@ -251,7 +251,7 @@
     });
   }
 
-  function playBuffer(key, { volume = 1, duckable = true, playbackRate = 1 } = {}) {
+  function playBuffer(key, { volume = 1, duckable = true, playbackRate = 1, preservePitch = false } = {}) {
     const ctx = ensureAudioContext();
     const buffer = bufferCache.get(key);
     if (!ctx || !buffer) return false;
@@ -264,6 +264,9 @@
     gain.gain.value = volume * bedLevel;
     source.buffer = buffer;
     source.playbackRate.value = playbackRate;
+    if (preservePitch) {
+      source.detune.value = -1200 * Math.log2(playbackRate);
+    }
     source.connect(gain);
     gain.connect(ctx.destination);
     source.start(0);
@@ -386,18 +389,29 @@
     }
   }
 
-  function playHtmlFallback(el) {
+  function playHtmlFallback(el, opts = {}) {
+    const { playbackRate = 1, preservePitch = false, volume = 1 } = opts;
+    const sfx = el.cloneNode ? el.cloneNode(true) : el;
     try {
-      el.muted = false;
-      el.volume = 1;
+      sfx.muted = false;
+      sfx.volume = Math.min(1, volume);
+      sfx.preservesPitch = preservePitch;
+      sfx.playbackRate = playbackRate;
       try {
-        el.currentTime = 0;
+        sfx.currentTime = 0;
       } catch {
         // Ignore
       }
-      const playPromise = el.play();
-      if (playPromise && typeof playPromise.catch === "function") {
-        playPromise.catch(() => {});
+      const playPromise = sfx.play();
+      const cleanup = () => {
+        if (sfx !== el) sfx.remove();
+      };
+      if (playPromise && typeof playPromise.then === "function") {
+        playPromise.then(() => {
+          sfx.addEventListener("ended", cleanup, { once: true });
+        }).catch(cleanup);
+      } else if (sfx !== el) {
+        cleanup();
       }
     } catch {
       // Ignore
@@ -407,9 +421,9 @@
   async function playDelayed(key, fallbackEl, opts) {
     try {
       await loadBuffer(key, fallbackEl.currentSrc || fallbackEl.src);
-      if (!playBuffer(key, opts)) playHtmlFallback(fallbackEl);
+      if (!playBuffer(key, opts)) playHtmlFallback(fallbackEl, opts);
     } catch {
-      playHtmlFallback(fallbackEl);
+      playHtmlFallback(fallbackEl, opts);
     }
   }
 
@@ -1895,11 +1909,12 @@
   }
 
   function playHonk() {
-    const playbackRate = 0.72 + Math.random() * 0.48;
+    const playbackRate = 0.22 + Math.random() * 2.08;
     playDelayed("honk", honkAudio, {
       volume: 2.2,
       duckable: false,
       playbackRate,
+      preservePitch: true,
     });
   }
 
