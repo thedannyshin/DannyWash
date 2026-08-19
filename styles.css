@@ -962,9 +962,9 @@ body {
 }
 
 .feature-unlock {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 6;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -972,6 +972,7 @@ body {
   padding: 1.5rem 1.25rem;
   background: #000;
   animation: map-in 0.35s var(--ease-out) both;
+  pointer-events: none;
 }
 
 .feature-unlock[hidden] {

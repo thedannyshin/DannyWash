@@ -126,6 +126,19 @@
   const FUNERAL_FUND_OPTIONS = new Set([100, 500, 1000, 10000, 50000]);
   const ATTEND_FUNERAL_MIN_CENTS = 3000;
   const FEATURE_UNLOCK_MS = 2000;
+
+  const FEATURE_UNLOCKS = {
+    "take-a-look": {
+      label: "Take a look",
+      minLifetimeCents: ATTEND_FUNERAL_MIN_CENTS,
+      shouldCelebrate: () => !died.hidden && !died.classList.contains("is-in"),
+      beforeCelebration: () => hideFuneralChoices(),
+      onUnlock: () => updateAttendFuneralBtn(),
+      afterCelebration: () => {
+        if (!died.hidden && !died.classList.contains("is-in")) showFuneralActions();
+      },
+    },
+  };
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 2000;
   const TICKLE_PLAY_MS = 2000;
@@ -182,6 +195,8 @@
   let funeralDebitTimer = null;
   let funeralActionsTimer = null;
   let featureUnlockTimer = null;
+  let featureUnlockDone = null;
+  const celebratedFeatureUnlocks = new Set();
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -1373,7 +1388,7 @@
     const prevLifetime = lifetimeCents;
     markLifetimeTipsReady();
     lifetimeCents = Math.max(0, lifetimeCents + delta);
-    maybeCelebrateAttendUnlock(prevLifetime, lifetimeCents);
+    syncFeatureUnlocks(prevLifetime, lifetimeCents);
     renderLifetimeTotal({ bump });
     try {
       const response = await fetch("/api/tips", {
@@ -1387,7 +1402,7 @@
       if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
         const prevSynced = lifetimeCents;
         lifetimeCents = Math.max(0, data.cents);
-        maybeCelebrateAttendUnlock(prevSynced, lifetimeCents);
+        syncFeatureUnlocks(prevSynced, lifetimeCents);
         renderLifetimeTotal();
       }
     } catch {
@@ -1457,12 +1472,14 @@
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
-  function canAttendFuneral() {
-    return lifetimeCents >= ATTEND_FUNERAL_MIN_CENTS;
+  function isFeatureUnlocked(featureId, cents = lifetimeCents) {
+    const feature = FEATURE_UNLOCKS[featureId];
+    if (!feature || feature.minLifetimeCents == null) return false;
+    return cents >= feature.minLifetimeCents;
   }
 
-  function justCrossedAttendUnlock(prevCents, nextCents) {
-    return prevCents < ATTEND_FUNERAL_MIN_CENTS && nextCents >= ATTEND_FUNERAL_MIN_CENTS;
+  function canAttendFuneral() {
+    return isFeatureUnlocked("take-a-look");
   }
 
   function isFeatureUnlockShowing() {
@@ -1478,6 +1495,7 @@
 
   function hideFeatureUnlock() {
     clearFeatureUnlockTimer();
+    featureUnlockDone = null;
     if (featureUnlock) featureUnlock.hidden = true;
   }
 
@@ -1485,27 +1503,37 @@
     playDelayed("unlock", featureUnlockAudio, { duckable: false });
   }
 
-  function showFeatureUnlock(featureName) {
-    if (!featureUnlock || !featureUnlockLine) return;
+  function showFeatureUnlock(label, onDone) {
+    if (!featureUnlock || !featureUnlockLine || !label) return;
     clearFeatureUnlockTimer();
-    hideFuneralChoices();
-    featureUnlockLine.textContent = `${featureName} unlocked`;
+    featureUnlockDone = typeof onDone === "function" ? onDone : null;
+    featureUnlockLine.textContent = `${label} unlocked`;
     featureUnlock.hidden = false;
     playUnlockSound();
     featureUnlockTimer = window.setTimeout(() => {
       featureUnlockTimer = null;
+      const done = featureUnlockDone;
       hideFeatureUnlock();
-      if (!died.hidden && !died.classList.contains("is-in")) {
-        showFuneralActions();
-      }
+      if (done) done();
     }, reduceMotion ? 900 : FEATURE_UNLOCK_MS);
   }
 
-  function maybeCelebrateAttendUnlock(prevCents, nextCents) {
-    if (!justCrossedAttendUnlock(prevCents, nextCents)) return;
-    if (died.hidden || died.classList.contains("is-in")) return;
-    showFeatureUnlock("Take a look");
-    updateAttendFuneralBtn();
+  function syncFeatureUnlocks(prevCents, nextCents) {
+    if (isFeatureUnlockShowing()) return;
+    for (const [featureId, feature] of Object.entries(FEATURE_UNLOCKS)) {
+      if (celebratedFeatureUnlocks.has(featureId)) continue;
+      if (feature.minLifetimeCents == null) continue;
+      const wasLocked = prevCents < feature.minLifetimeCents;
+      const isNowUnlocked = nextCents >= feature.minLifetimeCents;
+      if (!wasLocked || !isNowUnlocked) continue;
+      if (feature.shouldCelebrate && !feature.shouldCelebrate()) continue;
+
+      celebratedFeatureUnlocks.add(featureId);
+      if (feature.onUnlock) feature.onUnlock();
+      if (feature.beforeCelebration) feature.beforeCelebration();
+      showFeatureUnlock(feature.label, feature.afterCelebration);
+      return;
+    }
   }
 
   function updateAttendFuneralBtn() {
@@ -1530,11 +1558,10 @@
     if (died.hidden || died.classList.contains("is-in")) return;
     const amount = Number(cents) || 0;
     if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
-    const prevLifetime = lifetimeCents;
     funeralFundCents += amount;
     adjustLifetimeTips(amount, { bump: true });
     updateAttendFuneralBtn();
-    if (justCrossedAttendUnlock(prevLifetime, lifetimeCents) || isFeatureUnlockShowing()) return;
+    if (isFeatureUnlockShowing()) return;
     showFuneralActions();
   }
 
@@ -2730,7 +2757,6 @@
     comeBtn.disabled = true;
     if (tryCrashBtn) tryCrashBtn.disabled = true;
     if (tryJamBtn) tryJamBtn.disabled = true;
-    if (tryUnlockBtn) tryUnlockBtn.disabled = true;
     if (tryUnlockBtn) tryUnlockBtn.disabled = true;
     unlockAudio();
     summon.hidden = true;

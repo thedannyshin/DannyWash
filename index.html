@@ -16,6 +16,9 @@
   </head>
   <body>
     <p id="tip-total" class="tip-total" aria-live="polite" hidden></p>
+    <div id="feature-unlock" class="feature-unlock" hidden aria-live="polite" aria-atomic="true">
+      <p id="feature-unlock-line" class="feature-unlock-line"></p>
+    </div>
     <main id="app">
       <section id="summon" class="screen screen--summon" aria-label="Summon Danny">
         <div class="summon__atmosphere" aria-hidden="true"></div>
@@ -143,9 +146,6 @@
       </section>
 
       <section id="died" class="screen screen--died" hidden aria-label="Danny has died">
-        <div id="feature-unlock" class="feature-unlock" hidden aria-live="polite">
-          <p id="feature-unlock-line" class="feature-unlock-line">Take a look unlocked</p>
-        </div>
         <div id="died-crash" class="died-crash">
           <p id="died-crash-line" class="died-crash-line">Danny has crashed</p>
           <div id="funeral-actions" class="funeral-actions" hidden>
