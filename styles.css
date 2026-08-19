@@ -971,12 +971,12 @@ body {
   margin: 0;
   padding: 1.5rem 1.25rem;
   background: #000;
-  animation: map-in 0.35s var(--ease-out) both;
+  opacity: 1;
   pointer-events: none;
 }
 
-.feature-unlock[hidden] {
-  display: none !important;
+body.is-feature-unlock > :not(.feature-unlock) {
+  visibility: hidden;
 }
 
 .feature-unlock-line {
@@ -988,6 +988,22 @@ body {
   letter-spacing: -0.03em;
   color: #f2f2f2;
   text-align: center;
+  animation: feature-unlock-pop 0.35s var(--ease-out) both;
+}
+
+@keyframes feature-unlock-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.feature-unlock[hidden] {
+  display: none !important;
 }
 
 .funeral-actions,
@@ -2293,6 +2309,10 @@ body {
   }
 
   .feature-unlock {
+    animation: none;
+  }
+
+  .feature-unlock-line {
     animation: none;
   }
 

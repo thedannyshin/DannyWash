@@ -132,9 +132,14 @@
       label: "Take a look",
       minLifetimeCents: ATTEND_FUNERAL_MIN_CENTS,
       shouldCelebrate: () => !died.hidden && !died.classList.contains("is-in"),
-      beforeCelebration: () => hideFuneralChoices(),
+      beforeCelebration: () => {
+        clearFuneralActionsTimer();
+        hideFuneralChoices();
+        if (diedCrash) diedCrash.hidden = true;
+      },
       onUnlock: () => updateAttendFuneralBtn(),
       afterCelebration: () => {
+        if (diedCrash) diedCrash.hidden = false;
         if (!died.hidden && !died.classList.contains("is-in")) showFuneralActions();
       },
     },
@@ -1496,6 +1501,7 @@
   function hideFeatureUnlock() {
     clearFeatureUnlockTimer();
     featureUnlockDone = null;
+    document.body.classList.remove("is-feature-unlock");
     if (featureUnlock) featureUnlock.hidden = true;
   }
 
@@ -1508,6 +1514,7 @@
     clearFeatureUnlockTimer();
     featureUnlockDone = typeof onDone === "function" ? onDone : null;
     featureUnlockLine.textContent = `${label} unlocked`;
+    document.body.classList.add("is-feature-unlock");
     featureUnlock.hidden = false;
     playUnlockSound();
     featureUnlockTimer = window.setTimeout(() => {
@@ -2766,10 +2773,11 @@
     renderLifetimeTotal();
     updateAttendFuneralBtn();
     showDied();
+    clearFuneralActionsTimer();
     window.setTimeout(() => {
       if (died.hidden || died.classList.contains("is-in")) return;
       adjustLifetimeTips(6, { bump: true });
-    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS + 80);
+    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
   function startVisit({ forceCrash = false, forceJam = false } = {}) {
