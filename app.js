@@ -1513,7 +1513,8 @@
     if (!featureUnlock || !featureUnlockLine || !label) return;
     clearFeatureUnlockTimer();
     featureUnlockDone = typeof onDone === "function" ? onDone : null;
-    featureUnlockLine.textContent = `${label} unlocked`;
+    featureUnlockLine.textContent = label;
+    featureUnlock.setAttribute("aria-label", `${label} unlocked`);
     document.body.classList.add("is-feature-unlock");
     featureUnlock.hidden = false;
     playUnlockSound();

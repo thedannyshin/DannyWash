@@ -17,7 +17,19 @@
   <body>
     <p id="tip-total" class="tip-total" aria-live="polite" hidden></p>
     <div id="feature-unlock" class="feature-unlock" hidden aria-live="polite" aria-atomic="true">
-      <p id="feature-unlock-line" class="feature-unlock-line"></p>
+      <div class="feature-unlock__scene" aria-hidden="true">
+        <span class="feature-unlock__glow"></span>
+        <span class="feature-unlock__ring"></span>
+        <span class="feature-unlock__ring feature-unlock__ring--delay"></span>
+        <span class="feature-unlock__spark feature-unlock__spark--1"></span>
+        <span class="feature-unlock__spark feature-unlock__spark--2"></span>
+        <span class="feature-unlock__spark feature-unlock__spark--3"></span>
+        <span class="feature-unlock__spark feature-unlock__spark--4"></span>
+      </div>
+      <div class="feature-unlock__content">
+        <p class="feature-unlock__eyebrow">Unlocked</p>
+        <p id="feature-unlock-line" class="feature-unlock-line"></p>
+      </div>
     </div>
     <main id="app">
       <section id="summon" class="screen screen--summon" aria-label="Summon Danny">
