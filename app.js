@@ -119,7 +119,7 @@
   // Danny scream starts ~2s before the black "Danny has crashed" screen.
   const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
   const DANNY_CRASHED_FADE_MS = 750;
-  const DIED_CRASH_HOLD_MS = 2200;
+  const DIED_CRASH_HOLD_MS = 4000;
   const DIED_FACE_FADE_MS = 400;
   const DIED_COFFIN_DELAY_MS = 1500;
   const DIED_COFFIN_MS = 3200;
