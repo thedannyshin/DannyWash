@@ -2772,25 +2772,13 @@
   }
 
   function tryUnlockDemo() {
-    if (started) return;
-    started = true;
+    unlockAudio();
     comeBtn.disabled = true;
     if (tryCrashBtn) tryCrashBtn.disabled = true;
     if (tryJamBtn) tryJamBtn.disabled = true;
     if (tryUnlockBtn) tryUnlockBtn.disabled = true;
-    unlockAudio();
-    summon.hidden = true;
-    map.hidden = true;
-    lifetimeCents = ATTEND_FUNERAL_MIN_CENTS - 6;
-    markLifetimeTipsReady();
-    renderLifetimeTotal();
-    updateAttendFuneralBtn();
-    showDied();
-    clearFuneralActionsTimer();
-    window.setTimeout(() => {
-      if (died.hidden || died.classList.contains("is-in")) return;
-      adjustLifetimeTips(6, { bump: true });
-    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
+    const label = FEATURE_UNLOCKS["take-a-look"]?.label || "Take a look";
+    showFeatureUnlock(label, resetToStart);
   }
 
   function startVisit({ forceCrash = false, forceJam = false } = {}) {
