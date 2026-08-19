@@ -142,7 +142,7 @@
       onUnlock: () => updateAttendFuneralBtn(),
       afterCelebration: () => {
         if (diedCrash) diedCrash.hidden = false;
-        if (!died.hidden && !died.classList.contains("is-in")) showFuneralActions();
+        continueAfterFuneralFund();
       },
     },
   };
@@ -1610,6 +1610,15 @@
     );
   }
 
+  function continueAfterFuneralFund() {
+    if (died.hidden || died.classList.contains("is-in")) return;
+    if (canAttendFuneral()) {
+      attendFuneral();
+    } else {
+      showFuneralActions();
+    }
+  }
+
   function fundDannyFuneral(cents) {
     if (died.hidden || died.classList.contains("is-in")) return;
     const amount = Number(cents) || 0;
@@ -1621,7 +1630,7 @@
     renderLifetimeTotal({ bump: true });
     updateAttendFuneralBtn();
     if (isFeatureUnlockShowing()) return;
-    showFuneralActions();
+    continueAfterFuneralFund();
   }
 
   function refuseFuneral() {
