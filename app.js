@@ -1509,6 +1509,17 @@
     playDelayed("unlock", featureUnlockAudio, { duckable: false });
   }
 
+  function replayFeatureUnlockMotion() {
+    if (!featureUnlock) return;
+    for (const el of featureUnlock.querySelectorAll(
+      ".feature-unlock__glow, .feature-unlock__ring, .feature-unlock__spark, .feature-unlock__content",
+    )) {
+      el.style.animation = "none";
+      void el.offsetWidth;
+      el.style.animation = "";
+    }
+  }
+
   function showFeatureUnlock(label, onDone) {
     if (!featureUnlock || !featureUnlockLine || !label) return;
     clearFeatureUnlockTimer();
@@ -1516,6 +1527,7 @@
     featureUnlockLine.textContent = label;
     featureUnlock.setAttribute("aria-label", `${label} unlocked`);
     document.body.classList.add("is-feature-unlock");
+    replayFeatureUnlockMotion();
     featureUnlock.hidden = false;
     playUnlockSound();
     featureUnlockTimer = window.setTimeout(() => {
