@@ -15,6 +15,8 @@
   const doorHello = document.getElementById("door-hello");
   const dannyLeft = document.getElementById("danny-left");
   const died = document.getElementById("died");
+  const featureUnlock = document.getElementById("feature-unlock");
+  const featureUnlockLine = document.getElementById("feature-unlock-line");
   const diedCrash = document.getElementById("died-crash");
   const funeralActions = document.getElementById("funeral-actions");
   const funeralAmounts = document.getElementById("funeral-amounts");
@@ -71,6 +73,7 @@
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
+  const unlockAudio = document.getElementById("unlock-audio");
   const washGif = document.getElementById("wash-gif");
   const tipBtn = document.getElementById("tip-btn");
   const tickleBtn = document.getElementById("tickle-btn");
@@ -121,6 +124,7 @@
   const DIED_BLACKOUT_MS = 3200;
   const FUNERAL_FUND_OPTIONS = new Set([100, 500, 1000, 10000, 50000]);
   const ATTEND_FUNERAL_MIN_CENTS = 3000;
+  const FEATURE_UNLOCK_MS = 2000;
   const FLOWER_DRIP_MS = 2000;
   const TICKLE_COOLDOWN_MS = 2000;
   const TICKLE_PLAY_MS = 2000;
@@ -176,6 +180,7 @@
   let funeralFundCents = 0;
   let funeralDebitTimer = null;
   let funeralActionsTimer = null;
+  let featureUnlockTimer = null;
   let ratingStars = 0;
   let dannyLeftCount = 0;
   let lowtipPlayed = false;
@@ -249,6 +254,7 @@
       ["honk", "assets/honk.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
+      ["unlock", "assets/unlock.mp3"],
     ].forEach(([key, url]) => {
       loadBuffer(key, url).catch(() => {});
     });
@@ -1363,8 +1369,10 @@
   async function adjustLifetimeTips(deltaCents, { bump = true } = {}) {
     const delta = Number(deltaCents) || 0;
     if (!delta) return;
+    const prevLifetime = lifetimeCents;
     markLifetimeTipsReady();
     lifetimeCents = Math.max(0, lifetimeCents + delta);
+    maybeCelebrateAttendUnlock(prevLifetime, lifetimeCents);
     renderLifetimeTotal({ bump });
     try {
       const response = await fetch("/api/tips", {
@@ -1376,7 +1384,9 @@
       if (!response.ok) return;
       const data = await response.json();
       if (typeof data.cents === "number" && Number.isFinite(data.cents)) {
+        const prevSynced = lifetimeCents;
         lifetimeCents = Math.max(0, data.cents);
+        maybeCelebrateAttendUnlock(prevSynced, lifetimeCents);
         renderLifetimeTotal();
       }
     } catch {
@@ -1450,6 +1460,53 @@
     return lifetimeCents >= ATTEND_FUNERAL_MIN_CENTS;
   }
 
+  function justCrossedAttendUnlock(prevCents, nextCents) {
+    return prevCents < ATTEND_FUNERAL_MIN_CENTS && nextCents >= ATTEND_FUNERAL_MIN_CENTS;
+  }
+
+  function isFeatureUnlockShowing() {
+    return featureUnlock && !featureUnlock.hidden;
+  }
+
+  function clearFeatureUnlockTimer() {
+    if (featureUnlockTimer) {
+      window.clearTimeout(featureUnlockTimer);
+      featureUnlockTimer = null;
+    }
+  }
+
+  function hideFeatureUnlock() {
+    clearFeatureUnlockTimer();
+    if (featureUnlock) featureUnlock.hidden = true;
+  }
+
+  function playUnlockSound() {
+    playDelayed("unlock", unlockAudio, { duckable: false });
+  }
+
+  function showFeatureUnlock(featureName) {
+    if (!featureUnlock || !featureUnlockLine) return;
+    clearFeatureUnlockTimer();
+    hideFuneralChoices();
+    featureUnlockLine.textContent = `${featureName} unlocked`;
+    featureUnlock.hidden = false;
+    playUnlockSound();
+    featureUnlockTimer = window.setTimeout(() => {
+      featureUnlockTimer = null;
+      hideFeatureUnlock();
+      if (!died.hidden && !died.classList.contains("is-in")) {
+        showFuneralActions();
+      }
+    }, reduceMotion ? 900 : FEATURE_UNLOCK_MS);
+  }
+
+  function maybeCelebrateAttendUnlock(prevCents, nextCents) {
+    if (!justCrossedAttendUnlock(prevCents, nextCents)) return;
+    if (died.hidden || died.classList.contains("is-in")) return;
+    showFeatureUnlock("Take a look");
+    updateAttendFuneralBtn();
+  }
+
   function updateAttendFuneralBtn() {
     if (!attendFuneralBtn) return;
     const unlocked = canAttendFuneral();
@@ -1472,14 +1529,12 @@
     if (died.hidden || died.classList.contains("is-in")) return;
     const amount = Number(cents) || 0;
     if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
+    const prevLifetime = lifetimeCents;
     funeralFundCents += amount;
     adjustLifetimeTips(amount, { bump: true });
     updateAttendFuneralBtn();
-    if (canAttendFuneral()) {
-      attendFuneral();
-    } else {
-      showFuneralActions();
-    }
+    if (justCrossedAttendUnlock(prevLifetime, lifetimeCents) || isFeatureUnlockShowing()) return;
+    showFuneralActions();
   }
 
   function refuseFuneral() {
@@ -1852,6 +1907,7 @@
     clearFlowerDripCooldown();
     clearWanderingRoses();
     clearFuneralDebitTimer();
+    hideFeatureUnlock();
     funeralFundCents = 0;
     map.hidden = true;
     died.hidden = false;
@@ -2287,6 +2343,7 @@
     map.hidden = true;
     died.hidden = true;
     died.classList.remove("is-in", "is-blackout");
+    hideFeatureUnlock();
     clearFuneralDebitTimer();
     clearFuneralActionsTimer();
     funeralFundCents = 0;

@@ -142,6 +142,9 @@
       </section>
 
       <section id="died" class="screen screen--died" hidden aria-label="Danny has died">
+        <div id="feature-unlock" class="feature-unlock" hidden aria-live="polite">
+          <p id="feature-unlock-line" class="feature-unlock-line">Take a look unlocked</p>
+        </div>
         <div id="died-crash" class="died-crash">
           <p id="died-crash-line" class="died-crash-line">Danny has crashed</p>
           <div id="funeral-actions" class="funeral-actions" hidden>
@@ -480,6 +483,12 @@
     <audio
       id="celebrate-audio"
       src="assets/celebrate.mp3"
+      preload="auto"
+      playsinline
+    ></audio>
+    <audio
+      id="unlock-audio"
+      src="assets/unlock.mp3"
       preload="auto"
       playsinline
     ></audio>
