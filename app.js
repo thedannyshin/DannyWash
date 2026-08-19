@@ -1648,8 +1648,6 @@
     clearFuneralActionsTimer();
     hideFuneralChoices();
     const debit = funeralFundCents;
-    funeralFundCents = 0;
-    renderLifetimeTotal();
     died.classList.add("is-in");
     playDannyLeftSting({
       delayMs: 0,
@@ -1663,6 +1661,8 @@
       if (died.hidden || !died.classList.contains("is-in")) return;
       if (debit <= 0) return;
       spawnDebitOnce(debit);
+      funeralFundCents = Math.max(0, funeralFundCents - debit);
+      renderLifetimeTotal({ bump: true });
     }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
     window.setTimeout(() => {
       if (died.hidden) return;
