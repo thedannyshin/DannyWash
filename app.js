@@ -1376,6 +1376,10 @@
     return `${formatMoney(cents)} given`;
   }
 
+  function effectiveGivenCents() {
+    return lifetimeCents + funeralFundCents;
+  }
+
   function renderSessionTip({ bump = false } = {}) {
     if (!sessionTip) return;
     sessionTip.textContent = `${formatMoney(tipCents)} tipped`;
@@ -1393,7 +1397,7 @@
 
   function renderLifetimeTotal({ bump = false } = {}) {
     if (!lifetimeTipsReady || !tipTotal) return;
-    tipTotal.textContent = formatTipTotal(lifetimeCents);
+    tipTotal.textContent = formatTipTotal(effectiveGivenCents());
     if (!bump) {
       updateAttendFuneralBtn();
       return;
@@ -1509,7 +1513,7 @@
     }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS);
   }
 
-  function isFeatureUnlocked(featureId, cents = lifetimeCents) {
+  function isFeatureUnlocked(featureId, cents = effectiveGivenCents()) {
     const feature = FEATURE_UNLOCKS[featureId];
     if (!feature || feature.minLifetimeCents == null) return false;
     return cents >= feature.minLifetimeCents;
@@ -1591,7 +1595,7 @@
   function updateAttendFuneralBtn() {
     if (!attendFuneralBtn) return;
     const unlocked = canAttendFuneral();
-    const remaining = Math.max(0, ATTEND_FUNERAL_MIN_CENTS - lifetimeCents);
+    const remaining = Math.max(0, ATTEND_FUNERAL_MIN_CENTS - effectiveGivenCents());
     attendFuneralBtn.disabled = !unlocked;
     attendFuneralBtn.classList.toggle("is-locked", !unlocked);
     if (attendFuneralHint) {
@@ -1610,8 +1614,11 @@
     if (died.hidden || died.classList.contains("is-in")) return;
     const amount = Number(cents) || 0;
     if (!FUNERAL_FUND_OPTIONS.has(amount)) return;
+    const prevEffective = effectiveGivenCents();
     funeralFundCents += amount;
-    adjustLifetimeTips(amount, { bump: true });
+    markLifetimeTipsReady();
+    syncFeatureUnlocks(prevEffective, effectiveGivenCents());
+    renderLifetimeTotal({ bump: true });
     updateAttendFuneralBtn();
     if (isFeatureUnlockShowing()) return;
     showFuneralActions();
@@ -1622,12 +1629,18 @@
     clearFuneralActionsTimer();
     clearFuneralDebitTimer();
     funeralFundCents = 0;
+    renderLifetimeTotal();
+    updateAttendFuneralBtn();
     resetToStart();
   }
 
   function attendFuneral() {
     if (died.hidden || died.classList.contains("is-in") || !canAttendFuneral()) return;
     clearFuneralActionsTimer();
+    hideFuneralChoices();
+    const debit = funeralFundCents;
+    funeralFundCents = 0;
+    renderLifetimeTotal();
     died.classList.add("is-in");
     playDannyLeftSting({
       delayMs: 0,
@@ -1639,10 +1652,7 @@
     funeralDebitTimer = window.setTimeout(() => {
       funeralDebitTimer = null;
       if (died.hidden || !died.classList.contains("is-in")) return;
-      const debit = funeralFundCents;
       if (debit <= 0) return;
-      funeralFundCents = 0;
-      adjustLifetimeTips(-debit, { bump: true });
       spawnDebitOnce(debit);
     }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
     window.setTimeout(() => {
