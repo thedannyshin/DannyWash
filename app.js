@@ -279,7 +279,7 @@
       ["honk", "assets/honk.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
-      ["unlock", "assets/unlock-v4.mp3"],
+      ["unlock", "assets/unlock.mp3"],
     ].forEach(([key, url]) => {
       loadBuffer(key, url).catch(() => {});
     });
