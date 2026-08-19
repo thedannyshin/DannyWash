@@ -187,6 +187,7 @@
   let washTimer = null;
   let washEnterTimer = null;
   let canRethinkDoor = false;
+  let skipDoorIntroOnOpen = false;
   let rethinkKnockTimer = null;
   let doorNudgeTimer = null;
   let doorNudge2Timer = null;
@@ -2336,6 +2337,7 @@
 
   function closeDoorChangeMind() {
     if (!doorOpened || !canRethinkDoor || sayingGoodbye || angryVisit) return;
+    skipDoorIntroOnOpen = true;
     setDoorRethink(false);
     clearWashEnterTimer();
     clearDoorNudge();
@@ -2385,6 +2387,7 @@
   function showWash() {
     clearWashEnterTimer();
     setDoorRethink(false);
+    skipDoorIntroOnOpen = false;
     hideDoorWave();
     door.hidden = true;
     wash.hidden = false;
@@ -2518,6 +2521,7 @@
     hideDoorWave();
     clearWashEnterTimer();
     setDoorRethink(false);
+    skipDoorIntroOnOpen = false;
     doorDannyZoom.style.animation = "none";
     danny.classList.remove("is-moving", "is-arrived", "is-jammed", "is-jammed-stopped");
     setDannyPos(WAYPOINTS[0]);
@@ -2819,6 +2823,16 @@
       window.setTimeout(() => {
         showDannyLeft({ countLeave: true });
       }, reduceMotion ? 700 : halfOpenMs + DOOR_CLOSE_MS + 200);
+      return;
+    }
+
+    if (skipDoorIntroOnOpen) {
+      skipDoorIntroOnOpen = false;
+      clearWashEnterTimer();
+      setDoorRethink(false);
+      hideDoorWave();
+      stopKnock();
+      showWash();
       return;
     }
 
