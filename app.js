@@ -856,8 +856,35 @@
     playDelayed("doorknock", doorKnockAudio);
   }
 
-  function playRethinkClosedLine() {
-    playDelayed("doorrethinkclosed", doorRethinkClosedAudio);
+  async function playRethinkClosedLine() {
+    const key = "doorrethinkclosed";
+    const el = doorRethinkClosedAudio;
+    const afterClosed = () => {
+      if (sayingGoodbye || door.hidden || doorOpened) return;
+      playDoorKnock();
+    };
+
+    try {
+      await loadBuffer(key, el.currentSrc || el.src);
+      const buffer = bufferCache.get(key);
+      if (playBuffer(key, {})) {
+        clearRethinkKnockTimer();
+        const durationMs = buffer?.duration ? buffer.duration * 1000 : DOOR_KNOCK_CLIP_MS;
+        rethinkKnockTimer = window.setTimeout(() => {
+          rethinkKnockTimer = null;
+          afterClosed();
+        }, durationMs);
+        return;
+      }
+    } catch {
+      // Fall through to HTML playback.
+    }
+
+    el.onended = () => {
+      el.onended = null;
+      afterClosed();
+    };
+    playHtmlFallback(el);
   }
 
   function playOpenDoorLine() {
@@ -1061,6 +1088,7 @@
     }
     try {
       if (doorRethinkClosedAudio) {
+        doorRethinkClosedAudio.onended = null;
         doorRethinkClosedAudio.pause();
         doorRethinkClosedAudio.currentTime = 0;
       }
