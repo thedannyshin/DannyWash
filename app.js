@@ -2,6 +2,7 @@
   const comeBtn = document.getElementById("come-btn");
   const tryCrashBtn = document.getElementById("try-crash-btn");
   const tryJamBtn = document.getElementById("try-jam-btn");
+  const tryUnlockBtn = document.getElementById("try-unlock-btn");
   const reviewTicker = document.getElementById("review-ticker");
   const reviewTickerTrack = document.getElementById("review-ticker-track");
   const summon = document.getElementById("summon");
@@ -73,7 +74,7 @@
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
-  const unlockAudio = document.getElementById("unlock-audio");
+  const featureUnlockAudio = document.getElementById("unlock-audio");
   const washGif = document.getElementById("wash-gif");
   const tipBtn = document.getElementById("tip-btn");
   const tickleBtn = document.getElementById("tickle-btn");
@@ -1481,7 +1482,7 @@
   }
 
   function playUnlockSound() {
-    playDelayed("unlock", unlockAudio, { duckable: false });
+    playDelayed("unlock", featureUnlockAudio, { duckable: false });
   }
 
   function showFeatureUnlock(featureName) {
@@ -2425,6 +2426,7 @@
     comeBtn.disabled = false;
     if (tryCrashBtn) tryCrashBtn.disabled = false;
     if (tryJamBtn) tryJamBtn.disabled = false;
+    if (tryUnlockBtn) tryUnlockBtn.disabled = false;
     comeBtn.classList.remove("is-pressed");
     byeBtn.classList.remove("is-pressed");
     byeBtn.disabled = false;
@@ -2722,6 +2724,28 @@
     }, wait);
   }
 
+  function tryUnlockDemo() {
+    if (started) return;
+    started = true;
+    comeBtn.disabled = true;
+    if (tryCrashBtn) tryCrashBtn.disabled = true;
+    if (tryJamBtn) tryJamBtn.disabled = true;
+    if (tryUnlockBtn) tryUnlockBtn.disabled = true;
+    if (tryUnlockBtn) tryUnlockBtn.disabled = true;
+    unlockAudio();
+    summon.hidden = true;
+    map.hidden = true;
+    lifetimeCents = ATTEND_FUNERAL_MIN_CENTS - 6;
+    markLifetimeTipsReady();
+    renderLifetimeTotal();
+    updateAttendFuneralBtn();
+    showDied();
+    window.setTimeout(() => {
+      if (died.hidden || died.classList.contains("is-in")) return;
+      adjustLifetimeTips(6, { bump: true });
+    }, reduceMotion ? 0 : DIED_CRASH_HOLD_MS + 80);
+  }
+
   function startVisit({ forceCrash = false, forceJam = false } = {}) {
     if (started) return;
     started = true;
@@ -2730,6 +2754,7 @@
     comeBtn.disabled = true;
     if (tryCrashBtn) tryCrashBtn.disabled = true;
     if (tryJamBtn) tryJamBtn.disabled = true;
+    if (tryUnlockBtn) tryUnlockBtn.disabled = true;
 
     // Start the car/coming track first so mobile doesn't drop it
     // behind muted unlock plays for the other SFX.
@@ -2763,6 +2788,9 @@
     tryJamBtn.addEventListener("click", () => {
       startVisit({ forceJam: true });
     });
+  }
+  if (tryUnlockBtn) {
+    tryUnlockBtn.addEventListener("click", tryUnlockDemo);
   }
 
   doorBtn.addEventListener("click", openDoor);
