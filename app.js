@@ -47,6 +47,8 @@
   const rateBurst = document.getElementById("rate-burst");
   const danny = document.getElementById("danny");
   const status = document.getElementById("status");
+  const jamActions = document.getElementById("jam-actions");
+  const jamHurryBtn = document.getElementById("jam-hurry-btn");
   const route = document.getElementById("route");
   const doorbellAudio = document.getElementById("doorbell-audio");
   const comingAudio = document.getElementById("coming-audio");
@@ -223,6 +225,7 @@
   let forceCrashNext = false;
   let forceJamNext = false;
   let jamHonkTimers = [];
+  let jamHurryRequested = false;
   let comingFadeRaf = null;
   let audioCtx = null;
   const bufferCache = new Map();
@@ -2101,8 +2104,36 @@
     return { dist, kind, done: true };
   }
 
+  function jamTotalDist() {
+    let dist = 0;
+    for (const phase of JAM_PHASES) {
+      if (phase.kind === "go") dist += phase.crawl || 0;
+    }
+    return dist;
+  }
+
+  function showJamHurry() {
+    jamHurryRequested = false;
+    if (jamActions) jamActions.hidden = false;
+  }
+
+  function hideJamHurry() {
+    if (jamActions) jamActions.hidden = true;
+    if (jamHurryBtn) jamHurryBtn.classList.remove("is-pressed");
+  }
+
+  function hurryJam() {
+    if (jamHurryRequested) return;
+    jamHurryRequested = true;
+    clearJamHonkTimers();
+    playHonk();
+    hideJamHurry();
+  }
+
   function clearJam() {
     clearJamHonkTimers();
+    jamHurryRequested = false;
+    hideJamHurry();
     danny.classList.remove("is-jammed", "is-jammed-stopped");
     status.classList.remove("is-jam");
   }
@@ -2168,7 +2199,9 @@
 
       if (jammed) {
         const jamElapsed = now - jamStart;
-        const state = jamStateAt(jamElapsed);
+        const state = jamHurryRequested
+          ? { dist: jamTotalDist(), kind: "go", done: true }
+          : jamStateAt(jamElapsed);
         jamEndT = Math.min(0.97, jamFromT + state.dist);
         setDannyPos(pointAlongRoute(metrics, metrics.total * jamEndT));
         if (state.kind !== jamPhaseKind) {
@@ -2231,6 +2264,7 @@
         status.classList.add("is-jam");
         pauseComing();
         scheduleJamHonks(myTrip);
+        showJamHurry();
         requestAnimationFrame(frame);
         return;
       }
@@ -2826,6 +2860,19 @@
   }
   if (tryUnlockBtn) {
     tryUnlockBtn.addEventListener("click", tryUnlockDemo);
+  }
+
+  if (jamHurryBtn) {
+    jamHurryBtn.addEventListener("pointerdown", () => {
+      jamHurryBtn.classList.add("is-pressed");
+    });
+    jamHurryBtn.addEventListener("pointerup", () => {
+      jamHurryBtn.classList.remove("is-pressed");
+    });
+    jamHurryBtn.addEventListener("pointerleave", () => {
+      jamHurryBtn.classList.remove("is-pressed");
+    });
+    jamHurryBtn.addEventListener("click", hurryJam);
   }
 
   doorBtn.addEventListener("click", openDoor);

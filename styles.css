@@ -379,6 +379,45 @@ body {
   color: #8a3a12;
 }
 
+.jam-actions {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 5vmin, 2.25rem);
+  z-index: 11;
+  transform: translateX(-50%);
+  animation: map-in 0.35s var(--ease-out) both;
+}
+
+.jam-hurry-btn {
+  appearance: none;
+  border: 1px solid rgba(138, 58, 18, 0.35);
+  border-radius: 999px;
+  padding: 0.72rem 1.35rem;
+  background:
+    linear-gradient(180deg, rgba(255, 244, 232, 0.98) 0%, rgba(255, 228, 196, 0.96) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 8px 22px rgba(138, 58, 18, 0.18);
+  color: #8a3a12;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 3.8vmin, 1.08rem);
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s var(--ease-soft), opacity 0.12s var(--ease-soft);
+}
+
+.jam-hurry-btn:focus-visible {
+  outline: 2px solid rgba(232, 196, 90, 0.75);
+  outline-offset: 3px;
+}
+
+.jam-hurry-btn:active,
+.jam-hurry-btn.is-pressed {
+  transform: scale(0.97);
+}
+
 .map-canvas {
   position: absolute;
   inset: 0;
