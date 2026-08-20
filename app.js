@@ -1,6 +1,5 @@
 (() => {
   const comeBtn = document.getElementById("come-btn");
-  const homeBtn = document.getElementById("home-btn");
   const tryCrashBtn = document.getElementById("try-crash-btn");
   const tryJamBtn = document.getElementById("try-jam-btn");
   const tryUnlockBtn = document.getElementById("try-unlock-btn");
@@ -238,6 +237,9 @@
   let funeralMusicWanted = false;
   let funeralMusicFadeRaf = null;
   let funeralMusicFadeTimer = null;
+  let funeralEndedHandler = null;
+  let funeralExitArmed = false;
+  let funeralCoffinDone = false;
   let crashEndedHandler = null;
   let audioCtx = null;
   const bufferCache = new Map();
@@ -638,10 +640,39 @@
     crashEndedHandler = null;
   }
 
+  function disarmFuneralEndedHandler() {
+    if (!funeralAudio || !funeralEndedHandler) return;
+    funeralAudio.removeEventListener("ended", funeralEndedHandler);
+    funeralEndedHandler = null;
+  }
+
+  function clearFuneralExit() {
+    funeralExitArmed = false;
+    funeralCoffinDone = false;
+  }
+
+  function funeralMusicStillGoing() {
+    if (funeralMusicFadeRaf || funeralMusicFadeTimer) return true;
+    if (!funeralAudio) return false;
+    try {
+      return funeralMusicWanted && !funeralAudio.paused && !funeralAudio.ended;
+    } catch {
+      return false;
+    }
+  }
+
+  function maybeExitFuneral() {
+    if (!funeralExitArmed || !funeralCoffinDone) return;
+    if (died.hidden) return;
+    funeralExitArmed = false;
+    resetToStart();
+  }
+
   function stopFuneralMusic() {
     funeralMusicWanted = false;
     cancelFuneralMusicFade();
     disarmCrashEndedHandler();
+    disarmFuneralEndedHandler();
     if (!funeralAudio) return;
     try {
       funeralAudio.pause();
@@ -655,6 +686,15 @@
   function playFuneralMusic() {
     if (!funeralAudio || !funeralMusicWanted) return;
     cancelFuneralMusicFade();
+    disarmFuneralEndedHandler();
+    funeralEndedHandler = () => {
+      funeralEndedHandler = null;
+      funeralMusicWanted = false;
+      if (funeralMusicFadeRaf) return;
+      cancelFuneralMusicFade();
+      maybeExitFuneral();
+    };
+    funeralAudio.addEventListener("ended", funeralEndedHandler, { once: true });
     try {
       funeralAudio.muted = false;
       funeralAudio.volume = FUNERAL_MUSIC_VOLUME;
@@ -666,15 +706,20 @@
     } catch {
       // Ignore
     }
+    scheduleFuneralMusicFade();
   }
 
-  function fadeFuneralMusicOut({ fadeMs = FUNERAL_MUSIC_FADE_MS } = {}) {
+  function fadeFuneralMusicOut({ fadeMs = FUNERAL_MUSIC_FADE_MS, onComplete = null } = {}) {
     if (!funeralAudio) return;
     funeralMusicWanted = false;
     cancelFuneralMusicFade();
+    const finish = () => {
+      if (typeof onComplete === "function") onComplete();
+    };
     const shouldFade = fadeMs > 0 && !reduceMotion && !funeralAudio.paused;
     if (!shouldFade) {
       stopFuneralMusic();
+      finish();
       return;
     }
 
@@ -705,19 +750,34 @@
       } catch {
         // Ignore
       }
+      finish();
     };
     funeralMusicFadeRaf = requestAnimationFrame(tick);
   }
 
   function scheduleFuneralMusicFade() {
     cancelFuneralMusicFade();
-    const fadeAt = reduceMotion
-      ? 0
-      : Math.max(0, DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS - 400);
+    if (!funeralAudio || !funeralMusicWanted) return;
+
+    const duration = funeralAudio.duration;
+    if (!Number.isFinite(duration) || duration <= 0) {
+      const retry = () => {
+        funeralAudio.removeEventListener("loadedmetadata", retry);
+        funeralAudio.removeEventListener("durationchange", retry);
+        if (funeralMusicWanted) scheduleFuneralMusicFade();
+      };
+      funeralAudio.addEventListener("loadedmetadata", retry, { once: true });
+      funeralAudio.addEventListener("durationchange", retry, { once: true });
+      return;
+    }
+
+    const remainingMs = Math.max(0, (duration - (funeralAudio.currentTime || 0)) * 1000);
+    const fadeMs = reduceMotion ? 0 : Math.min(FUNERAL_MUSIC_FADE_MS, remainingMs);
+    const fadeAt = Math.max(0, remainingMs - fadeMs);
     funeralMusicFadeTimer = window.setTimeout(() => {
       funeralMusicFadeTimer = null;
-      if (died.hidden) return;
-      fadeFuneralMusicOut();
+      if (!funeralMusicWanted) return;
+      fadeFuneralMusicOut({ fadeMs, onComplete: maybeExitFuneral });
     }, fadeAt);
   }
 
@@ -1754,12 +1814,8 @@
     hideFuneralChoices();
     const debit = funeralFundCents;
     died.classList.add("is-in");
-    playDannyLeftSting({
-      delayMs: 0,
-      onEnded: () => {
-        if (!died.hidden) resetToStart();
-      },
-    });
+    funeralExitArmed = true;
+    funeralCoffinDone = false;
     clearFuneralDebitTimer();
     funeralDebitTimer = window.setTimeout(() => {
       funeralDebitTimer = null;
@@ -1772,8 +1828,9 @@
     window.setTimeout(() => {
       if (died.hidden) return;
       died.classList.add("is-blackout");
+      funeralCoffinDone = true;
+      if (!funeralMusicStillGoing()) maybeExitFuneral();
     }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
-    scheduleFuneralMusicFade();
   }
 
   function fundDannyFuneral(cents) {
@@ -2142,6 +2199,7 @@
     clearWanderingRoses();
     clearFuneralDebitTimer();
     hideFeatureUnlock();
+    clearFuneralExit();
     funeralFundCents = 0;
     map.hidden = true;
     died.hidden = false;
@@ -2775,6 +2833,7 @@
     hideFeatureUnlock();
     clearFuneralDebitTimer();
     clearFuneralActionsTimer();
+    clearFuneralExit();
     funeralFundCents = 0;
     if (diedCrash) diedCrash.hidden = false;
     hideFuneralChoices();
@@ -3189,13 +3248,6 @@
     playComing();
     unlockAudio();
     showMap();
-  }
-
-  if (homeBtn) {
-    homeBtn.addEventListener("click", () => {
-      if (!summon.hidden && !started) return;
-      resetToStart();
-    });
   }
 
   comeBtn.addEventListener("pointerdown", () => {
