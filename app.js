@@ -71,6 +71,7 @@
   const doorRethinkAudio = document.getElementById("door-rethink-audio");
   const doorRethinkClosedAudio = document.getElementById("door-rethink-closed-audio");
   const crashAudio = document.getElementById("crash-audio");
+  const funeralAudio = document.getElementById("funeral-audio");
   const dannyCrashedAudio = document.getElementById("danny-crashed-audio");
   const honkAudio = document.getElementById("honk-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
@@ -125,6 +126,8 @@
   const DIED_COFFIN_MS = 3200;
   const DIED_COFFIN_HOLD_MS = 2400;
   const DIED_BLACKOUT_MS = 3200;
+  const FUNERAL_MUSIC_VOLUME = 0.72;
+  const FUNERAL_MUSIC_FADE_MS = 2800;
   const FUNERAL_FUND_OPTIONS = new Set([100, 500, 1000, 10000, 50000]);
   const ATTEND_FUNERAL_MIN_CENTS = 3000;
   const FEATURE_UNLOCK_MS = 2000;
@@ -228,6 +231,10 @@
   let jamHonkTimers = [];
   let jamHurryRequested = false;
   let comingFadeRaf = null;
+  let funeralMusicWanted = false;
+  let funeralMusicFadeRaf = null;
+  let funeralMusicFadeTimer = null;
+  let crashEndedHandler = null;
   let audioCtx = null;
   const bufferCache = new Map();
   let activeSources = [];
@@ -398,7 +405,7 @@
     preloadDelayedSounds();
 
     // Also warm HTML elements used during later taps (tip / goodbye).
-    for (const el of [tipAudio, goodbyeAudio, goodbyeLowtipAudio, slamAudio, washLine1Audio, washLine2Audio, arriveAudio, hightipAudio, plateBreakAudio, dannyLeftAudio, celebrateAudio]) {
+    for (const el of [tipAudio, goodbyeAudio, goodbyeLowtipAudio, slamAudio, washLine1Audio, washLine2Audio, arriveAudio, hightipAudio, plateBreakAudio, dannyLeftAudio, celebrateAudio, funeralAudio]) {
       try {
         el.muted = true;
         const playPromise = el.play();
@@ -542,6 +549,7 @@
     playDannyCrashed({
       delayMs: reduceMotion ? 0 : DANNY_CRASHED_DELAY_MS,
     });
+    armFuneralMusicAfterCrash();
 
     try {
       crashAudio.pause();
@@ -597,6 +605,117 @@
       }
     };
     comingFadeRaf = requestAnimationFrame(tick);
+  }
+
+  function cancelFuneralMusicFade() {
+    if (funeralMusicFadeRaf) {
+      cancelAnimationFrame(funeralMusicFadeRaf);
+      funeralMusicFadeRaf = null;
+    }
+    if (funeralMusicFadeTimer) {
+      window.clearTimeout(funeralMusicFadeTimer);
+      funeralMusicFadeTimer = null;
+    }
+  }
+
+  function disarmCrashEndedHandler() {
+    if (!crashAudio || !crashEndedHandler) return;
+    crashAudio.removeEventListener("ended", crashEndedHandler);
+    crashEndedHandler = null;
+  }
+
+  function stopFuneralMusic() {
+    funeralMusicWanted = false;
+    cancelFuneralMusicFade();
+    disarmCrashEndedHandler();
+    if (!funeralAudio) return;
+    try {
+      funeralAudio.pause();
+      funeralAudio.currentTime = 0;
+      funeralAudio.volume = FUNERAL_MUSIC_VOLUME;
+    } catch {
+      // Ignore
+    }
+  }
+
+  function playFuneralMusic() {
+    if (!funeralAudio || !funeralMusicWanted) return;
+    cancelFuneralMusicFade();
+    try {
+      funeralAudio.muted = false;
+      funeralAudio.volume = FUNERAL_MUSIC_VOLUME;
+      funeralAudio.currentTime = 0;
+      const playPromise = funeralAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  function fadeFuneralMusicOut({ fadeMs = FUNERAL_MUSIC_FADE_MS } = {}) {
+    if (!funeralAudio) return;
+    funeralMusicWanted = false;
+    cancelFuneralMusicFade();
+    const shouldFade = fadeMs > 0 && !reduceMotion && !funeralAudio.paused;
+    if (!shouldFade) {
+      stopFuneralMusic();
+      return;
+    }
+
+    const start = performance.now();
+    let startVol = FUNERAL_MUSIC_VOLUME;
+    try {
+      startVol = Math.max(0.001, funeralAudio.volume || FUNERAL_MUSIC_VOLUME);
+    } catch {
+      // Ignore
+    }
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      try {
+        funeralAudio.volume = startVol * (1 - t);
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        funeralMusicFadeRaf = requestAnimationFrame(tick);
+        return;
+      }
+      funeralMusicFadeRaf = null;
+      try {
+        funeralAudio.pause();
+        funeralAudio.currentTime = 0;
+        funeralAudio.volume = FUNERAL_MUSIC_VOLUME;
+      } catch {
+        // Ignore
+      }
+    };
+    funeralMusicFadeRaf = requestAnimationFrame(tick);
+  }
+
+  function scheduleFuneralMusicFade() {
+    cancelFuneralMusicFade();
+    const fadeAt = reduceMotion
+      ? 0
+      : Math.max(0, DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS - 400);
+    funeralMusicFadeTimer = window.setTimeout(() => {
+      funeralMusicFadeTimer = null;
+      if (died.hidden) return;
+      fadeFuneralMusicOut();
+    }, fadeAt);
+  }
+
+  function armFuneralMusicAfterCrash() {
+    funeralMusicWanted = true;
+    disarmCrashEndedHandler();
+    crashEndedHandler = () => {
+      crashEndedHandler = null;
+      if (!funeralMusicWanted) return;
+      playFuneralMusic();
+    };
+    crashAudio.addEventListener("ended", crashEndedHandler, { once: true });
   }
 
   function playDingDong() {
@@ -1640,6 +1759,7 @@
       if (died.hidden) return;
       died.classList.add("is-blackout");
     }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
+    scheduleFuneralMusicFade();
   }
 
   function fundDannyFuneral(cents) {
@@ -2503,6 +2623,7 @@
     stopGoodbye();
     stopDannyLeftSting();
     stopCelebrate();
+    stopFuneralMusic();
     clearDoorNudge();
     tripId += 1;
     if (crashResetTimer) {
