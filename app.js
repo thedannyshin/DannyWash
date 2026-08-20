@@ -73,7 +73,7 @@
   const crashAudio = document.getElementById("crash-audio");
   const funeralAudio = document.getElementById("funeral-audio");
   const dannyCrashedAudio = document.getElementById("danny-crashed-audio");
-  const honkAudio = document.getElementById("honk-audio");
+  const jamAudio = document.getElementById("jam-audio");
   const plateBreakAudio = document.getElementById("plate-break-audio");
   const dannyLeftAudio = document.getElementById("danny-left-audio");
   const celebrateAudio = document.getElementById("celebrate-audio");
@@ -228,8 +228,8 @@
   let wanderingRoses = [];
   let forceCrashNext = false;
   let forceJamNext = false;
-  let jamHonkTimers = [];
   let jamHurryRequested = false;
+  let jamBedFadeRaf = null;
   let comingFadeRaf = null;
   let funeralMusicWanted = false;
   let funeralMusicFadeRaf = null;
@@ -283,7 +283,6 @@
       ["doorrethinkclosed", "assets/door-rethink-closed.mp3"],
       ["crash", "assets/crash.mp3"],
       ["dannycrashed", "assets/danny-crashed.mp3"],
-      ["honk", "assets/honk.mp3"],
       ["platebreak", "assets/plate-break.mp3"],
       ["dannyleft", "assets/danny-left.mp3"],
       ["unlock", "assets/unlock.mp3"],
@@ -405,7 +404,7 @@
     preloadDelayedSounds();
 
     // Also warm HTML elements used during later taps (tip / goodbye).
-    for (const el of [tipAudio, goodbyeAudio, goodbyeLowtipAudio, slamAudio, washLine1Audio, washLine2Audio, arriveAudio, hightipAudio, plateBreakAudio, dannyLeftAudio, celebrateAudio, funeralAudio]) {
+    for (const el of [tipAudio, goodbyeAudio, goodbyeLowtipAudio, slamAudio, washLine1Audio, washLine2Audio, arriveAudio, hightipAudio, plateBreakAudio, dannyLeftAudio, celebrateAudio, funeralAudio, jamAudio]) {
       try {
         el.muted = true;
         const playPromise = el.play();
@@ -2227,32 +2226,71 @@
     return metrics.segments[metrics.segments.length - 1].to;
   }
 
-  function playHonk() {
-    const playbackRate = 0.7 + Math.random() * 0.7;
-    playDelayed("honk", honkAudio, {
-      volume: 2.2,
-      duckable: false,
-      playbackRate,
-      preservePitch: true,
-    });
+  function cancelJamBedFade() {
+    if (jamBedFadeRaf) {
+      cancelAnimationFrame(jamBedFadeRaf);
+      jamBedFadeRaf = null;
+    }
   }
 
-  function clearJamHonkTimers() {
-    for (const timer of jamHonkTimers) window.clearTimeout(timer);
-    jamHonkTimers = [];
-  }
-
-  function scheduleJamHonks(trip) {
-    clearJamHonkTimers();
-    let elapsed = 0;
-    for (const phase of JAM_PHASES) {
-      if (phase.kind === "stop") {
-        jamHonkTimers.push(window.setTimeout(() => {
-          if (trip !== tripId) return;
-          playHonk();
-        }, elapsed + 80));
+  function stopJamBed({ fadeMs = 180 } = {}) {
+    if (!jamAudio) return;
+    cancelJamBedFade();
+    const shouldFade = fadeMs > 0 && !reduceMotion && !jamAudio.paused;
+    if (!shouldFade) {
+      try {
+        jamAudio.pause();
+        jamAudio.currentTime = 0;
+        jamAudio.volume = 1;
+      } catch {
+        // Ignore
       }
-      elapsed += phase.ms;
+      return;
+    }
+
+    const start = performance.now();
+    let startVol = 1;
+    try {
+      startVol = Math.max(0.001, jamAudio.volume || 1);
+    } catch {
+      // Ignore
+    }
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      try {
+        jamAudio.volume = startVol * (1 - t);
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        jamBedFadeRaf = requestAnimationFrame(tick);
+        return;
+      }
+      jamBedFadeRaf = null;
+      try {
+        jamAudio.pause();
+        jamAudio.currentTime = 0;
+        jamAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+    };
+    jamBedFadeRaf = requestAnimationFrame(tick);
+  }
+
+  function playJamBed() {
+    stopJamBed({ fadeMs: 0 });
+    if (!jamAudio) return;
+    try {
+      jamAudio.muted = false;
+      jamAudio.volume = 1;
+      jamAudio.currentTime = 0;
+      const playPromise = jamAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore
     }
   }
 
@@ -2294,13 +2332,12 @@
   function hurryJam() {
     if (jamHurryRequested) return;
     jamHurryRequested = true;
-    clearJamHonkTimers();
-    playHonk();
+    stopJamBed();
     hideJamHurry();
   }
 
   function clearJam() {
-    clearJamHonkTimers();
+    stopJamBed();
     jamHurryRequested = false;
     hideJamHurry();
     danny.classList.remove("is-jammed", "is-jammed-stopped");
@@ -2432,7 +2469,7 @@
         status.textContent = "Traffic jam";
         status.classList.add("is-jam");
         pauseComing();
-        scheduleJamHonks(myTrip);
+        playJamBed();
         showJamHurry();
         requestAnimationFrame(frame);
         return;
