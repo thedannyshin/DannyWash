@@ -2290,6 +2290,40 @@ body.is-feature-unlock > :not(.feature-unlock) {
     0 1px 2px rgba(90, 60, 8, 0.2);
 }
 
+.home-btn {
+  position: fixed;
+  top: max(0.5rem, calc(var(--safe-top) + 0.25rem));
+  left: max(0.55rem, calc(var(--safe-left) + 0.25rem));
+  z-index: 40;
+  width: clamp(2.6rem, 9vmin, 3.25rem);
+  height: clamp(2.6rem, 9vmin, 3.25rem);
+  padding: 0;
+  border: 0;
+  border-radius: 0.85rem;
+  background: #000;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
+  cursor: pointer;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-btn:focus-visible {
+  outline: 3px solid rgba(46, 196, 165, 0.85);
+  outline-offset: 3px;
+}
+
+.home-btn:active {
+  transform: scale(0.94);
+}
+
+.home-btn__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
 .tip-total {
   position: fixed;
   top: max(0.65rem, calc(var(--safe-top) + 0.35rem));
@@ -2451,6 +2485,7 @@ body.is-feature-unlock > :not(.feature-unlock) {
   .summon__atmosphere,
   .summon__atmosphere::before,
   .come-btn,
+  .home-btn,
   .you-pin__pulse,
   .danny.is-moving .danny__photo,
   .danny.is-jammed .danny__photo {

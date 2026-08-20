@@ -1,5 +1,6 @@
 (() => {
   const comeBtn = document.getElementById("come-btn");
+  const homeBtn = document.getElementById("home-btn");
   const tryCrashBtn = document.getElementById("try-crash-btn");
   const tryJamBtn = document.getElementById("try-jam-btn");
   const tryUnlockBtn = document.getElementById("try-unlock-btn");
@@ -3188,6 +3189,13 @@
     playComing();
     unlockAudio();
     showMap();
+  }
+
+  if (homeBtn) {
+    homeBtn.addEventListener("click", () => {
+      if (!summon.hidden && !started) return;
+      resetToStart();
+    });
   }
 
   comeBtn.addEventListener("pointerdown", () => {
