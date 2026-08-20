@@ -1612,11 +1612,34 @@
 
   function continueAfterFuneralFund() {
     if (died.hidden || died.classList.contains("is-in")) return;
-    if (canAttendFuneral()) {
-      attendFuneral();
-    } else {
-      showFuneralActions();
-    }
+    enterFuneral();
+  }
+
+  function enterFuneral() {
+    if (died.hidden || died.classList.contains("is-in")) return;
+    clearFuneralActionsTimer();
+    hideFuneralChoices();
+    const debit = funeralFundCents;
+    died.classList.add("is-in");
+    playDannyLeftSting({
+      delayMs: 0,
+      onEnded: () => {
+        if (!died.hidden) resetToStart();
+      },
+    });
+    clearFuneralDebitTimer();
+    funeralDebitTimer = window.setTimeout(() => {
+      funeralDebitTimer = null;
+      if (died.hidden || !died.classList.contains("is-in")) return;
+      if (debit <= 0) return;
+      spawnDebitOnce(debit);
+      funeralFundCents = Math.max(0, funeralFundCents - debit);
+      renderLifetimeTotal({ bump: true });
+    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
+    window.setTimeout(() => {
+      if (died.hidden) return;
+      died.classList.add("is-blackout");
+    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
   }
 
   function fundDannyFuneral(cents) {
@@ -1645,29 +1668,7 @@
 
   function attendFuneral() {
     if (died.hidden || died.classList.contains("is-in") || !canAttendFuneral()) return;
-    clearFuneralActionsTimer();
-    hideFuneralChoices();
-    const debit = funeralFundCents;
-    died.classList.add("is-in");
-    playDannyLeftSting({
-      delayMs: 0,
-      onEnded: () => {
-        if (!died.hidden) resetToStart();
-      },
-    });
-    clearFuneralDebitTimer();
-    funeralDebitTimer = window.setTimeout(() => {
-      funeralDebitTimer = null;
-      if (died.hidden || !died.classList.contains("is-in")) return;
-      if (debit <= 0) return;
-      spawnDebitOnce(debit);
-      funeralFundCents = Math.max(0, funeralFundCents - debit);
-      renderLifetimeTotal({ bump: true });
-    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS);
-    window.setTimeout(() => {
-      if (died.hidden) return;
-      died.classList.add("is-blackout");
-    }, reduceMotion ? 0 : DIED_COFFIN_DELAY_MS + DIED_COFFIN_MS + DIED_COFFIN_HOLD_MS);
+    enterFuneral();
   }
 
   function starsLabel(stars) {
