@@ -117,6 +117,7 @@
   const CRASH_MS = 2500;
   const CRASH_SLOWDOWN_MS = CRASH_MS;
   const CRASH_CROSSFADE_MS = 700;
+  const JAM_CROSSFADE_MS = 700;
   // Danny scream starts ~2s before the black "Danny has crashed" screen.
   const DANNY_CRASHED_DELAY_MS = Math.max(0, CRASH_MS - 2000);
   const DANNY_CRASHED_FADE_MS = 750;
@@ -230,6 +231,8 @@
   let forceJamNext = false;
   let jamHurryRequested = false;
   let jamBedFadeRaf = null;
+  let jamMixFadeRaf = null;
+  let jamCrossfadingToComing = false;
   let comingFadeRaf = null;
   let funeralMusicWanted = false;
   let funeralMusicFadeRaf = null;
@@ -506,8 +509,17 @@
     }
   }
 
+  function cancelJamMixFade() {
+    if (jamMixFadeRaf) {
+      cancelAnimationFrame(jamMixFadeRaf);
+      jamMixFadeRaf = null;
+    }
+    jamCrossfadingToComing = false;
+  }
+
   function stopComing() {
     cancelComingFade();
+    cancelJamMixFade();
     try {
       comingAudio.pause();
       comingAudio.currentTime = 0;
@@ -520,6 +532,7 @@
 
   function pauseComing() {
     cancelComingFade();
+    cancelJamMixFade();
     try {
       comingAudio.pause();
     } catch {
@@ -529,6 +542,7 @@
 
   function resumeComing() {
     cancelComingFade();
+    cancelJamMixFade();
     try {
       comingAudio.muted = false;
       comingAudio.volume = 1;
@@ -2233,7 +2247,8 @@
     }
   }
 
-  function stopJamBed({ fadeMs = 180 } = {}) {
+  function stopJamBed({ fadeMs = 0 } = {}) {
+    cancelJamMixFade();
     if (!jamAudio) return;
     cancelJamBedFade();
     const shouldFade = fadeMs > 0 && !reduceMotion && !jamAudio.paused;
@@ -2278,12 +2293,12 @@
     jamBedFadeRaf = requestAnimationFrame(tick);
   }
 
-  function playJamBed() {
-    stopJamBed({ fadeMs: 0 });
+  function playJamFromStart(volume = 1) {
     if (!jamAudio) return;
+    cancelJamBedFade();
     try {
       jamAudio.muted = false;
-      jamAudio.volume = 1;
+      jamAudio.volume = volume;
       jamAudio.currentTime = 0;
       const playPromise = jamAudio.play();
       if (playPromise && typeof playPromise.catch === "function") {
@@ -2292,6 +2307,130 @@
     } catch {
       // Ignore
     }
+  }
+
+  function easeMix(t) {
+    return t * t * (3 - 2 * t);
+  }
+
+  function crossfadeComingToJam() {
+    cancelComingFade();
+    cancelJamMixFade();
+    const fadeMs = reduceMotion ? 0 : JAM_CROSSFADE_MS;
+    playJamFromStart(fadeMs <= 0 ? 1 : 0);
+
+    if (fadeMs <= 0) {
+      pauseComing();
+      try {
+        if (jamAudio) jamAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+      return;
+    }
+
+    const start = performance.now();
+    let comingStartVol = 1;
+    try {
+      comingStartVol = Math.max(0.001, comingAudio.volume || 1);
+    } catch {
+      // Ignore
+    }
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      const eased = easeMix(t);
+      try {
+        if (!comingAudio.paused) comingAudio.volume = comingStartVol * (1 - eased);
+        if (jamAudio) jamAudio.volume = eased;
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        jamMixFadeRaf = requestAnimationFrame(tick);
+        return;
+      }
+      jamMixFadeRaf = null;
+      try {
+        comingAudio.pause();
+        comingAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+    };
+    jamMixFadeRaf = requestAnimationFrame(tick);
+  }
+
+  function crossfadeJamToComing() {
+    if (jamCrossfadingToComing) return;
+    cancelComingFade();
+    cancelJamBedFade();
+    jamCrossfadingToComing = true;
+    const fadeMs = reduceMotion ? 0 : JAM_CROSSFADE_MS;
+
+    let jamStartVol = 1;
+    try {
+      jamStartVol = jamAudio && !jamAudio.paused
+        ? Math.max(0.001, jamAudio.volume || 1)
+        : 0;
+    } catch {
+      jamStartVol = 0;
+    }
+
+    let comingStartVol = 0;
+    try {
+      comingStartVol = comingAudio.paused ? 0 : Math.max(0, comingAudio.volume || 0);
+    } catch {
+      comingStartVol = 0;
+    }
+
+    try {
+      comingAudio.muted = false;
+      comingAudio.volume = fadeMs <= 0 ? 1 : comingStartVol;
+      comingAudio.playbackRate = 1;
+      const playPromise = comingAudio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    } catch {
+      // Ignore
+    }
+
+    if (fadeMs <= 0) {
+      jamCrossfadingToComing = false;
+      stopJamBed({ fadeMs: 0 });
+      try {
+        comingAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+      return;
+    }
+
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / fadeMs);
+      const eased = easeMix(t);
+      try {
+        comingAudio.volume = comingStartVol + (1 - comingStartVol) * eased;
+        if (jamAudio) jamAudio.volume = jamStartVol * (1 - eased);
+      } catch {
+        // Ignore
+      }
+      if (t < 1) {
+        jamMixFadeRaf = requestAnimationFrame(tick);
+        return;
+      }
+      jamMixFadeRaf = null;
+      jamCrossfadingToComing = false;
+      stopJamBed({ fadeMs: 0 });
+      try {
+        comingAudio.volume = 1;
+      } catch {
+        // Ignore
+      }
+    };
+    jamMixFadeRaf = requestAnimationFrame(tick);
   }
 
   function jamStateAt(elapsedMs) {
@@ -2332,12 +2471,12 @@
   function hurryJam() {
     if (jamHurryRequested) return;
     jamHurryRequested = true;
-    stopJamBed();
     hideJamHurry();
+    crossfadeJamToComing();
   }
 
-  function clearJam() {
-    stopJamBed();
+  function clearJam({ stopAudio = true } = {}) {
+    if (stopAudio && !jamCrossfadingToComing) stopJamBed({ fadeMs: 0 });
     jamHurryRequested = false;
     hideJamHurry();
     danny.classList.remove("is-jammed", "is-jammed-stopped");
@@ -2421,8 +2560,8 @@
           jamDone = true;
           resumeStart = now;
           danny.classList.remove("is-jammed-stopped");
-          clearJam();
-          resumeComing();
+          clearJam({ stopAudio: false });
+          crossfadeJamToComing();
           status.textContent = "Danny is coming to wash!";
           requestAnimationFrame(frame);
         }
@@ -2468,8 +2607,7 @@
         danny.classList.add("is-jammed", "is-jammed-stopped");
         status.textContent = "Traffic jam";
         status.classList.add("is-jam");
-        pauseComing();
-        playJamBed();
+        crossfadeComingToJam();
         showJamHurry();
         requestAnimationFrame(frame);
         return;
