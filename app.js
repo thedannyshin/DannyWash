@@ -131,7 +131,7 @@
 
   const FEATURE_UNLOCKS = {
     "take-a-look": {
-      label: "Take a look",
+      label: "Take a Look",
       minLifetimeCents: ATTEND_FUNERAL_MIN_CENTS,
       shouldCelebrate: () => !died.hidden && !died.classList.contains("is-in"),
       beforeCelebration: () => {
@@ -665,7 +665,7 @@
     for (const id of tickleCooldownTimers) window.clearTimeout(id);
     tickleCooldownTimers = [];
     if (tickleBtn) tickleBtn.disabled = false;
-    if (tickleLabel) tickleLabel.textContent = "tickle";
+    if (tickleLabel) tickleLabel.textContent = "Tickle";
   }
 
   function stopTickleAudio() {
@@ -738,13 +738,13 @@
     playTickleClip();
     tickleBtn.disabled = true;
     const cooldownSec = Math.round(TICKLE_COOLDOWN_MS / 1000);
-    if (tickleLabel) tickleLabel.textContent = `tickle (${cooldownSec}s)`;
+    if (tickleLabel) tickleLabel.textContent = `Tickle (${cooldownSec}s)`;
 
     for (let sec = cooldownSec - 1; sec >= 1; sec -= 1) {
       const remain = sec;
       tickleCooldownTimers.push(window.setTimeout(() => {
         if (wash.hidden || !tickleLabel) return;
-        tickleLabel.textContent = `tickle (${remain}s)`;
+        tickleLabel.textContent = `Tickle (${remain}s)`;
       }, (TICKLE_COOLDOWN_MS - remain * 1000)));
     }
 
@@ -752,7 +752,7 @@
       tickleCooldownTimers = [];
       if (wash.hidden || !tickleBtn) return;
       tickleBtn.disabled = false;
-      if (tickleLabel) tickleLabel.textContent = "tickle";
+      if (tickleLabel) tickleLabel.textContent = "Tickle";
     }, TICKLE_COOLDOWN_MS));
   }
 
@@ -1605,8 +1605,8 @@
     attendFuneralBtn.setAttribute(
       "aria-label",
       unlocked
-        ? "Take a look at the funeral"
-        : `Take a look is locked. ${formatMoney(remaining)} more to unlock.`,
+        ? "Take a Look at the funeral"
+        : `Take a Look is locked. ${formatMoney(remaining)} more to unlock.`,
     );
   }
 
@@ -1978,7 +1978,7 @@
     for (const id of flowerDripTimers) window.clearTimeout(id);
     flowerDripTimers = [];
     if (flowerDripBtn) flowerDripBtn.disabled = false;
-    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
+    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 Flower";
   }
 
   function sendOneFlower() {
@@ -1986,18 +1986,18 @@
     const rect = flowerDripBtn.getBoundingClientRect();
     spawnWanderingRose(rect.left + rect.width / 2, rect.top + rect.height / 2);
     flowerDripBtn.disabled = true;
-    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower (2s)";
+    if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 Flower (2s)";
 
     flowerDripTimers.push(window.setTimeout(() => {
       if (died.hidden || !flowerDripLabel) return;
-      flowerDripLabel.textContent = "Send 1 flower (1s)";
+      flowerDripLabel.textContent = "Send 1 Flower (1s)";
     }, 1000));
 
     flowerDripTimers.push(window.setTimeout(() => {
       flowerDripTimers = [];
       if (died.hidden || !flowerDripBtn) return;
       flowerDripBtn.disabled = false;
-      if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 flower";
+      if (flowerDripLabel) flowerDripLabel.textContent = "Send 1 Flower";
     }, FLOWER_DRIP_MS));
   }
 
@@ -2872,7 +2872,7 @@
     if (tryCrashBtn) tryCrashBtn.disabled = true;
     if (tryJamBtn) tryJamBtn.disabled = true;
     if (tryUnlockBtn) tryUnlockBtn.disabled = true;
-    const label = FEATURE_UNLOCKS["take-a-look"]?.label || "Take a look";
+    const label = FEATURE_UNLOCKS["take-a-look"]?.label || "Take a Look";
     showFeatureUnlock(label, resetToStart);
   }
 
