@@ -403,35 +403,27 @@
   }
 
   // Must run synchronously inside the user tap — no awaits before this.
+  // Do NOT muted-play every <audio> element here: Chrome iOS often ignores mute
+  // or fails the pause, so funeral/jam/celebrate/etc. all blast at once.
   function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    ensureAudioContext();
+    const ctx = ensureAudioContext();
     preloadDelayedSounds();
 
-    // Also warm HTML elements used during later taps (tip / goodbye).
-    for (const el of [tipAudio, goodbyeAudio, goodbyeLowtipAudio, slamAudio, washLine1Audio, washLine2Audio, arriveAudio, hightipAudio, plateBreakAudio, dannyLeftAudio, celebrateAudio, funeralAudio, jamAudio]) {
-      try {
-        el.muted = true;
-        const playPromise = el.play();
-        if (playPromise && typeof playPromise.then === "function") {
-          playPromise
-            .then(() => {
-              el.pause();
-              el.currentTime = 0;
-              el.muted = false;
-            })
-            .catch(() => {
-              el.muted = false;
-            });
-        } else {
-          el.pause();
-          el.currentTime = 0;
-          el.muted = false;
-        }
-      } catch {
-        el.muted = false;
-      }
+    // A near-silent Web Audio blip is enough to unlock the audio session on iOS.
+    if (!ctx) return;
+    try {
+      const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      gain.gain.value = 0.0001;
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+    } catch {
+      // Ignore
     }
   }
 
@@ -3243,10 +3235,9 @@
     if (tryJamBtn) tryJamBtn.disabled = true;
     if (tryUnlockBtn) tryUnlockBtn.disabled = true;
 
-    // Start the car/coming track first so mobile doesn't drop it
-    // behind muted unlock plays for the other SFX.
-    playComing();
+    // Unlock Web Audio, then start the coming bed from the same tap gesture.
     unlockAudio();
+    playComing();
     showMap();
   }
 
